@@ -1,0 +1,29 @@
+# 此文件为 EditorConfig 配置文件，用于设置跨编辑器的代码格式化规则。
+# root = true 表示此文件是根配置文件。
+root = true
+
+[*]
+charset = utf-8 # 文件字符集为 UTF-8
+end_of_line = lf # 行结束符为 LF
+ij_xml_attribute_wrap = off # IntelliJ IDEA 中 XML 属性不换行
+ij_xml_text_wrap = off # IntelliJ IDEA 中 XML 文本不换行
+indent_size = 4 # 缩进大小为 4 个空格
+#indent_style = space # 使用空格进行缩进
+indent_style = tab
+insert_final_newline = false # 不在文件末尾插入空行
+max_line_length = 150 # 行长度限制为 150 个字符
+trim_trailing_whitespace = true # 删除行尾的空格
+csharp_new_line_before_open_brace = none
+
+[{*.json,*.yml}]
+indent_size = 2 # 对于 JSON 和 YAML 文件，缩进大小为 2 个空格
+
+[*.cs]
+# Microsoft .NET properties
+csharp_indent_braces = false # 设置为false表示花括号不跟随代码行缩进
+#csharp_new_line_before_open_brace = local_functions, methods, types # 这里设置为local_functions, methods, types，表示在局部函数、方法和类型定义的开放花括号前应换行
+# 不在左大括号前换行
+csharp_new_line_before_open_brace = none
+csharp_new_line_before_else = false
+csharp_new_line_before_catch = false
+csharp_new_line_before_finally = false
