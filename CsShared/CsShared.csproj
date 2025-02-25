@@ -6,5 +6,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+<!-- <ItemGroup>
+<Compile Include="../CsShared/GlobalUsing.cs" />
+</ItemGroup> -->
 
 </Project>

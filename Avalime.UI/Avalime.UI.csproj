@@ -21,4 +21,7 @@
     </PackageReference>
     <PackageReference Include="CommunityToolkit.Mvvm" />
   </ItemGroup>
+  <ItemGroup>
+<Compile Include="../CsShared/GlobalUsing.cs" />
+</ItemGroup>
 </Project>
