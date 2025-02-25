@@ -5,10 +5,10 @@ using Avalonia.Data.Core.Plugins;
 using System.Linq;
 using Avalonia.Markup.Xaml;
 using Avalime.ViewModels;
-using Avalime.Views;
+using Avalime.UI.Views;
 using Avalonia.Controls;
 
-namespace Avalime;
+namespace Avalime.UI;
 
 public partial class App : Application {
 	public override void Initialize() {
@@ -22,9 +22,12 @@ public partial class App : Application {
 			DisableAvaloniaDataAnnotationValidation();
 			desktop.MainWindow = new MainWindow {
 				DataContext = new MainViewModel()
-				,MinWidth = 0
-				,MinHeight = 0
-				,SizeToContent = SizeToContent.WidthAndHeight // 自動調整大小
+				,
+				MinWidth = 0
+				,
+				MinHeight = 0
+				,
+				SizeToContent = SizeToContent.WidthAndHeight // 自動調整大小
 			};
 		} else if (ApplicationLifetime is ISingleViewApplicationLifetime singleViewPlatform) {
 			singleViewPlatform.MainView = new MainView {

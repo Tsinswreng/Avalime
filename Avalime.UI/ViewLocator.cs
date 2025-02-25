@@ -3,7 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using Avalime.ViewModels;
 
-namespace Avalime;
+namespace Avalime.UI;
 
 public class ViewLocator : IDataTemplate {
 	public Control? Build(object? param) {

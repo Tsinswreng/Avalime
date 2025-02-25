@@ -1,6 +1,6 @@
 using Avalonia.Controls;
 
-namespace Avalime.Views;
+namespace Avalime.UI.Views;
 
 public partial class MainView : UserControl {
 	public MainView() {
@@ -8,5 +8,5 @@ public partial class MainView : UserControl {
 	}
 
 
-	
+
 }
