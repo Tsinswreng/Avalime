@@ -1,6 +1,7 @@
 ﻿using System;
 using Avalime.UI;
 using Avalonia;
+using Avalonia.Media;
 
 namespace Avalime.Desktop;
 
@@ -14,9 +15,16 @@ sealed class Program
         .StartWithClassicDesktopLifetime(args);
 
     // Avalonia configuration, don't remove; also used by visual designer.
-    public static AppBuilder BuildAvaloniaApp()
-        => AppBuilder.Configure<App>()
+    public static AppBuilder BuildAvaloniaApp(){
+		var options = new FontManagerOptions {
+           DefaultFamilyName = "孤鹜 筑紫明朝",  // 默认字体
+           FontFallbacks = new[] { new FontFallback { FontFamily = "Microsoft YaHei" } } // 备选字体
+       };
+		return AppBuilder.Configure<App>()
             .UsePlatformDetect()
-            .WithInterFont()
+            //.WithInterFont()
+			.With(options)
             .LogToTrace();
+	}
+
 }
