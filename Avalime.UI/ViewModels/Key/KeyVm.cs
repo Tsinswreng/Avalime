@@ -1,6 +1,8 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using Avalonia.Input;
+using Avalonia.Remote.Protocol.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace Avalime.ViewModels.Key;
+namespace Avalime.ViewModels.key;
 
 public partial class KeyVm
 	:ViewModelBase
@@ -13,5 +15,7 @@ public partial class KeyVm
 		get => _label;
 		set => SetProperty(ref _label, value);
 	}
+
+
 
 }

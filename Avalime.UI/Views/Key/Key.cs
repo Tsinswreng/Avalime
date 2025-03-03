@@ -1,5 +1,5 @@
 using Avalime.UI.Ext;
-using Avalime.ViewModels.Key;
+using Avalime.ViewModels.key;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Data;
@@ -31,6 +31,18 @@ public partial class Key : UserControl {
 
 	protected zero _style(){
 
+		var noCornerRadius = new Style(x=>
+			x.Is<Control>()
+		);
+		Styles.Add(noCornerRadius);
+		{
+			var o = noCornerRadius;
+			o.set(
+				CornerRadiusProperty
+				,new CornerRadius(0)
+			);
+		}
+
 		var btn = new Style(x=>
 			x.Is<Button>()
 			// .Template()
@@ -47,8 +59,14 @@ public partial class Key : UserControl {
 				PaddingProperty
 				,new Thickness(0)
 			);
-
-
+			o.set(
+				VerticalAlignmentProperty
+				,VerticalAlignment.Stretch
+			);
+			o.set(
+				HorizontalAlignmentProperty
+				,HorizontalAlignment.Stretch
+			);
 		}
 
 		var container= new Style(x=>
@@ -153,7 +171,6 @@ public partial class Key : UserControl {
 					}//~conf btn:Button
 				}}//~keyBorder:Border
 			}}//~container
-			//
 		}}//~btn
 		return 0;
 	}

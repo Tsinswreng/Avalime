@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Avalime.UI.Ext;
-using Avalime.ViewModels.Key;
+using Avalime.ViewModels.key;
 using Avalime.ViewModels.KeyBoard;
 using Avalime.Views.Key;
 using Avalonia.Controls;
@@ -25,7 +25,7 @@ public partial class KeyBoard : UserControl{
 		var gridLine = new Style(x=>
 			x.Is<Grid>()
 		);
-		//Styles.Add(gridLine);
+		Styles.Add(gridLine);
 		{
 			gridLine.set(
 				Grid.ShowGridLinesProperty
@@ -38,7 +38,7 @@ public partial class KeyBoard : UserControl{
 	public static IList<RowDefinition> Rd_Auto(i32 n){
 		var rd = new List<RowDefinition>();
 		for(i32 i = 0; i < n; i++){
-			rd.Add(new RowDefinition(){Height = GridLength.Auto});
+			rd.Add(new RowDefinition(){Height = GridLength.Star});
 		}
 		return rd;
 	}
@@ -46,7 +46,7 @@ public partial class KeyBoard : UserControl{
 	public static IList<ColumnDefinition> Cd_Auto(i32 n){
 		var rd = new List<ColumnDefinition>();
 		for(i32 i = 0; i < n; i++){
-			rd.Add(new ColumnDefinition(){Width = GridLength.Auto});
+			rd.Add(new ColumnDefinition(){Width = GridLength.Star});
 		}
 		return rd;
 	}
