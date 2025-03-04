@@ -13,6 +13,7 @@ public partial class KeyBoard : UserControl{
 	public KeyBoard(){
 		_style();
 		_render();
+
 	}
 
 	public KeyBoardVm? ctx{

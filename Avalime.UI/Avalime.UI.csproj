@@ -23,5 +23,6 @@
   </ItemGroup>
   <ItemGroup>
 <Compile Include="../CsShared/GlobalUsing.cs" />
+<ProjectReference Include="../CsRimeApi/RimeApi/RimeApi.csproj"/>
 </ItemGroup>
 </Project>
