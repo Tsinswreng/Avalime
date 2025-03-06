@@ -17,15 +17,18 @@ public class TopBar : UserControl {
 		Content = ans;
 		{
 			{
-				var testSwipBtn = new SwipeButton { Content = "swipe" };
+				var testSwipBtn = new LongPressButton { Content = "swipe" };
 				ans.Children.Add(testSwipBtn);
 				{
 					var o = testSwipBtn;
-					o.Swipe += (sender, e) => {
-						System.Console.WriteLine(e.Direction);
-					};
+					// o.Swipe += (sender, e) => {
+					// 	System.Console.WriteLine(e.Direction);
+					// };
 					o.Click += (sender, e) => {
 						System.Console.WriteLine("click");
+					};
+					o.LongPressed += (sender, e) => {
+						System.Console.WriteLine("long press");
 					};
 				}
 			}
