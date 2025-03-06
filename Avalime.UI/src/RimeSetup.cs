@@ -51,7 +51,9 @@ unsafe public class RimeSetup
 		traits->data_size = RimeUtil.dataSize<RimeTraits>();
 		traits->user_data_dir = "D:/Program Files/Rime/User_Data".cStr();
 		traits->app_name = "rime.avalime".cStr();
-		var rimeApi = RimeApiFn.rime_get_api();
+		//var rimeApi = RimeApiFn.rime_get_api();
+		var rime_get_api = RimeDllLoader.loadFn_rime_get_api("rime");
+		var rimeApi = rime_get_api();
 		rime = new DelegateRimeApiFn(rimeApi);
 
 		return 0;
