@@ -26,6 +26,7 @@ public class SwipeButton : Button {
 	}
 
 
+
 	private void _onPointerPressed(object sender, PointerPressedEventArgs e) {
 		//System.Console.WriteLine("pressed");//t -
 		_startPoint = e.GetPosition(this); // 记录初始触摸点

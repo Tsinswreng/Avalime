@@ -3,7 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia;
-using Avalime.controls;
+using Avalime.UI.controls;
 
 
 
@@ -17,7 +17,7 @@ public class TopBar : UserControl {
 		Content = ans;
 		{
 			{
-				var testSwipBtn = new LongPressButton { Content = "swipe" };
+				var testSwipBtn = new LongPressBtn { Content = "swipe" };
 				ans.Children.Add(testSwipBtn);
 				{
 					var o = testSwipBtn;

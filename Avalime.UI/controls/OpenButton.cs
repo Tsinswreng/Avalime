@@ -1,3 +1,7 @@
+/*
+
+Func<$1, zero>
+ */
 using System;
 using Avalonia.Controls;
 using Avalonia.Input;
@@ -15,7 +19,7 @@ public class OpenButton:Button{
 	}
 
 	#region override
-	public Action<KeyEventArgs>? f_OnKeyDown{get;set;}
+	public Func<KeyEventArgs, zero>? f_OnKeyDown{get;set;}
 	public void b_OnKeyDown(KeyEventArgs e){
 		base.OnKeyDown(e);
 	}
@@ -29,7 +33,7 @@ public class OpenButton:Button{
 	}
 	//-
 
-	public Action<KeyEventArgs>? f_OnKeyUp{get;set;}
+	public Func<KeyEventArgs, zero>? f_OnKeyUp{get;set;}
 	public void b_OnKeyUp(KeyEventArgs e){
 		base.OnKeyUp(e);
 	}
@@ -43,7 +47,7 @@ public class OpenButton:Button{
 	}
 	//-
 
-	public Action<PointerPressedEventArgs>? f_OnPointerPressed{get;set;}
+	public Func<PointerPressedEventArgs, zero>? f_OnPointerPressed{get;set;}
 	public void b_OnPointerPressed(PointerPressedEventArgs e){
 		base.OnPointerPressed(e);
 	}
@@ -57,7 +61,7 @@ public class OpenButton:Button{
 	}
 	//-
 
-	public Action<PointerReleasedEventArgs>? f_OnPointerReleased{get;set;}
+	public Func<PointerReleasedEventArgs, zero>? f_OnPointerReleased{get;set;}
 	public void b_OnPointerReleased(PointerReleasedEventArgs e){
 		base.OnPointerReleased(e);
 	}
@@ -71,7 +75,7 @@ public class OpenButton:Button{
 	}
 	//-
 
-	public Action<PointerCaptureLostEventArgs>? f_OnPointerCaptureLost{get;set;}
+	public Func<PointerCaptureLostEventArgs, zero>? f_OnPointerCaptureLost{get;set;}
 	public void b_OnPointerCaptureLost(PointerCaptureLostEventArgs e){
 		base.OnPointerCaptureLost(e);
 	}
@@ -85,7 +89,7 @@ public class OpenButton:Button{
 	}
 	//-
 
-	public Action<RoutedEventArgs>? f_OnLostFocus{get;set;}
+	public Func<RoutedEventArgs, zero>? f_OnLostFocus{get;set;}
 	public void b_OnLostFocus(RoutedEventArgs e){
 		base.OnLostFocus(e);
 	}
@@ -97,7 +101,7 @@ public class OpenButton:Button{
 		f_OnLostFocus.Invoke(e);
 	}
 	//-
-	public Action<TemplateAppliedEventArgs>? f_OnApplyTemplate{get;set;}
+	public Func<TemplateAppliedEventArgs, zero>? f_OnApplyTemplate{get;set;}
 	public void b_OnApplyTemplate(TemplateAppliedEventArgs e){
 		base.OnApplyTemplate(e);
 	}
@@ -109,7 +113,7 @@ public class OpenButton:Button{
 		f_OnApplyTemplate.Invoke(e);
 	}
 	//-
-	public Action<AvaloniaPropertyChangedEventArgs>? f_OnPropertyChanged{get;set;}
+	public Func<AvaloniaPropertyChangedEventArgs, zero>? f_OnPropertyChanged{get;set;}
 	public void b_OnPropertyChanged(AvaloniaPropertyChangedEventArgs change){
 		base.OnPropertyChanged(change);
 	}
