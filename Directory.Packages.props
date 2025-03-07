@@ -19,5 +19,6 @@
 
         <PackageVersion Include="Xamarin.AndroidX.Core.SplashScreen" Version="1.0.1.1" />
 		<PackageVersion Include="System.Reactive" Version="6.0.1" />
+		<PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="9.0.2" />
     </ItemGroup>
 </Project>

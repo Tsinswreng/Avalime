@@ -95,10 +95,10 @@ public partial class Key : UserControl {
 		Styles.Add(btnPointerover);
 		{
 			var o = btnPointerover;
-			o.set(
-				BackgroundProperty
-				,Brushes.Yellow
-			);
+			// o.set(
+			// 	BackgroundProperty
+			// 	,Brushes.Yellow
+			// );
 		}
 
 		var btnPressed = new Style(x=>
@@ -110,10 +110,10 @@ public partial class Key : UserControl {
 		Styles.Add(btnPressed);
 		{
 			var o = btnPressed;
-			o.set(
-				BackgroundProperty
-				,Brushes.Green
-			);
+			// o.set(
+			// 	BackgroundProperty
+			// 	,Brushes.Green
+			// );
 		}
 
 		var container= new Style(x=>

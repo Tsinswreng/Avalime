@@ -7,11 +7,16 @@ using Avalonia.Markup.Xaml;
 using Avalime.ViewModels;
 using Avalime.UI.Views;
 using Avalonia.Controls;
+using System;
 
 namespace Avalime.UI;
 
 public partial class App : Application {
 
+	public static IServiceProvider ServiceProvider { get; private set; } = null!;
+	public static void ConfigureServices(IServiceProvider serviceProvider){
+		ServiceProvider = serviceProvider;
+	}
 
 	public override void Initialize() {
 		AvaloniaXamlLoader.Load(this);

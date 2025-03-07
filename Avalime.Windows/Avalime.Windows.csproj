@@ -9,4 +9,20 @@
 	<PublishAot>true</PublishAot>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Avalonia.Desktop" />
+    <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
+    <PackageReference Include="Avalonia.Diagnostics" >
+      <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
+      <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+
+  <ItemGroup>
+	<ProjectReference Include="../Avalime.Core/Avalime.Core.csproj" />
+	<ProjectReference Include="../Avalime.UI/Avalime.UI.csproj" />
+	<Compile Include="../CsShared/GlobalUsing.cs" />
+  </ItemGroup>
+
 </Project>

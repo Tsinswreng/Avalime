@@ -28,10 +28,11 @@ public partial class KeyBoard : UserControl{
 		);
 		Styles.Add(gridLine);
 		{
-			gridLine.set(
-				Grid.ShowGridLinesProperty
-				,true
-			);
+			var o = gridLine;
+			// o.set(
+			// 	Grid.ShowGridLinesProperty
+			// 	,true
+			// );
 		}
 		return 0;
 	}
