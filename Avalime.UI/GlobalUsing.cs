@@ -1,0 +1,1 @@
+//global using CBE = Avalonia.Markup.Xaml.MarkupExtensions.CompiledBindingExtension;

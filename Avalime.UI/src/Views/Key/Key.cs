@@ -1,11 +1,21 @@
+using System;
+using System.Linq.Expressions;
+using System.Reactive.Linq;
 using Avalime.UI.Ext;
 using Avalime.ViewModels.key;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Data;
+using Avalonia.Data.Core;
+using Avalonia.Interactivity;
 using Avalonia.Layout;
+using Avalonia.Markup.Xaml.MarkupExtensions;
+using Avalonia.Markup.Xaml.MarkupExtensions.CompiledBindings;
 using Avalonia.Media;
 using Avalonia.Styling;
+using Shr.Av;
+using Shr.Avalonia;
+
 
 namespace Avalime.Views.Key;
 
@@ -164,14 +174,30 @@ public partial class Key : UserControl {
 					{//conf btn:Button
 						var o = label;
 						o.Classes.Add(cls.label);
-						o.Bind(
-							TextBlock.TextProperty
-							,new Binding(nameof(ctx.label))
-						);
-					}//~conf btn:Button
+						// o.Bind(
+						// 	TextBlock.TextProperty
+						// 	//,new Binding(nameof(ctx.label))
+						// 	// ,o.GetObservable(TextBlock.TextProperty)
+						// 	// 	.OfType<KeyVm>()
+						// 	// 	.Select(x=>x?.label)
+						// );
+
+
+
+o.Bind(
+	TextBlock.TextProperty
+	,new CBE(CBE.cpth<KeyVm, str>(x=>x.label))
+);
+
+//new Binding(""){Mode=BindingMode.OneTime};
+
+
+					}//
 				}}//~keyBorder:Border
 			}}//~container
 		}}//~btn
 		return 0;
 	}
 }
+
+

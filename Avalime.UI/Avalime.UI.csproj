@@ -22,6 +22,7 @@
       <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
     </PackageReference>
     <PackageReference Include="CommunityToolkit.Mvvm" />
+	<PackageReference Include="System.Reactive" />
   </ItemGroup>
   <ItemGroup>
 <Compile Include="../CsShared/GlobalUsing.cs" />

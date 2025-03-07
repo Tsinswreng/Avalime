@@ -10,6 +10,7 @@ public class SwipeLongPressBtn
 	:OpenButton
 	,I_SwipeBtn
 	,I_LongPressBtn
+	,I_SwipeLonePressBtn
 {
 
 	public f64 SwipeThreshold{
@@ -44,15 +45,15 @@ public class SwipeLongPressBtn
 	}
 
 	protected override void OnPointerPressed(PointerPressedEventArgs e) {
-		base.OnPointerPressed(e);
 		_swipeBtnFn._OnPointerPressed(this,e);
 		_longPressBtnFn._OnPointerPressed(e);
+		base.OnPointerPressed(e);
 	}
 
 	protected override void OnPointerReleased(PointerReleasedEventArgs e) {
-		base.OnPointerReleased(e);
 		_swipeBtnFn._OnPointerReleased(this,e);
 		_longPressBtnFn._OnPointerReleased(e);
+		base.OnPointerReleased(e);
 	}
 
 
