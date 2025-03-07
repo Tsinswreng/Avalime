@@ -1,13 +1,13 @@
 namespace Avalime.Core.keys;
 
-public class Key:I_Key{
+public class KeySymbol:I_KeySymbol{
 	public str name{get;set;}="";
-	public Key(){}
-	public Key(str name){
+	public KeySymbol(){}
+	public KeySymbol(str name){
 		this.name = name;
 	}
-	public static I_Key k(str name){
-		var key = new Key(name);
+	public static I_KeySymbol k(str name){
+		var key = new KeySymbol(name);
 		return key;
 	}
 }

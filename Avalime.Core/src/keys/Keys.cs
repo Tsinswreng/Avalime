@@ -1,10 +1,10 @@
-using static Avalime.Core.keys.Key;
-using IK = Avalime.Core.keys.I_Key;
+using static Avalime.Core.keys.KeySymbol;
+using IK = Avalime.Core.keys.I_KeySymbol;
 namespace Avalime.Core.keys;
 
-using KS = Keys;
+using KS = KeySymbols;
 
-public static class Keys{
+public static class KeySymbols{
 	#region numbers
 	public static IK Tilde{get;} = k("~");
 	public static IK Grave{get;} = k("`");

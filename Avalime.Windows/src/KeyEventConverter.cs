@@ -23,33 +23,33 @@ public class KeyEventConverter{
 		return (keyCode, 0, 0, dwFlags);
 	}
 
-	public IDictionary<I_Key, i64> name__keyCode = new Dictionary<I_Key, i64>{
-		{Keys.a, 0x41}
-		,{Keys.b, 0x42}
-		,{Keys.c, 0x43}
-		,{Keys.d, 0x44}
-		,{Keys.e, 0x45}
-		,{Keys.f, 0x46}
-		,{Keys.g, 0x47}
-		,{Keys.h, 0x48}
-		,{Keys.i, 0x49}
-		,{Keys.j, 0x4A}
-		,{Keys.k, 0x4B}
-		,{Keys.l, 0x4C}
-		,{Keys.m, 0x4D}
-		,{Keys.n, 0x4E}
-		,{Keys.o, 0x4F}
-		,{Keys.p, 0x50}
-		,{Keys.q, 0x51}
-		,{Keys.r, 0x52}
-		,{Keys.s, 0x53}
-		,{Keys.t, 0x54}
-		,{Keys.u, 0x55}
-		,{Keys.v, 0x56}
-		,{Keys.w, 0x57}
-		,{Keys.x, 0x58}
-		,{Keys.y, 0x59}
-		,{Keys.z, 0x5A}
+	public IDictionary<I_KeySymbol, i64> name__keyCode = new Dictionary<I_KeySymbol, i64>{
+		{KeySymbols.a, 0x41}
+		,{KeySymbols.b, 0x42}
+		,{KeySymbols.c, 0x43}
+		,{KeySymbols.d, 0x44}
+		,{KeySymbols.e, 0x45}
+		,{KeySymbols.f, 0x46}
+		,{KeySymbols.g, 0x47}
+		,{KeySymbols.h, 0x48}
+		,{KeySymbols.i, 0x49}
+		,{KeySymbols.j, 0x4A}
+		,{KeySymbols.k, 0x4B}
+		,{KeySymbols.l, 0x4C}
+		,{KeySymbols.m, 0x4D}
+		,{KeySymbols.n, 0x4E}
+		,{KeySymbols.o, 0x4F}
+		,{KeySymbols.p, 0x50}
+		,{KeySymbols.q, 0x51}
+		,{KeySymbols.r, 0x52}
+		,{KeySymbols.s, 0x53}
+		,{KeySymbols.t, 0x54}
+		,{KeySymbols.u, 0x55}
+		,{KeySymbols.v, 0x56}
+		,{KeySymbols.w, 0x57}
+		,{KeySymbols.x, 0x58}
+		,{KeySymbols.y, 0x59}
+		,{KeySymbols.z, 0x5A}
 	};
 
 	// IDictionary<string ,int> test = new Dictionary<string ,int>{

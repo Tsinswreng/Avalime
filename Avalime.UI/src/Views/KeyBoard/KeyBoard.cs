@@ -130,22 +130,22 @@ public partial class KeyBoard : UserControl{
 					// 	row1.Children.Add(keyView);
 					// 	Grid.SetColumn(keyView, idx_row1++);
 					// };
-					var k = (I_Key key)=>{
+					var k = (I_KeySymbol key)=>{
 						var view = kView(key);
 						row1.Children.Add(view);
 						Grid.SetColumn(view, idx_row1++);
 					};
-					k(Keys.q);
-					k(Keys.w);
-					k(Keys.e);
-					k(Keys.r);
-					k(Keys.t);
-					k(Keys.y);
-					k(Keys.u);
-					k(Keys.i);
-					k(Keys.o);
-					k(Keys.p);
-					k(Keys.SquareBracket_L);
+					k(KeySymbols.q);
+					k(KeySymbols.w);
+					k(KeySymbols.e);
+					k(KeySymbols.r);
+					k(KeySymbols.t);
+					k(KeySymbols.y);
+					k(KeySymbols.u);
+					k(KeySymbols.i);
+					k(KeySymbols.o);
+					k(KeySymbols.p);
+					k(KeySymbols.SquareBracket_L);
 				}}//~row1:Grid
 				var row2 = new Grid();
 				keysGrid.Children.Add(row2);
@@ -157,23 +157,23 @@ public partial class KeyBoard : UserControl{
 				}
 				{{//row2:Grid
 					//
-					var k=(I_Key key)=>{
+					var k=(I_KeySymbol key)=>{
 						var keyView = _key(label);
 						row2.Children.Add(keyView);
 						Grid.SetColumn(keyView, idx_row2++);
 					};
 					//
-					k(Keys.A);
-					k(Keys.S);
-					k(Keys.D);
-					k(Keys.F);
-					k(Keys.G);
-					k(Keys.H);
-					k(Keys.J);
-					k(Keys.K);
-					k(Keys.L);
-					k(Keys.;);
-					k(Keys.');
+					k(KeySymbols.A);
+					k(KeySymbols.S);
+					k(KeySymbols.D);
+					k(KeySymbols.F);
+					k(KeySymbols.G);
+					k(KeySymbols.H);
+					k(KeySymbols.J);
+					k(KeySymbols.K);
+					k(KeySymbols.L);
+					k(KeySymbols.;);
+					k(KeySymbols.');
 				}}//~row2:Grid
 				var row3 = new Grid();
 				keysGrid.Children.Add(row3);
@@ -269,7 +269,7 @@ public partial class KeyBoard : UserControl{
 	/// </summary>
 	/// <param name="key"></param>
 	/// <returns></returns>
-	protected KeyView kView(I_Key key){
+	protected KeyView kView(I_KeySymbol key){
 		var vm = new KeyVm();
 		vm.key_click = key;
 		vm.imeState = ctx!.imeState;

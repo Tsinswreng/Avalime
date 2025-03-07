@@ -39,8 +39,8 @@ public partial class KeyVm
 
 	public I_ImeState imeState{get;set;}
 
-	protected I_Key _key_click;
-	public I_Key key_click{
+	protected I_KeySymbol _key_click;
+	public I_KeySymbol key_click{
 		get{return _key_click;}
 		set{
 			label = value.name??"";
