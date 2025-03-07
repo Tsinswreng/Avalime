@@ -15,12 +15,14 @@ public class TopBar : UserControl {
 	protected zero _render() {
 		var ans = new Grid();
 		Content = ans;
-		{
-			{
-				var testSwipBtn = new LongPressBtn { Content = "swipe" };
-				ans.Children.Add(testSwipBtn);
+		{{
+			var wrap = new WrapPanel();
+			ans.Children.Add(wrap);
+			{{
+				var testLongPressBtn = new LongPressBtn { Content = "longPress" };
+				wrap.Children.Add(testLongPressBtn);
 				{
-					var o = testSwipBtn;
+					var o = testLongPressBtn;
 					// o.Swipe += (sender, e) => {
 					// 	System.Console.WriteLine(e.Direction);
 					// };
@@ -31,8 +33,35 @@ public class TopBar : UserControl {
 						System.Console.WriteLine("long press");
 					};
 				}
-			}
-		}//~ans
+
+				var swipeBtn = new SwipeBtn { Content = "swipe" };
+				wrap.Children.Add(swipeBtn);
+				{
+					var o = swipeBtn;
+					o.Swipe += (sender, e) => {
+						System.Console.WriteLine(e.Direction);
+					};
+					o.Click += (sender, e) => {
+						System.Console.WriteLine("click");
+					};
+				}
+
+				var both = new SwipeLongPressBtn { Content = "both" };
+				wrap.Children.Add(both);
+				{
+					var o = both;
+					o.Swipe += (sender, e) => {
+						System.Console.WriteLine(e.Direction);
+					};
+					o.Click += (sender, e) => {
+						System.Console.WriteLine("click");
+					};
+					o.LongPressed += (sender, e) => {
+						System.Console.WriteLine("long press");
+					};
+				}
+			}}//~wrap
+		}}//~ans
 		return 0;
 	}
 }
