@@ -4,7 +4,9 @@ using System.Reactive.Linq;
 using Avalime.UI.Ext;
 using Avalime.ViewModels.key;
 using Avalonia;
+using Avalonia.Animation;
 using Avalonia.Controls;
+using Avalonia.Controls.Presenters;
 using Avalonia.Data;
 using Avalonia.Data.Core;
 using Avalonia.Interactivity;
@@ -13,10 +15,10 @@ using Avalonia.Markup.Xaml.MarkupExtensions;
 using Avalonia.Markup.Xaml.MarkupExtensions.CompiledBindings;
 using Avalonia.Media;
 using Avalonia.Styling;
-using Shr.Av;
 using Shr.Avalonia;
-
-
+using Shr.Avalonia.util;
+using BaseBtn = Avalonia.Controls.Button;
+using Button = Avalime.UI.controls.SwipeLongPressBtn;
 namespace Avalime.Views.Key;
 
 public partial class Key : UserControl {
@@ -54,7 +56,8 @@ public partial class Key : UserControl {
 		}
 
 		var btn = new Style(x=>
-			x.Is<Button>()
+			x.Is<BaseBtn>()
+			//x.OfType<Button>()
 			// .Template()
 			// .OfType<ContentControl>()
 		);
@@ -76,6 +79,40 @@ public partial class Key : UserControl {
 			o.set(
 				HorizontalAlignmentProperty
 				,HorizontalAlignment.Stretch
+			);
+			// o.set(
+			// 	BorderBrushProperty
+			// 	,Brushes.Aqua
+			// );
+		}
+
+		var btnPointerover = new Style(x=>
+			x.Is<BaseBtn>()
+			.Class(PsdCls.inst.pointerover)
+			.Template()
+			.OfType<ContentPresenter>()
+		);
+		Styles.Add(btnPointerover);
+		{
+			var o = btnPointerover;
+			o.set(
+				BackgroundProperty
+				,Brushes.Yellow
+			);
+		}
+
+		var btnPressed = new Style(x=>
+			x.Is<BaseBtn>()
+			.Class(PsdCls.inst.pressed)
+			.Template()
+			.OfType<ContentPresenter>()
+		);
+		Styles.Add(btnPressed);
+		{
+			var o = btnPressed;
+			o.set(
+				BackgroundProperty
+				,Brushes.Green
 			);
 		}
 
@@ -153,6 +190,12 @@ public partial class Key : UserControl {
 	protected zero _render(){
 		var btn = new Button();
 		Content = btn;
+		{
+			var o = btn;
+			o.Click += (s,e)=>{
+				Console.WriteLine("click");//t
+			};
+		}
 		{{
 			var container = new StackPanel();
 			btn.Content = container;
@@ -174,24 +217,10 @@ public partial class Key : UserControl {
 					{//conf btn:Button
 						var o = label;
 						o.Classes.Add(cls.label);
-						// o.Bind(
-						// 	TextBlock.TextProperty
-						// 	//,new Binding(nameof(ctx.label))
-						// 	// ,o.GetObservable(TextBlock.TextProperty)
-						// 	// 	.OfType<KeyVm>()
-						// 	// 	.Select(x=>x?.label)
-						// );
-
-
-
-o.Bind(
-	TextBlock.TextProperty
-	,new CBE(CBE.cpth<KeyVm, str>(x=>x.label))
-);
-
-//new Binding(""){Mode=BindingMode.OneTime};
-
-
+						o.Bind(
+							TextBlock.TextProperty
+							,new CBE(CBE.pth<KeyVm, str>(x=>x.label))
+						);
 					}//
 				}}//~keyBorder:Border
 			}}//~container
@@ -199,5 +228,3 @@ o.Bind(
 		return 0;
 	}
 }
-
-

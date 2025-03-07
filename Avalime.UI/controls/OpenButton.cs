@@ -18,6 +18,8 @@ public class OpenButton:Button{
 
 	}
 
+	protected override Type StyleKeyOverride => typeof(Button);
+
 	#region override
 	public Func<KeyEventArgs, zero>? f_OnKeyDown{get;set;}
 

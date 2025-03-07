@@ -2,6 +2,7 @@
 using System;
 using Avalime.controls;
 using Avalime.UI.controls.IF;
+using Avalonia.Controls;
 using Avalonia.Input;
 
 namespace Avalime.UI.controls;
@@ -30,7 +31,7 @@ public class SwipeLongPressBtn
 
 	public LongPressBtnFn _longPressBtnFn{get;set;} = new LongPressBtnFn();
 
-
+	protected override Type StyleKeyOverride => typeof(Button);
 	public SwipeLongPressBtn():base(){
 		_swipeBtnFn.onSwipe = (e)=>{
 			Swipe?.Invoke(this,e);

@@ -5,7 +5,9 @@ namespace Avalime.UI.Ext;
 
 public static class StyleExt{
 	public static zero set(this Style z, AvaloniaProperty property, object? value){
-		z.Setters.Add(new Setter(property, value));
+		var setter = new Setter(property, value);
+
+		z.Setters.Add(setter);
 		return 0;
 	}
 }

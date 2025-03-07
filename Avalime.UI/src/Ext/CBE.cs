@@ -28,7 +28,7 @@ public class CBE : CompiledBindingExtension{
 	// 	return cpth<T, Tar>(propertySelector);
 	// }
 
-	public static CompiledBindingPath cpth<T, Tar>(
+	public static CompiledBindingPath pth<T, Tar>(
 		Expression<Func<T, string>> propertySelector
 	){
 		var builder = new CompiledBindingPathBuilder();

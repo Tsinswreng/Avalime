@@ -197,3 +197,88 @@ var A = new KeyModel{
 
 ```
 
+
+
+
+= 自定義按鈕
+[2025-03-07T20:03:02.945+08:00_W10-5]
+
+```csharp
+public class MyButton : Button{
+	public MyButton():base(){
+
+	}
+	//見`https://docs.avaloniaui.net/docs/basics/user-interface/styling/styles#style-key`之StyleKey
+	protected override Type StyleKeyOverride => typeof(Button);
+}
+```
+
+用法:
+
+```csharp
+using BaseBtn = Avalonia.Controls.Button;
+
+var btn = new Style(x=>
+	x.Is<BaseBtn>()//須潙BaseBtn、若設作MyButton則不效。後亦然。
+	//x.OfType<Button>()
+	// .Template()
+	// .OfType<ContentControl>()
+);
+Styles.Add(btn);
+{
+	var o = btn;
+	o.set(
+		MarginProperty
+		,new Thickness(0)
+	);
+	o.set(
+		PaddingProperty
+		,new Thickness(0)
+	);
+	o.set(
+		VerticalAlignmentProperty
+		,VerticalAlignment.Stretch
+	);
+	o.set(
+		HorizontalAlignmentProperty
+		,HorizontalAlignment.Stretch
+	);
+	// o.set(
+	// 	BorderBrushProperty
+	// 	,Brushes.Aqua
+	// );
+}
+
+var btnPointerover = new Style(x=>
+	x.Is<BaseBtn>()
+	.Class(PsdCls.inst.pointerover)
+	.Template()
+	.OfType<ContentPresenter>()
+);
+Styles.Add(btnPointerover);
+{
+	var o = btnPointerover;
+	o.set(
+		BackgroundProperty
+		,Brushes.Yellow
+	);
+}
+
+var btnPressed = new Style(x=>
+	x.Is<BaseBtn>()
+	.Class(PsdCls.inst.pressed)
+	.Template()
+	.OfType<ContentPresenter>()
+);
+Styles.Add(btnPressed);
+{
+	var o = btnPressed;
+	o.set(
+		BackgroundProperty
+		,Brushes.Green
+	);
+}
+
+```
+
+
