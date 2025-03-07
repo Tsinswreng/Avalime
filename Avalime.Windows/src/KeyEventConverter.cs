@@ -24,32 +24,32 @@ public class KeyEventConverter{
 	}
 
 	public IDictionary<I_Key, i64> name__keyCode = new Dictionary<I_Key, i64>{
-		{Keys.A, 0x41}
-		,{Keys.B, 0x42}
-		,{Keys.C, 0x43}
-		,{Keys.D, 0x44}
-		,{Keys.E, 0x45}
-		,{Keys.F, 0x46}
-		,{Keys.G, 0x47}
-		,{Keys.H, 0x48}
-		,{Keys.I, 0x49}
-		,{Keys.J, 0x4A}
-		,{Keys.K, 0x4B}
-		,{Keys.L, 0x4C}
-		,{Keys.M, 0x4D}
-		,{Keys.N, 0x4E}
-		,{Keys.O, 0x4F}
-		,{Keys.P, 0x50}
-		,{Keys.Q, 0x51}
-		,{Keys.R, 0x52}
-		,{Keys.S, 0x53}
-		,{Keys.T, 0x54}
-		,{Keys.U, 0x55}
-		,{Keys.V, 0x56}
-		,{Keys.W, 0x57}
-		,{Keys.X, 0x58}
-		,{Keys.Y, 0x59}
-		,{Keys.Z, 0x5A}
+		{Keys.a, 0x41}
+		,{Keys.b, 0x42}
+		,{Keys.c, 0x43}
+		,{Keys.d, 0x44}
+		,{Keys.e, 0x45}
+		,{Keys.f, 0x46}
+		,{Keys.g, 0x47}
+		,{Keys.h, 0x48}
+		,{Keys.i, 0x49}
+		,{Keys.j, 0x4A}
+		,{Keys.k, 0x4B}
+		,{Keys.l, 0x4C}
+		,{Keys.m, 0x4D}
+		,{Keys.n, 0x4E}
+		,{Keys.o, 0x4F}
+		,{Keys.p, 0x50}
+		,{Keys.q, 0x51}
+		,{Keys.r, 0x52}
+		,{Keys.s, 0x53}
+		,{Keys.t, 0x54}
+		,{Keys.u, 0x55}
+		,{Keys.v, 0x56}
+		,{Keys.w, 0x57}
+		,{Keys.x, 0x58}
+		,{Keys.y, 0x59}
+		,{Keys.z, 0x5A}
 	};
 
 	// IDictionary<string ,int> test = new Dictionary<string ,int>{

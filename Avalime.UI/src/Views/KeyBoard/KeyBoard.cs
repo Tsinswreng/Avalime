@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Avalime.Core.keys;
 using Avalime.UI.Ext;
 using Avalime.ViewModels.key;
 using Avalime.ViewModels.KeyBoard;
@@ -11,9 +12,9 @@ namespace Avalime.UI.Views.KeyBoard;
 
 public partial class KeyBoard : UserControl{
 	public KeyBoard(){
+		DataContext = new KeyBoardVm();
 		_style();
 		_render();
-
 	}
 
 	public KeyBoardVm? ctx{
@@ -53,8 +54,8 @@ public partial class KeyBoard : UserControl{
 		return rd;
 	}
 
-	protected Key _key(str label){
-		var k = new Key();
+	protected KeyView _key(str label){
+		var k = new KeyView();
 		k.DataContext = new KeyVm(){label = label};
 		return k;
 	}
@@ -124,22 +125,38 @@ public partial class KeyBoard : UserControl{
 				}
 				{{//row1:Grid
 					//
-					var k=(str label)=>{
-						var keyView = _key(label);
-						row1.Children.Add(keyView);
-						Grid.SetColumn(keyView, idx_row1++);
+					// var strK=(str label)=>{
+					// 	var keyView = _key(label);
+					// 	row1.Children.Add(keyView);
+					// 	Grid.SetColumn(keyView, idx_row1++);
+					// };
+					var k = (I_Key key)=>{
+						var view = kView(key);
+						row1.Children.Add(view);
+						Grid.SetColumn(view, idx_row1++);
 					};
-					k("Q");
-					k("W");
-					k("E");
-					k("R");
-					k("T");
-					k("\\");
-					k("U");
-					k("I");
-					k("O");
-					k("P");
-					k("Y");
+					k(Keys.q);
+					k(Keys.w);
+					k(Keys.e);
+					k(Keys.r);
+					k(Keys.t);
+					k(Keys.BackSlash);
+					k(Keys.u);
+					k(Keys.i);
+					k(Keys.o);
+					k(Keys.p);
+					k(Keys.y);
+					// strK("Q");
+					// strK("W");
+					// strK("E");
+					// strK("R");
+					// strK("T");
+					// strK("\\");
+					// strK("U");
+					// strK("I");
+					// strK("O");
+					// strK("P");
+					// strK("Y");
 				}}//~row1:Grid
 				var row2 = new Grid();
 				keysGrid.Children.Add(row2);
@@ -256,6 +273,20 @@ public partial class KeyBoard : UserControl{
 			}}//~keysGrid:Grid
 		}}//~container:Grid
 		return 0;
+	}
+
+	/// <summary>
+	/// 並設imeState等
+	/// </summary>
+	/// <param name="key"></param>
+	/// <returns></returns>
+	protected KeyView kView(I_Key key){
+		var vm = new KeyVm();
+		vm.key_click = key;
+		vm.imeState = ctx!.imeState;
+		var ans = new KeyView();
+		ans.DataContext = vm;
+		return ans;
 	}
 
 

@@ -4,7 +4,8 @@ namespace Avalime.Windows;
 
 
 public class WindowsKeyProcessor
-	: I_KeyProcessor
+	:I_OsKeyProcessor
+	,I_ImeKeyProcessor//TODO test
 {
 
 	protected static WindowsKeyProcessor? _inst = null;

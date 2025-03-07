@@ -23,9 +23,11 @@
     </PackageReference>
     <PackageReference Include="CommunityToolkit.Mvvm" />
 	<PackageReference Include="System.Reactive" />
+	<PackageReference Include="Microsoft.Extensions.DependencyInjection"/>
   </ItemGroup>
   <ItemGroup>
 <Compile Include="../CsShared/GlobalUsing.cs" />
-<ProjectReference Include="../CsRimeApi/RimeApi/RimeApi.csproj"/>
+<ProjectReference Include="../Avalime.Core/Avalime.Core.csproj"/>
+<!-- <ProjectReference Include="../CsRimeApi/RimeApi/RimeApi.csproj"/> -->
 </ItemGroup>
 </Project>

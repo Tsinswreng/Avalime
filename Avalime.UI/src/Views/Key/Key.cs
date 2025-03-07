@@ -21,8 +21,8 @@ using BaseBtn = Avalonia.Controls.Button;
 using Button = Avalime.UI.controls.SwipeLongPressBtn;
 namespace Avalime.Views.Key;
 
-public partial class Key : UserControl {
-	public Key() {
+public partial class KeyView : UserControl {
+	public KeyView() {
 		//InitializeComponent();
 		DataContext = new KeyVm();
 		_style();
@@ -193,8 +193,9 @@ public partial class Key : UserControl {
 		{
 			var o = btn;
 			o.Click += (s,e)=>{
-				Console.WriteLine("click");//t
+				ctx?.click?.Invoke();
 			};
+
 		}
 		{{
 			var container = new StackPanel();

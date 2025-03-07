@@ -8,7 +8,8 @@ public static class Keys{
 	public static IK Space{get;} = k(nameof(KS.Space));
 	public static IK Enter{get;} = k(nameof(KS.Enter));
 	public static IK Backspace{get;} = k(nameof(KS.Backspace));
-	public static IK Tab{get;} = k(nameof(KS.Tab));
+	public static IK Tab{get;} = k("\t");
+	public static IK BackSlash{get;} = k("\\");
 
 	public static IK A{get;} = k(nameof(KS.A));
 	public static IK B{get;} = k(nameof(KS.B));

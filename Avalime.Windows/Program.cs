@@ -1,8 +1,10 @@
 ﻿using System;
+using Avalime.Core.keys;
 using Avalime.UI;
+using Avalime.Windows;
 using Avalonia;
 using Avalonia.Media;
-
+using Microsoft.Extensions.DependencyInjection;
 namespace Avalime.Desktop;
 
 sealed class Program
@@ -11,8 +13,27 @@ sealed class Program
 	// SynchronizationContext-reliant code before AppMain is called: things aren't initialized
 	// yet and stuff might break.
 	[STAThread]
-	public static void Main(string[] args) => BuildAvaloniaApp()
+	public static void Main(string[] args){
+		var services = new ServiceCollection();
+		services.AddSingleton<
+			Avalime.Core.keys.I_OsKeyProcessor
+			, WindowsKeyProcessor
+		>();
+
+		services.AddSingleton<
+			Avalime.Core.keys.I_OsKeyProcessor
+			, WindowsKeyProcessor
+		>();
+
+		services.AddSingleton<
+			ImeState
+		>();
+
+		var provider = services.BuildServiceProvider();
+		BuildAvaloniaApp()
+		.AfterSetup(e=>App.ConfigureServices(provider))
 		.StartWithClassicDesktopLifetime(args);
+	}
 
 	// Avalonia configuration, don't remove; also used by visual designer.
 	public static AppBuilder BuildAvaloniaApp(){

@@ -1,0 +1,26 @@
+
+namespace Avalime.Core.keys;
+
+public class ImeState : I_ImeState {
+	public IDictionary<object, object?> config{get;set;}= new Dictionary<object, object?>();
+	public I_OsKeyProcessor osKeyProcessor{get;set;}
+	public I_ImeKeyProcessor imeKeyProcessor{get;set;}
+
+	public ImeState(I_OsKeyProcessor osKeyProcessor, I_ImeKeyProcessor imeKeyProcessor) {
+		this.osKeyProcessor = osKeyProcessor;
+		this.imeKeyProcessor = imeKeyProcessor;
+	}
+
+	public ImeState(I_OsKeyProcessor osKeyProcessor) {
+		this.osKeyProcessor = osKeyProcessor;
+	}
+
+
+	public object? getOption() {
+		throw new NotImplementedException();
+	}
+
+	public object setOption() {
+		throw new NotImplementedException();
+	}
+}
