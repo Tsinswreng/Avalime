@@ -130,22 +130,22 @@ public partial class KeyBoard : UserControl{
 					// 	row1.Children.Add(keyView);
 					// 	Grid.SetColumn(keyView, idx_row1++);
 					// };
-					var k = (I_KeySymbol key)=>{
+					var k = (I_KeyChar key)=>{
 						var view = kView(key);
 						row1.Children.Add(view);
 						Grid.SetColumn(view, idx_row1++);
 					};
-					k(KeySymbols.q);
-					k(KeySymbols.w);
-					k(KeySymbols.e);
-					k(KeySymbols.r);
-					k(KeySymbols.t);
-					k(KeySymbols.y);
-					k(KeySymbols.u);
-					k(KeySymbols.i);
-					k(KeySymbols.o);
-					k(KeySymbols.p);
-					k(KeySymbols.SquareBracket_L);
+					k(KeyChars.q);
+					k(KeyChars.w);
+					k(KeyChars.e);
+					k(KeyChars.r);
+					k(KeyChars.t);
+					k(KeyChars.y);
+					k(KeyChars.u);
+					k(KeyChars.i);
+					k(KeyChars.o);
+					k(KeyChars.p);
+					k(KeyChars.SquareBracket_L);
 				}}//~row1:Grid
 				var row2 = new Grid();
 				keysGrid.Children.Add(row2);
@@ -157,23 +157,23 @@ public partial class KeyBoard : UserControl{
 				}
 				{{//row2:Grid
 					//
-					var k=(I_KeySymbol key)=>{
+					var k=(I_KeyChar key)=>{
 						var keyView = _key(label);
 						row2.Children.Add(keyView);
 						Grid.SetColumn(keyView, idx_row2++);
 					};
 					//
-					k(KeySymbols.A);
-					k(KeySymbols.S);
-					k(KeySymbols.D);
-					k(KeySymbols.F);
-					k(KeySymbols.G);
-					k(KeySymbols.H);
-					k(KeySymbols.J);
-					k(KeySymbols.K);
-					k(KeySymbols.L);
-					k(KeySymbols.;);
-					k(KeySymbols.');
+					k(KeyChars.A);
+					k(KeyChars.S);
+					k(KeyChars.D);
+					k(KeyChars.F);
+					k(KeyChars.G);
+					k(KeyChars.H);
+					k(KeyChars.J);
+					k(KeyChars.K);
+					k(KeyChars.L);
+					k(KeyChars.;);
+					k(KeyChars.');
 				}}//~row2:Grid
 				var row3 = new Grid();
 				keysGrid.Children.Add(row3);
@@ -269,7 +269,7 @@ public partial class KeyBoard : UserControl{
 	/// </summary>
 	/// <param name="key"></param>
 	/// <returns></returns>
-	protected KeyView kView(I_KeySymbol key){
+	protected KeyView kView(I_KeyChar key){
 		var vm = new KeyVm();
 		vm.key_click = key;
 		vm.imeState = ctx!.imeState;

@@ -2,6 +2,6 @@ namespace Avalime.Core.keys;
 
 
 public interface I_KeyBoardState{
-	public bool isKeyDown(I_KeySymbol key);
-	public IEnumerable<I_KeySymbol> allDownKeys{get;set;}
+	public bool isKeyDown(I_KeyChar key);
+	public IEnumerable<I_KeyChar> allDownKeys{get;set;}
 }
