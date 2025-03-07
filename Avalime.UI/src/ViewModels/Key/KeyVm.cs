@@ -15,12 +15,17 @@ public partial class KeyVm
 		label = key_click?.name??"";
 
 		click = () => {
-			imeState?.osKeyProcessor.onKeyEvent(
-				new KeyEvent{
-					key = key_click,
-					keyState = KS.Down,
-				}
-			);
+			try{
+				imeState?.osKeyProcessor.onKeyEvent(
+					new KeyEvent{
+						key = key_click,
+						keyState = KS.Down,
+					}
+				);
+			}
+			catch (System.Exception e){
+				System.Console.WriteLine(e);//TODO
+			}
 			return 0;
 		};
 	}

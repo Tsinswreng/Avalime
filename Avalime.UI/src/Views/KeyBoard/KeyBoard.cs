@@ -140,23 +140,12 @@ public partial class KeyBoard : UserControl{
 					k(Keys.e);
 					k(Keys.r);
 					k(Keys.t);
-					k(Keys.BackSlash);
+					k(Keys.y);
 					k(Keys.u);
 					k(Keys.i);
 					k(Keys.o);
 					k(Keys.p);
-					k(Keys.y);
-					// strK("Q");
-					// strK("W");
-					// strK("E");
-					// strK("R");
-					// strK("T");
-					// strK("\\");
-					// strK("U");
-					// strK("I");
-					// strK("O");
-					// strK("P");
-					// strK("Y");
+					k(Keys.SquareBracket_L);
 				}}//~row1:Grid
 				var row2 = new Grid();
 				keysGrid.Children.Add(row2);
@@ -168,23 +157,23 @@ public partial class KeyBoard : UserControl{
 				}
 				{{//row2:Grid
 					//
-					var k=(str label)=>{
+					var k=(I_Key key)=>{
 						var keyView = _key(label);
 						row2.Children.Add(keyView);
 						Grid.SetColumn(keyView, idx_row2++);
 					};
 					//
-					k("A");
-					k("S");
-					k("D");
-					k("F");
-					k("G");
-					k("H");
-					k("J");
-					k("K");
-					k("L");
-					k(";");
-					k("'");
+					k(Keys.A);
+					k(Keys.S);
+					k(Keys.D);
+					k(Keys.F);
+					k(Keys.G);
+					k(Keys.H);
+					k(Keys.J);
+					k(Keys.K);
+					k(Keys.L);
+					k(Keys.;);
+					k(Keys.');
 				}}//~row2:Grid
 				var row3 = new Grid();
 				keysGrid.Children.Add(row3);

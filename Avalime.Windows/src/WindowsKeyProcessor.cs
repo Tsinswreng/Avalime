@@ -11,6 +11,9 @@ public class WindowsKeyProcessor
 	protected static WindowsKeyProcessor? _inst = null;
 	public static WindowsKeyProcessor inst => _inst??= new WindowsKeyProcessor();
 
+	public WindowsKeyProcessor() {
+	}
+
 
 	public event errHandler? errEvent;
 
