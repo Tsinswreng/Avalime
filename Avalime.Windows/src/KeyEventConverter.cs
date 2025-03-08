@@ -2,7 +2,12 @@ using Avalime.Core.keys;
 
 namespace Avalime.Windows;
 
+/*
+TODO
+慮 KeyChars中之上檔位
+轉換當成 shift按+下檔按+下檔鬆+shift鬆
 
+ */
 public class KeyEventConverter{
 	protected static KeyEventConverter? _inst = null;
 	public static KeyEventConverter inst => _inst??= new KeyEventConverter();

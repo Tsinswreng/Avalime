@@ -97,23 +97,22 @@ public partial class KeyBoard : UserControl{
 					o.ColumnDefinitions.AddRange(Cd_Auto(12));
 				}
 				{{
-					var k=(str label)=>{
-						var keyView = _key(label);
-						row0.Children.Add(keyView);
-						Grid.SetColumn(keyView, idx_row0++);
+					var k = (I_KeyChar key)=>{
+						var view = kView(key);
+						row0.Children.Add(view);
+						Grid.SetColumn(view, idx_row0++);
 					};
-
-					k("1");
-					k("2");
-					k("3");
-					k("4");
-					k("5");
-					k("6");
-					k("7");
-					k("8");
-					k("9");
-					k("0");
-					k("`");
+					k(KeyChars.D1);
+					k(KeyChars.D2);
+					k(KeyChars.D3);
+					k(KeyChars.D4);
+					k(KeyChars.D5);
+					k(KeyChars.D6);
+					k(KeyChars.D7);
+					k(KeyChars.D8);
+					k(KeyChars.D9);
+					k(KeyChars.D0);
+					k(KeyChars.Grave);
 				}}
 				var row1 = new Grid();
 				keysGrid.Children.Add(row1);
@@ -157,23 +156,23 @@ public partial class KeyBoard : UserControl{
 				}
 				{{//row2:Grid
 					//
-					var k=(I_KeyChar key)=>{
-						var keyView = _key(label);
-						row2.Children.Add(keyView);
-						Grid.SetColumn(keyView, idx_row2++);
+					var k = (I_KeyChar key)=>{
+						var view = kView(key);
+						row2.Children.Add(view);
+						Grid.SetColumn(view, idx_row2++);
 					};
 					//
-					k(KeyChars.A);
-					k(KeyChars.S);
-					k(KeyChars.D);
-					k(KeyChars.F);
-					k(KeyChars.G);
-					k(KeyChars.H);
-					k(KeyChars.J);
-					k(KeyChars.K);
-					k(KeyChars.L);
-					k(KeyChars.;);
-					k(KeyChars.');
+					k(KeyChars.a);
+					k(KeyChars.s);
+					k(KeyChars.d);
+					k(KeyChars.f);
+					k(KeyChars.g);
+					k(KeyChars.h);
+					k(KeyChars.j);
+					k(KeyChars.k);
+					k(KeyChars.l);
+					k(KeyChars.Semicolon);
+					k(KeyChars.Apostrophe);
 				}}//~row2:Grid
 				var row3 = new Grid();
 				keysGrid.Children.Add(row3);
@@ -185,23 +184,23 @@ public partial class KeyBoard : UserControl{
 				}
 				{{//row3:Grid
 					//
-					var k=(str label)=>{
-						var keyView = _key(label);
-						row3.Children.Add(keyView);
-						Grid.SetColumn(keyView, idx_row3++);
+					var k = (I_KeyChar key)=>{
+						var view = kView(key);
+						row3.Children.Add(view);
+						Grid.SetColumn(view, idx_row3++);
 					};
-					//
-					k("Z");
-					k("X");
-					k("C");
-					k("V");
-					k("B");
-					k("N");
-					k("M");
-					k(",");
-					k(".");
-					k("⌫");
-					k("⌫");
+
+					k(KeyChars.z);
+					k(KeyChars.x);
+					k(KeyChars.c);
+					k(KeyChars.v);
+					k(KeyChars.b);
+					k(KeyChars.n);
+					k(KeyChars.m);
+					k(KeyChars.Comma);
+					k(KeyChars.Period);
+					k(KeyChars.Backspace);
+					k(KeyChars.Backspace);
 				}}//~row3:Grid
 				var row4 = new Grid();
 				keysGrid.Children.Add(row4);
