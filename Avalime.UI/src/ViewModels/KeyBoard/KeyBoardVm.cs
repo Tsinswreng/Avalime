@@ -1,3 +1,6 @@
+using System.Collections;
+using System.Collections.Generic;
+using Avalime.Core.IF;
 using Avalime.Core.keys;
 using Avalime.UI;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -9,6 +12,12 @@ public partial class KeyBoardVm
 {
 
 	public I_ImeState imeState{get;set;} = App.ServiceProvider.GetRequiredService<ImeState>();
+
+	public I_Result<object?> input(IEnumerable<I_KeyChar> keyChars) {
+		var ans = imeState.input(keyChars);
+
+		return ans;
+	}
 
 
 }

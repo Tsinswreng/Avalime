@@ -6,7 +6,7 @@ using Avalonia;
 using Avalime.UI.controls;
 
 
-
+namespace Avalime.UI.views.topBar;
 public class TopBar : UserControl {
 	public TopBar() {
 		_render();

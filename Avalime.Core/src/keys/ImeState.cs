@@ -1,4 +1,6 @@
 
+using Avalime.Core.IF;
+
 namespace Avalime.Core.keys;
 
 public class ImeState : I_ImeState {
@@ -13,6 +15,10 @@ public class ImeState : I_ImeState {
 
 	public ImeState(I_OsKeyProcessor osKeyProcessor) {
 		this.osKeyProcessor = osKeyProcessor;
+	}
+
+	public I_Result<object?> input(IEnumerable<I_KeyChar> keyChars){
+		return new Result<object?>();
 	}
 
 

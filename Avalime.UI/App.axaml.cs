@@ -5,7 +5,7 @@ using Avalonia.Data.Core.Plugins;
 using System.Linq;
 using Avalonia.Markup.Xaml;
 using Avalime.ViewModels;
-using Avalime.UI.Views;
+using Avalime.UI.views;
 using Avalonia.Controls;
 using System;
 

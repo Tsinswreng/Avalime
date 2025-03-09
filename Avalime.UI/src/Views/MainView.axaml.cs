@@ -1,12 +1,12 @@
 
 using Avalonia.Controls;
 
-namespace Avalime.UI.Views;
+namespace Avalime.UI.views;
 
 public partial class MainView : UserControl {
 	public MainView() {
 		//InitializeComponent();
-		Content = new Avalime.UI.Views.KeyBoard.KeyBoard();
+		Content = new Avalime.UI.views.KeyBoard.KeyBoard();
 
 	}
 

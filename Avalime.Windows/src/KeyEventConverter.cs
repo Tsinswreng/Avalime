@@ -23,13 +23,13 @@ public class KeyEventConverter{
 	public (u8, u8, i32, i32) convertKeyEvent(
 		I_KeyEvent keyEvent
 	){
-		var keyCode = (u8)name__keyCode[keyEvent.key];
+		var keyCode = (u8)lower__keyCode[keyEvent.key];
 		var dwFlags = stateToDwFlags(keyEvent.keyState);
 		return (keyCode, 0, 0, dwFlags);
 	}
 
-	public IDictionary<I_KeyChar, i64> name__keyCode = new Dictionary<I_KeyChar, i64>{
-		{KeyChars.a, 0x41}
+	public IDictionary<I_KeyChar, i64> lower__keyCode = new Dictionary<I_KeyChar, i64>{
+		 {KeyChars.a, 0x41}
 		,{KeyChars.b, 0x42}
 		,{KeyChars.c, 0x43}
 		,{KeyChars.d, 0x44}

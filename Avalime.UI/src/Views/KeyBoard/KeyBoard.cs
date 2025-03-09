@@ -7,8 +7,9 @@ using Avalime.ViewModels.KeyBoard;
 using Avalime.Views.Key;
 using Avalonia.Controls;
 using Avalonia.Styling;
-
-namespace Avalime.UI.Views.KeyBoard;
+using Avalime.UI.views.topBar;
+using Avalime.UI.views.input;
+namespace Avalime.UI.views.KeyBoard;
 
 public partial class KeyBoard : UserControl{
 	public KeyBoard(){
@@ -38,6 +39,11 @@ public partial class KeyBoard : UserControl{
 		return 0;
 	}
 
+
+	public List<Grid> rows{get;set;}=new List<Grid>(7);
+	public i32 idx_keysGrid = 0;
+	public i32 idx_container = 0;
+
 	public static IList<RowDefinition> Rd_Auto(i32 n){
 		var rd = new List<RowDefinition>();
 		for(i32 i = 0; i < n; i++){
@@ -66,18 +72,29 @@ public partial class KeyBoard : UserControl{
 		{
 			var o = container;
 			o.RowDefinitions.AddRange([
+				//Input:
 				new RowDefinition(){Height = new GridLength(1, GridUnitType.Star)}
-				,new RowDefinition(){Height = new GridLength(6, GridUnitType.Star)}
+				//TopBar:
+				,new RowDefinition(){Height = new GridLength(2, GridUnitType.Star)}
+				//Keys:
+				,new RowDefinition(){Height = new GridLength(12, GridUnitType.Star)}
 			]);
 		}
 		{{
+
+			var input = new Input();
+			container.Children.Add(input);
+			{
+				var o = input;
+				Grid.SetRow(o, idx_container++);
+			}
 
 			var topBar = new TopBar();
 			//var topBar = new TextBlock(){Text = "TopBar"};
 			container.Children.Add(topBar);
 			{
 				var o = topBar;
-				Grid.SetRow(o, 0);
+				Grid.SetRow(o, idx_container++);
 			}
 
 			//
@@ -85,16 +102,19 @@ public partial class KeyBoard : UserControl{
 			container.Children.Add(keysGrid);
 			{
 				var o = keysGrid;
-				Grid.SetRow(o, 1);
+				Grid.SetRow(o, idx_container++);
 				o.RowDefinitions.AddRange(Rd_Auto(6));
 			}
-			{{//container:Grid
+			{{//keysGrid:Grid
+				//var row0 = new Grid();
 				var row0 = new Grid();
+				rows.Add(row0);
 				keysGrid.Children.Add(row0);
 				var idx_row0 = 0;
 				{
 					var o = row0;
 					o.ColumnDefinitions.AddRange(Cd_Auto(12));
+					Grid.SetRow(row0, idx_keysGrid++);
 				}
 				{{
 					var k = (I_KeyChar key)=>{
@@ -120,7 +140,7 @@ public partial class KeyBoard : UserControl{
 				{
 					var o = row1;
 					o.ColumnDefinitions.AddRange(Cd_Auto(12));
-					Grid.SetRow(row1, 1);
+					Grid.SetRow(row1, idx_keysGrid++);
 				}
 				{{//row1:Grid
 					//
@@ -152,7 +172,7 @@ public partial class KeyBoard : UserControl{
 				{
 					var o = row2;
 					o.ColumnDefinitions.AddRange(Cd_Auto(12));
-					Grid.SetRow(row2, 2);
+					Grid.SetRow(row2, idx_keysGrid++);
 				}
 				{{//row2:Grid
 					//
@@ -180,7 +200,7 @@ public partial class KeyBoard : UserControl{
 				{
 					var o = row3;
 					o.ColumnDefinitions.AddRange(Cd_Auto(12));
-					Grid.SetRow(row3, 3);
+					Grid.SetRow(row3, idx_keysGrid++);
 				}
 				{{//row3:Grid
 					//
@@ -208,27 +228,33 @@ public partial class KeyBoard : UserControl{
 				{
 					var o = row4;
 					o.ColumnDefinitions.AddRange(Cd_Auto(12));
-					Grid.SetRow(row4, 4);
+					Grid.SetRow(row4, idx_keysGrid++);
 				}
 				{{//row4:Grid
 					//
-					var k=(str label)=>{
+					var kStr=(str label)=>{
 						var keyView = _key(label);
 						row4.Children.Add(keyView);
 						Grid.SetColumn(keyView, idx_row4++);
 					};
+				var k = (I_KeyChar key)=>{
+						var view = kView(key);
+						row4.Children.Add(view);
+						Grid.SetColumn(view, idx_row4++);
+					};
+
 					//
-					k("數");
-					k("$");
-					k("↑");
-					k("⇪");
-					k(" ");
-					k(" ");
-					k(" ");
-					k(" ");
-					k(" ");
-					k("↲");
-					k("↲");
+					kStr("數");
+					kStr("$");
+					k(KeyChars.Up);
+					k(KeyChars.Shift_L);
+					k(KeyChars.Space);
+					k(KeyChars.Space);
+					k(KeyChars.Space);
+					k(KeyChars.Space);
+					k(KeyChars.Space);
+					k(KeyChars.Enter);
+					k(KeyChars.Enter);
 				}}//~row4:Grid
 				var row5 = new Grid();
 				keysGrid.Children.Add(row5);
@@ -236,7 +262,7 @@ public partial class KeyBoard : UserControl{
 				{
 					var o = row5;
 					o.ColumnDefinitions.AddRange(Cd_Auto(12));
-					Grid.SetRow(row5, 5);
+					Grid.SetRow(row5, idx_keysGrid++);
 				}
 
 				{{//row5:Grid
