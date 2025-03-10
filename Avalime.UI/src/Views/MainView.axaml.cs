@@ -8,9 +8,9 @@ namespace Avalime.UI.views;
 public partial class MainView : UserControl {
 	public MainView() {
 		//InitializeComponent();
-		//Content = new Avalime.UI.views.KeyBoard.KeyBoard();
+		Content = new Avalime.UI.views.KeyBoard.KeyBoard();
 		//Content = new CandidateView();
-		Content = new CandidatesBar();
+		//Content = new CandidatesBar();
 	}
 
 

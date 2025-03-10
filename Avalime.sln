@@ -24,6 +24,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Avalime.Core", "Avalime.Cor
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Avalime.Windows", "Avalime.Windows\Avalime.Windows.csproj", "{5C1899F0-6727-4761-9636-984FBFA34693}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Avalime.Rime", "Avalime.Rime\Avalime.Rime.csproj", "{030AF578-DDB5-4E68-9A5A-9F8A128C26C4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -62,6 +64,10 @@ Global
 		{5C1899F0-6727-4761-9636-984FBFA34693}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5C1899F0-6727-4761-9636-984FBFA34693}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5C1899F0-6727-4761-9636-984FBFA34693}.Release|Any CPU.Build.0 = Release|Any CPU
+		{030AF578-DDB5-4E68-9A5A-9F8A128C26C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{030AF578-DDB5-4E68-9A5A-9F8A128C26C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{030AF578-DDB5-4E68-9A5A-9F8A128C26C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{030AF578-DDB5-4E68-9A5A-9F8A128C26C4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

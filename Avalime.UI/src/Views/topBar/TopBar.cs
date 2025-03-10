@@ -4,6 +4,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia;
 using Avalime.UI.controls;
+using Avalime.UI.views.candidatesBar;
 
 
 namespace Avalime.UI.views.topBar;
@@ -13,6 +14,8 @@ public class TopBar : UserControl {
 	}
 
 	protected zero _render() {
+		Content = new CandidatesBar();
+		return 0;
 		var ans = new Grid();
 		Content = ans;
 		{{

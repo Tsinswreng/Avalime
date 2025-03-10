@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+	<PublishAot>true</PublishAot>
+	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+
+	<ItemGroup>
+		<Compile Include="../CsShared/GlobalUsing.cs" />
+		<ProjectReference Include="../Avalime.Core/Avalime.Core.csproj"/>
+		<ProjectReference Include="../CsRimeApi/RimeApi/RimeApi.csproj"/>
+	</ItemGroup>
+
+
+
+</Project>

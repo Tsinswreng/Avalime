@@ -23,6 +23,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Avalime\Avalime.csproj" />
+    <ProjectReference Include="../Avalime.UI/Avalime.UI.csproj" />
   </ItemGroup>
 </Project>
