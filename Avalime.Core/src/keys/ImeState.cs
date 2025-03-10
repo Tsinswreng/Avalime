@@ -3,7 +3,10 @@ using Avalime.Core.IF;
 
 namespace Avalime.Core.keys;
 
-public class ImeState : I_ImeState {
+public class ImeState
+	//:I_ImeState //TODO 先叶後抽象
+{
+
 	public IDictionary<object, object?> config{get;set;}= new Dictionary<object, object?>();
 	public I_OsKeyProcessor osKeyProcessor{get;set;}
 	public I_ImeKeyProcessor imeKeyProcessor{get;set;}
@@ -17,9 +20,14 @@ public class ImeState : I_ImeState {
 		this.osKeyProcessor = osKeyProcessor;
 	}
 
-	public I_Result<object?> input(IEnumerable<I_KeyChar> keyChars){
+	public I_Result<object?> input(IEnumerable<I_KeyEvent> keyEvents){
+		System.Console.WriteLine(onInput==null);
+		onInput?.Invoke(this, keyEvents);
+
 		return new Result<object?>();
 	}
+
+	public event EventHandler<IEnumerable<I_KeyEvent>> onInput;
 
 
 	public object? getOption() {

@@ -282,3 +282,16 @@ Styles.Add(btnPressed);
 ```
 
 
+
+[2025-03-09T23:06:32.647+08:00_W10-7]
+點擊事件傳遞:
+
+KeyView
+-> KeyVm
+-> ImeState
+
+帶ʹ參數 有 I_Key, I_KeyBoardState
+
+當在ImeState中 處理輸入旹 觸發事件
+輸入框監聽㞢、響應時更新UI
+ProcessKey用異步

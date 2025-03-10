@@ -10,4 +10,5 @@ public class Result<T>
 	public bool ok{get;} = true;
 
 	public IEnumerable<object?>? errors{get;}=null;
+	public static Result<T> Ok = new Result<T>();
 }

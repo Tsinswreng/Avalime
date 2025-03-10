@@ -11,13 +11,15 @@ public partial class KeyBoardVm
 	:ViewModelBase
 {
 
-	public I_ImeState imeState{get;set;} = App.ServiceProvider.GetRequiredService<ImeState>();
+	//TODO 改用接口
+	public ImeState imeState{get;set;} = App.ServiceProvider.GetRequiredService<ImeState>();
 
-	public I_Result<object?> input(IEnumerable<I_KeyChar> keyChars) {
-		var ans = imeState.input(keyChars);
 
-		return ans;
-	}
+
+	// public I_Result<object?> input(IEnumerable<I_KeyChar> keyChars) {
+	// 	var ans = imeState.input(keyChars);
+	// 	return ans;
+	// }
 
 
 }

@@ -17,4 +17,7 @@ public interface I_ImeState{
 	/// <returns></returns>
 	public I_Result<object?> input(IEnumerable<I_KeyChar> keyChars);
 
+	public event EventHandler<object?>? onInput;
+
+
 }

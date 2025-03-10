@@ -15,13 +15,25 @@ public partial class KeyVm
 		label = key_click?.name??"";
 
 		click = () => {
+			var state = imeState as ImeState;//TODO temp
 			try{
-				imeState?.osKeyProcessor.onKeyEvent(
+				state?.input([
 					new KeyEvent{
-						key = key_click,
-						keyState = KS.Down,
+						key = key_click
+						,keyState = KS.Down
 					}
-				);
+					,new KeyEvent{
+						key = key_click
+						,keyState = KS.Up
+					}
+				]);
+				// state?.osKeyProcessor.OnKeyEventAsy(
+				// 	new KeyEvent{
+				// 		key = key_click,
+				// 		keyState = KS.Down,
+				// 	}
+				// );
+
 			}
 			catch (System.Exception e){
 				System.Console.WriteLine(e);//TODO
@@ -37,7 +49,7 @@ public partial class KeyVm
 	public Func<zero>? swipeUP{get;set;}
 	public Func<zero>? swipeRight{get;set;}
 
-	public I_ImeState imeState{get;set;}
+	public ImeState imeState{get;set;}//TODO 改用接口
 
 	protected I_KeyChar _key_click;
 	public I_KeyChar key_click{

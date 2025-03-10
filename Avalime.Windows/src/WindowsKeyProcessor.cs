@@ -1,3 +1,5 @@
+using Avalime.Core;
+using Avalime.Core.IF;
 using Avalime.Core.keys;
 
 namespace Avalime.Windows;
@@ -17,14 +19,16 @@ public class WindowsKeyProcessor
 
 	public event errHandler? errEvent;
 
-	public zero onKeyEvent(I_KeyEvent keyEvent) {
-		var ans = KeyEventConverter.inst.convertKeyEvent(keyEvent);
-		KeySender.keybd_event(
-			ans.Item1,
-			ans.Item2,
-			ans.Item3,
-			ans.Item4
-		);
-		return 0;
+	public async Task<I_Result<object?>>  OnKeyEventsAsy(IEnumerable<I_KeyEvent> keyEvents) {
+		foreach (var keyEvent in keyEvents) {
+			var ans = KeyEventConverter.inst.convertKeyEvent(keyEvent);
+			KeySender.keybd_event(
+				ans.Item1,
+				ans.Item2,
+				ans.Item3,
+				ans.Item4
+			);
+		}
+		return Result<object?>.Ok;
 	}
 }

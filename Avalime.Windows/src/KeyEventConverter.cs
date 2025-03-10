@@ -23,7 +23,8 @@ public class KeyEventConverter{
 	public (u8, u8, i32, i32) convertKeyEvent(
 		I_KeyEvent keyEvent
 	){
-		var keyCode = (u8)lower__keyCode[keyEvent.key];
+		u8 keyCode = 0;
+		keyCode = (u8)lower__keyCode[keyEvent.key];
 		var dwFlags = stateToDwFlags(keyEvent.keyState);
 		return (keyCode, 0, 0, dwFlags);
 	}
@@ -55,6 +56,11 @@ public class KeyEventConverter{
 		,{KeyChars.x, 0x58}
 		,{KeyChars.y, 0x59}
 		,{KeyChars.z, 0x5A}
+
+	};
+
+	public IDictionary<I_KeyChar, i64> fn__keyCode = new Dictionary<I_KeyChar, i64>{
+		 {KeyChars.Backspace, 0x08}
 	};
 
 	// IDictionary<string ,int> test = new Dictionary<string ,int>{
