@@ -15,6 +15,12 @@ public class CandidateVm
 			s.text = "之";
 			s.comment = "tɯ";
 		}
+		{
+			var s = new Ctx();
+			samples.Add(s);
+			s.text = "之前";
+			s.comment = "tɯ dzˁɛn";
+		}
 	}
 
 	protected str _text="";
