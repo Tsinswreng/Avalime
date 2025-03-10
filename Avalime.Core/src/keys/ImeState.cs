@@ -21,7 +21,6 @@ public class ImeState
 	}
 
 	public I_Result<object?> input(IEnumerable<I_KeyEvent> keyEvents){
-		System.Console.WriteLine(onInput==null);
 		onInput?.Invoke(this, keyEvents);
 
 		return new Result<object?>();
