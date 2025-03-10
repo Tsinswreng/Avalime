@@ -5,9 +5,15 @@ using static System.Runtime.InteropServices.Marshal;
 using static Shr.Interop.PtrUtil;
 using System;
 using Shr.Interop;
+
+#region RimeTypes
+using Bool = System.Int32;
+using size_t = System.UIntPtr;
+using RimeSessionId = System.UIntPtr;
+#endregion RimeTypes
+
+
 namespace Avalime.UI;
-
-
 
 unsafe public class RimeSetup
 	:IDisposable
@@ -47,23 +53,77 @@ unsafe public class RimeSetup
 		get{return _traits;}
 	}
 
+	protected RimeSessionId _rimeSessionId;
+	public RimeSessionId rimeSessionId{
+		get{return _rimeSessionId;}
+	}
+
 	public DelegateRimeApiFn rime{get;protected set;}
 
-	public RimeSetup(){setup();}
+	public RimeSetup(){
+		_setupRimeApi();
+		_setupRimeTraits();
+		_setupRimeSession();
+	}
 
-	public zero setup(){
+	protected zero _setupRimeApi(){
 		//traits = (RimeTraits*)AllocZeroed((nuint)SizeOf<RimeTraits>());
-		_traits = New<RimeTraits>();
-		traits->data_size = RimeUtil.dataSize<RimeTraits>();
-		traits->user_data_dir = "D:/Program Files/Rime/User_Data".cStr();
-		traits->app_name = "rime.avalime".cStr();
 		//var rimeApi = RimeApiFn.rime_get_api();
 		var rime_get_api = RimeDllLoader.loadFn_rime_get_api("rime");
 		var rimeApi = rime_get_api();
 		rime = new DelegateRimeApiFn(rimeApi);
-
 		return 0;
 	}
+
+
+	protected zero _setupRimeTraits(){
+		_traits = New<RimeTraits>();
+		traits->data_size = RimeUtil.dataSize<RimeTraits>();
+		traits->user_data_dir = "D:/Program Files/Rime/User_Data".cStr();
+		traits->app_name = "rime.avalime".cStr();
+		return 0;
+	}
+
+	protected zero _freeRimeTraits(){
+		//TODO
+		return 0;
+	}
+
+	public static str? S(u8* cStr){
+		return Shr.Interop.CStrUtil.cStrToCsStr(cStr);
+	}
+
+
+	public void on_message(
+		void* context_object
+		,UIntPtr session_id
+		,byte* message_type
+		,byte* message_value
+	){
+		System.Console.WriteLine(
+			session_id
+			+" "+S(message_type)
+			+" "+S(message_value)
+		);
+		//略
+	}
+
+	protected zero _setupRimeSession(){
+		rime.setup(traits);
+		rime.set_notification_handler(
+			on_message
+			,null
+		);
+		rime.initialize(null);
+		var full_check = RimeUtil.True;
+		if(rime.start_maintenance(full_check) != RimeUtil.False){
+			rime.join_maintenance_thread();
+		}
+		_rimeSessionId = rime.create_session();
+		return 0;
+	}
+
+	//TODO rime.destroy_session(rimeSessionId); rime.finalize();
 
 }
 
