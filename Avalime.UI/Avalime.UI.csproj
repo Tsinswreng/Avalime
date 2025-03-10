@@ -25,9 +25,10 @@
 	<PackageReference Include="System.Reactive" />
 	<PackageReference Include="Microsoft.Extensions.DependencyInjection"/>
   </ItemGroup>
+
   <ItemGroup>
-<Compile Include="../CsShared/GlobalUsing.cs" />
-<ProjectReference Include="../Avalime.Core/Avalime.Core.csproj"/>
-<!-- <ProjectReference Include="../CsRimeApi/RimeApi/RimeApi.csproj"/> -->
+	<Compile Include="../CsShared/GlobalUsing.cs" />
+	<ProjectReference Include="../Avalime.Core/Avalime.Core.csproj"/>
+	<!-- <ProjectReference Include="../CsRimeApi/RimeApi/RimeApi.csproj"/> -->
 </ItemGroup>
 </Project>
