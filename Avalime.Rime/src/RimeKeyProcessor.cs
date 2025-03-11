@@ -19,10 +19,11 @@ unsafe public class RimeKeyProcessor
 
 	public async Task<I_Result<object?>> OnKeyEventsAsy(IEnumerable<I_KeyEvent> keyEvents) {
 		foreach (var keyEvent in keyEvents) {
+			var tuple = RimeKeyCharConverter.inst.convert(keyEvent);
 			rime.process_key(
 				rimeSetup.rimeSessionId
-				,keyEvent.key.name.ToLower()[0]
-				,RimeModifier.zero
+				,tuple.Item1
+				,tuple.Item2
 			);
 		}
 		return Result<object?>.Ok;

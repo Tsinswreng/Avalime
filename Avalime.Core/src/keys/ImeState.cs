@@ -23,12 +23,14 @@ public class ImeState
 
 
 	public async Task<I_Result<object?>> input(IEnumerable<I_KeyEvent> keyEvents){
-		onInput?.Invoke(this, keyEvents);
+		beforeInput?.Invoke(this, keyEvents);
 		await imeKeyProcessor.OnKeyEventsAsy(keyEvents);
+		afterInput?.Invoke(this, keyEvents);
 		return new Result<object?>();
 	}
 
-	public event EventHandler<IEnumerable<I_KeyEvent>> onInput;
+	public event EventHandler<IEnumerable<I_KeyEvent>> beforeInput;
+	public event EventHandler<IEnumerable<I_KeyEvent>> afterInput;
 
 
 	public object? getOption() {

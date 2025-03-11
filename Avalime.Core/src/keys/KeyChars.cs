@@ -1,7 +1,6 @@
 using static Avalime.Core.keys.KeyChar;
 using IK = Avalime.Core.keys.I_KeyChar;
 namespace Avalime.Core.keys;
-
 using KS = KeyChars;
 
 public static class KeyChars{
@@ -130,10 +129,10 @@ public static class KeyChars{
 	public static IK M{get;} = k(nameof(KS.M));
 	public static IK m{get;} = k(nameof(KS.m));
 
-	public static IK LessThan{get;} = k("<");
+	public static IK Less{get;} = k("<");
 	public static IK Comma{get;} = k(",");
 
-	public static IK GreaterThan{get;} = k(">");
+	public static IK Greater{get;} = k(">");
 
 	public static IK Period{get;} = k(".");
 

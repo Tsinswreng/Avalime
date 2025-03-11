@@ -27,13 +27,15 @@ unsafe public partial class CandidatesBarVm
 	public ImeState imeState{get;set;} = App.ServiceProvider.GetRequiredService<ImeState>();
 
 	public CandidatesBarVm(){
-		imeState.onInput += (s,e)=>{
+		imeState.afterInput += (s,e)=>{
+			G.debug("candidatesBar");//t
 			candVms.Clear();
 			var rime = RimeSetup.inst;
 			var rimeApi = rime.apiFn;
 			var iterrator = new RimeCandidateListIterator();
+
 			if( rimeApi.candidate_list_begin(rime.rimeSessionId, &iterrator) != RimeUtil.True ){
-				System.Console.WriteLine("no candidates"); //t
+				G.debug("no candidates"); //t
 				return;
 			}
 			for(;rimeApi.candidate_list_next(&iterrator)==RimeUtil.True;){

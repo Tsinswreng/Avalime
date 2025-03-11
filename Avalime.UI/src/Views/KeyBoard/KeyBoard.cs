@@ -39,6 +39,7 @@ public partial class KeyBoard : UserControl{
 		return 0;
 	}
 
+	public i32 colCnt = 11;
 
 	public List<Grid> rows{get;set;}=new List<Grid>(7);
 	public i32 idx_keysGrid = 0;
@@ -75,13 +76,12 @@ public partial class KeyBoard : UserControl{
 				//Input:
 				new RowDefinition(){Height = new GridLength(1, GridUnitType.Star)}
 				//TopBar:
-				,new RowDefinition(){Height = new GridLength(2, GridUnitType.Star)}
+				,new RowDefinition(){Height = new GridLength(2.5, GridUnitType.Star)}
 				//Keys:
 				,new RowDefinition(){Height = new GridLength(12, GridUnitType.Star)}
 			]);
 		}
 		{{
-
 			var input = new Input();
 			container.Children.Add(input);
 			{
@@ -113,7 +113,7 @@ public partial class KeyBoard : UserControl{
 				var idx_row0 = 0;
 				{
 					var o = row0;
-					o.ColumnDefinitions.AddRange(Cd_Auto(12));
+					o.ColumnDefinitions.AddRange(Cd_Auto(colCnt));
 					Grid.SetRow(row0, idx_keysGrid++);
 				}
 				{{
@@ -139,7 +139,7 @@ public partial class KeyBoard : UserControl{
 				var idx_row1 = 0;
 				{
 					var o = row1;
-					o.ColumnDefinitions.AddRange(Cd_Auto(12));
+					o.ColumnDefinitions.AddRange(Cd_Auto(colCnt));
 					Grid.SetRow(row1, idx_keysGrid++);
 				}
 				{{//row1:Grid
@@ -171,7 +171,7 @@ public partial class KeyBoard : UserControl{
 				var idx_row2 = 0;
 				{
 					var o = row2;
-					o.ColumnDefinitions.AddRange(Cd_Auto(12));
+					o.ColumnDefinitions.AddRange(Cd_Auto(colCnt));
 					Grid.SetRow(row2, idx_keysGrid++);
 				}
 				{{//row2:Grid
@@ -199,7 +199,7 @@ public partial class KeyBoard : UserControl{
 				var idx_row3 = 0;
 				{
 					var o = row3;
-					o.ColumnDefinitions.AddRange(Cd_Auto(12));
+					o.ColumnDefinitions.AddRange(Cd_Auto(colCnt));
 					Grid.SetRow(row3, idx_keysGrid++);
 				}
 				{{//row3:Grid
@@ -219,6 +219,8 @@ public partial class KeyBoard : UserControl{
 					k(KeyChars.m);
 					k(KeyChars.Comma);
 					k(KeyChars.Period);
+					// k(KeyChars.Alt_R);
+					// k(KeyChars.Alt_R);
 					k(KeyChars.Backspace);
 					k(KeyChars.Backspace);
 				}}//~row3:Grid
@@ -227,7 +229,7 @@ public partial class KeyBoard : UserControl{
 				var idx_row4 = 0;
 				{
 					var o = row4;
-					o.ColumnDefinitions.AddRange(Cd_Auto(12));
+					o.ColumnDefinitions.AddRange(Cd_Auto(colCnt));
 					Grid.SetRow(row4, idx_keysGrid++);
 				}
 				{{//row4:Grid
@@ -245,7 +247,7 @@ public partial class KeyBoard : UserControl{
 
 					//
 					kStr("數");
-					kStr("$");
+					k(KeyChars.Dollar);
 					k(KeyChars.Up);
 					k(KeyChars.Shift_L);
 					k(KeyChars.Space);
@@ -261,7 +263,7 @@ public partial class KeyBoard : UserControl{
 				var idx_row5 = 0;
 				{
 					var o = row5;
-					o.ColumnDefinitions.AddRange(Cd_Auto(12));
+					o.ColumnDefinitions.AddRange(Cd_Auto(colCnt));
 					Grid.SetRow(row5, idx_keysGrid++);
 				}
 

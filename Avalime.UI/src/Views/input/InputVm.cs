@@ -18,14 +18,14 @@ public class InputVm
 	public ImeState imeState{get;set;} = App.ServiceProvider.GetRequiredService<ImeState>();
 
 	unsafe public InputVm(){
-		G.debug("114");
-		imeState.onInput += (sender, args) => {
+		imeState.afterInput += (sender, args) => {
+			G.debug("InputVm");//t
 			var rime = RimeSetup.inst;
 			var rimeApi = rime.apiFn;
 			var ctx = new RimeContext();
 			ctx.data_size = RimeUtil.dataSize<RimeContext>();
 			if(rimeApi.get_context(rime.rimeSessionId, &ctx) != RimeUtil.True){
-				G.debug("get_context failed");//t
+				G.debug("get_context failed");//TODO
 				return;
 			}
 			str preedit = cStrToCsStr(ctx.composition.preedit);

@@ -98,7 +98,7 @@ unsafe public class RimeSetup
 
 	public void on_message(
 		void* context_object
-		,UIntPtr session_id
+		,RimeSessionId session_id
 		,byte* message_type
 		,byte* message_value
 	){
@@ -112,10 +112,13 @@ unsafe public class RimeSetup
 		//略
 	}
 
+	public RimeNotificationHandler rimeNotificationHandler;
+
 	protected zero _setupRimeSession(){
 		apiFn.setup(traits);
+		rimeNotificationHandler = on_message;
 		apiFn.set_notification_handler(
-			on_message
+			rimeNotificationHandler
 			,null
 		);
 		apiFn.initialize(null);
