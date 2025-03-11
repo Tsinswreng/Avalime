@@ -4,7 +4,7 @@ public partial class G{
 
 	public static str logPath = "";
 	static G(){
-		logPath = getBaseDir() + "/logs/debug.log";
+		logPath = getBaseDir() + "/debug.log";
 	}
 
 
