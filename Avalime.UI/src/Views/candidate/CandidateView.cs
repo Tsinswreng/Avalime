@@ -34,7 +34,7 @@ public class CandidateView:UserControl{
 		var grid = new Style(x=>
 			x.Is<Grid>()
 		);
-		Styles.Add(grid);
+		//Styles.Add(grid);
 		{
 			var o = grid;
 			o.set(

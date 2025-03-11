@@ -59,7 +59,7 @@ unsafe public class RimeSetup
 		get{return _rimeSessionId;}
 	}
 
-	public DelegateRimeApiFn rime{get;protected set;}
+	public DelegateRimeApiFn apiFn{get;protected set;}
 
 	public RimeSetup(){
 		_setupRimeApi();
@@ -73,7 +73,7 @@ unsafe public class RimeSetup
 
 		var rime_get_api = RimeDllLoader.loadFn_rime_get_api(dllPath);
 		var rimeApi = rime_get_api();
-		rime = new DelegateRimeApiFn(rimeApi);
+		apiFn = new DelegateRimeApiFn(rimeApi);
 		return 0;
 	}
 
@@ -111,17 +111,17 @@ unsafe public class RimeSetup
 	}
 
 	protected zero _setupRimeSession(){
-		rime.setup(traits);
-		rime.set_notification_handler(
+		apiFn.setup(traits);
+		apiFn.set_notification_handler(
 			on_message
 			,null
 		);
-		rime.initialize(null);
+		apiFn.initialize(null);
 		var full_check = RimeUtil.True;
-		if(rime.start_maintenance(full_check) != RimeUtil.False){
-			rime.join_maintenance_thread();
+		if(apiFn.start_maintenance(full_check) != RimeUtil.False){
+			apiFn.join_maintenance_thread();
 		}
-		_rimeSessionId = rime.create_session();
+		_rimeSessionId = apiFn.create_session();
 		return 0;
 	}
 

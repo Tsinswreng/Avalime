@@ -1,0 +1,1 @@
+dotnet run -r win-x86

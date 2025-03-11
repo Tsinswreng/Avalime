@@ -16,8 +16,8 @@ public partial class CandidatesBar:UserControl{
 
 
 	public CandidatesBar(){
-		//ctx = new Ctx();
-		ctx = Ctx.samples[0];
+		ctx = new Ctx();
+		//ctx = Ctx.samples[0];
 		_style();
 		_render();
 	}
@@ -33,7 +33,17 @@ public partial class CandidatesBar:UserControl{
 	}
 
 	protected zero _render(){
-		Content = _items();
+		var container = new ScrollViewer();
+		Content = container;
+		{
+			var o = container;
+			o.HorizontalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Visible;
+			//o.MaxWidth = 300.0;
+		}
+		{{
+			var items = _items();
+			container.Content = items;
+		}}
 		return 0;
 	}
 

@@ -1,4 +1,5 @@
 
+using System.Threading.Tasks;
 using Avalime.Core.IF;
 
 namespace Avalime.Core.keys;
@@ -20,10 +21,10 @@ public class ImeState
 		this.osKeyProcessor = osKeyProcessor;
 	}
 
-	public I_Result<object?> input(IEnumerable<I_KeyEvent> keyEvents){
+
+	public async Task<I_Result<object?>> input(IEnumerable<I_KeyEvent> keyEvents){
 		onInput?.Invoke(this, keyEvents);
-		System.Console.WriteLine(imeKeyProcessor == null);
-		System.Console.WriteLine(imeKeyProcessor == osKeyProcessor);//t
+		await imeKeyProcessor.OnKeyEventsAsy(keyEvents);
 		return new Result<object?>();
 	}
 

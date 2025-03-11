@@ -6,6 +6,8 @@
 	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	<PublishAot>true</PublishAot>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+
+	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
@@ -30,5 +32,10 @@
 	<Compile Include="../CsShared/GlobalUsing.cs" />
 	<ProjectReference Include="../Avalime.Core/Avalime.Core.csproj"/>
 	<!-- <ProjectReference Include="../CsRimeApi/RimeApi/RimeApi.csproj"/> -->
+	<!-- 先叶後抽象 後當除此 -->
+	<ProjectReference Include="../CsRimeApi/RimeApi/RimeApi.csproj"/>
+	<ProjectReference Include="../Avalime.Rime/Avalime.Rime.csproj" />
+	<ProjectReference Include="../CsShared/CsShared.csproj" />
+
 </ItemGroup>
 </Project>

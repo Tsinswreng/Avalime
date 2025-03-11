@@ -14,7 +14,7 @@ unsafe public class RimeKeyProcessor
 	protected RimeSetup rimeSetup = RimeSetup.inst;
 	public DelegateRimeApiFn rime{get;set;}
 	public RimeKeyProcessor() {
-		rime = rimeSetup.rime;
+		rime = rimeSetup.apiFn;
 	}
 
 	public async Task<I_Result<object?>> OnKeyEventsAsy(IEnumerable<I_KeyEvent> keyEvents) {

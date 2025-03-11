@@ -29,12 +29,15 @@ public partial class App : Application {
 			DisableAvaloniaDataAnnotationValidation();
 			desktop.MainWindow = new MainWindow {
 				DataContext = new MainViewModel()
-				,
-				MinWidth = 0
-				,
-				MinHeight = 0
-				,
-				SizeToContent = SizeToContent.WidthAndHeight // 自動調整大小
+				,Width = 1920/4
+				,MinWidth = 0
+				//,MaxWidth = 1920/2
+
+				,Height = 1080/4
+				,MinHeight = 0
+				//,MaxHeight = 1080/2
+				//,SizeToContent = SizeToContent.WidthAndHeight // 自動調整大小
+				,SizeToContent = SizeToContent.Manual
 			};
 		} else if (ApplicationLifetime is ISingleViewApplicationLifetime singleViewPlatform) {
 			singleViewPlatform.MainView = new MainView {

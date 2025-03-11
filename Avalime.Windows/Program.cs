@@ -21,17 +21,10 @@ sealed class Program
 			, WindowsKeyProcessor
 		>();
 
-		System.Console.WriteLine(
-			typeof(RimeKeyProcessor)
-			//-> Avalime.Rime.RimeKeyProcessor
-		);
-		System.Console.WriteLine(
-			new RimeKeyProcessor()
-		);
-		// services.AddSingleton<
-		// 	Avalime.Core.keys.I_ImeKeyProcessor
-		// 	,RimeKeyProcessor
-		// >();
+		services.AddSingleton<
+			Avalime.Core.keys.I_ImeKeyProcessor
+			,RimeKeyProcessor
+		>();
 
 		services.AddSingleton<
 			ImeState
