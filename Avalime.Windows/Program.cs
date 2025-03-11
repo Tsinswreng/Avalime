@@ -1,5 +1,6 @@
 ﻿using System;
 using Avalime.Core.keys;
+using Avalime.Rime;
 using Avalime.UI;
 using Avalime.Windows;
 using Avalonia;
@@ -20,10 +21,17 @@ sealed class Program
 			, WindowsKeyProcessor
 		>();
 
-		services.AddSingleton<
-			Avalime.Core.keys.I_OsKeyProcessor
-			, WindowsKeyProcessor
-		>();
+		System.Console.WriteLine(
+			typeof(RimeKeyProcessor)
+			//-> Avalime.Rime.RimeKeyProcessor
+		);
+		System.Console.WriteLine(
+			new RimeKeyProcessor()
+		);
+		// services.AddSingleton<
+		// 	Avalime.Core.keys.I_ImeKeyProcessor
+		// 	,RimeKeyProcessor
+		// >();
 
 		services.AddSingleton<
 			ImeState

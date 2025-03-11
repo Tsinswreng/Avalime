@@ -8,7 +8,7 @@ namespace Avalime.Rime;
 
 
 unsafe public class RimeKeyProcessor
-	: I_KeyProcessor
+	: I_ImeKeyProcessor
 {
 	public event errHandler? errEvent;
 	protected RimeSetup rimeSetup = RimeSetup.inst;
@@ -18,7 +18,13 @@ unsafe public class RimeKeyProcessor
 	}
 
 	public async Task<I_Result<object?>> OnKeyEventsAsy(IEnumerable<I_KeyEvent> keyEvents) {
-		
+		foreach (var keyEvent in keyEvents) {
+			rime.process_key(
+				rimeSetup.rimeSessionId
+				,keyEvent.key.name.ToLower()[0]
+				,RimeModifier.zero
+			);
+		}
 		return Result<object?>.Ok;
 	}
 }

@@ -22,7 +22,8 @@ public class ImeState
 
 	public I_Result<object?> input(IEnumerable<I_KeyEvent> keyEvents){
 		onInput?.Invoke(this, keyEvents);
-
+		System.Console.WriteLine(imeKeyProcessor == null);
+		System.Console.WriteLine(imeKeyProcessor == osKeyProcessor);//t
 		return new Result<object?>();
 	}
 

@@ -21,7 +21,8 @@ unsafe public class RimeSetup
 
 	protected static RimeSetup? _inst = null;
 	public static RimeSetup inst => _inst??= new RimeSetup();
-
+	//TODO test
+	public static str dllPath = "D:/ENV/Rime/weasel-0.15.0/rime.dll";
 
 
 	~RimeSetup(){
@@ -69,7 +70,8 @@ unsafe public class RimeSetup
 	protected zero _setupRimeApi(){
 		//traits = (RimeTraits*)AllocZeroed((nuint)SizeOf<RimeTraits>());
 		//var rimeApi = RimeApiFn.rime_get_api();
-		var rime_get_api = RimeDllLoader.loadFn_rime_get_api("rime");
+
+		var rime_get_api = RimeDllLoader.loadFn_rime_get_api(dllPath);
 		var rimeApi = rime_get_api();
 		rime = new DelegateRimeApiFn(rimeApi);
 		return 0;
