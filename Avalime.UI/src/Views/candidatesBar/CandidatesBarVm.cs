@@ -28,6 +28,7 @@ unsafe public partial class CandidatesBarVm
 
 	public CandidatesBarVm(){
 		imeState.onInput += (s,e)=>{
+			candVms.Clear();
 			var rime = RimeSetup.inst;
 			var rimeApi = rime.apiFn;
 			var iterrator = new RimeCandidateListIterator();

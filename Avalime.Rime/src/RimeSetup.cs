@@ -102,7 +102,9 @@ unsafe public class RimeSetup
 		,byte* message_type
 		,byte* message_value
 	){
-		System.Console.WriteLine(
+		//var pth = "D:/Program Files/Rime/User_Data/TswG_log";
+		System.Console.WriteLine
+		(
 			session_id
 			+" "+S(message_type)
 			+" "+S(message_value)

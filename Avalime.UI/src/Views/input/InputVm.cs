@@ -22,7 +22,10 @@ public class InputVm
 			var rime = RimeSetup.inst;
 			var rimeApi = rime.apiFn;
 			var ctx = new RimeContext();
-			rimeApi.get_context(rime.rimeSessionId, &ctx);
+			if(rimeApi.get_context(rime.rimeSessionId, &ctx) != RimeUtil.True){
+				System.Console.WriteLine("get_context failed");//t
+				return;
+			}
 			str preedit = cStrToCsStr(ctx.composition.preedit);
 			text = preedit;
 			System.Console.WriteLine(text);//t
