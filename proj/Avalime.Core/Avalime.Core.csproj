@@ -10,8 +10,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Compile Include="../CsShared/GlobalUsing.cs" />
-		
+		<Compile Include="../TypeAlias.cs" />
+
 	</ItemGroup>
 
 

@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   	<ItemGroup>
-		<Compile Include="../CsShared/GlobalUsing.cs" />
+		<Compile Include="../TypeAlias.cs" />
 
 		<ProjectReference Include="../Avalime.Core/Avalime.Core.csproj"/>
 		<ProjectReference Include="../CsRimeApi/RimeApi/RimeApi.csproj"/>
