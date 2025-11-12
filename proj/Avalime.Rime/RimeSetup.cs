@@ -1,19 +1,22 @@
+
+
 using System.Runtime.InteropServices;
 using Rime.Api;
 using static System.Runtime.InteropServices.NativeMemory;
 using static System.Runtime.InteropServices.Marshal;
-using static Shr.Interop.PtrUtil;
 using System;
-using Shr.Interop;
+
 
 #region RimeTypes
 using Bool = System.Int32;
-using size_t = System.UIntPtr;
-using RimeSessionId = System.UIntPtr;
+using size_t = nuint;
+using RimeSessionId = nuint;
 #endregion RimeTypes
 
+using static Tsinswreng.CsInterop.Ptr;
+using Tsinswreng.CsInterop;
+namespace Avalime.Rime;
 
-namespace Avalime.UI;
 
 unsafe public class RimeSetup
 	:IDisposable
@@ -23,6 +26,7 @@ unsafe public class RimeSetup
 	public static RimeSetup inst => _inst??= new RimeSetup();
 	//TODO test
 	public static str dllPath = "D:/ENV/Rime/weasel-0.15.0/rime.dll";
+	public PtrMgr ptrMgr = new PtrMgr();
 
 
 	~RimeSetup(){
@@ -39,6 +43,7 @@ unsafe public class RimeSetup
 		}
 		if(disposing){
 			// dispose managed resources
+			ptrMgr.Dispose();
 		}
 		// dispose unmanaged resources
 		//FreeEtNull(&_traits);
@@ -81,8 +86,8 @@ unsafe public class RimeSetup
 	protected zero _setupRimeTraits(){
 		_traits = New<RimeTraits>();
 		traits->data_size = RimeUtil.dataSize<RimeTraits>();
-		traits->user_data_dir = "D:/Program Files/Rime/User_Data".cStr();
-		traits->app_name = "rime.avalime".cStr();
+		traits->user_data_dir = ptrMgr.Str("D:/Program Files/Rime/User_Data");
+		traits->app_name = ptrMgr.Str("rime.avalime");
 		return 0;
 	}
 
@@ -92,7 +97,7 @@ unsafe public class RimeSetup
 	}
 
 	public static str? S(u8* cStr){
-		return Shr.Interop.CStrUtil.cStrToCsStr(cStr);
+		return ToolCStr.ToCsStr(cStr);
 	}
 
 
@@ -103,7 +108,7 @@ unsafe public class RimeSetup
 		,byte* message_value
 	){
 		//var pth = "D:/Program Files/Rime/User_Data/TswG_log";
-		System.Console.WriteLine
+		Console.WriteLine
 		(
 			session_id
 			+" "+S(message_type)
@@ -134,3 +139,17 @@ unsafe public class RimeSetup
 
 }
 
+
+
+// class MyClass:IDisposable{
+// 	bool _Disposed = false;
+// 	public void Dispose() {
+// 		if(_Disposed){
+// 			return;
+// 		}
+// 		//dispose()
+// 	}
+// 	~MyClass(){
+// 		Dispose();
+// 	}
+// }

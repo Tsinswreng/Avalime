@@ -1,10 +1,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using Avalime.Core.keys;
+using Avalime.Rime;
 using Avalime.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using Rime.Api;
-using static Shr.Interop.CStrUtil;
+using Tsinswreng.CsInterop;
+
 
 namespace Avalime.UI.views.input;
 public class InputVm
@@ -19,16 +21,16 @@ public class InputVm
 
 	unsafe public InputVm(){
 		imeState.afterInput += (sender, args) => {
-			G.debug("InputVm");//t
+			//G.debug("InputVm");//t
 			var rime = RimeSetup.inst;
 			var rimeApi = rime.apiFn;
 			var ctx = new RimeContext();
 			ctx.data_size = RimeUtil.dataSize<RimeContext>();
 			if(rimeApi.get_context(rime.rimeSessionId, &ctx) != RimeUtil.True){
-				G.debug("get_context failed");//TODO
+				//G.debug("get_context failed");//TODO
 				return;
 			}
-			str preedit = cStrToCsStr(ctx.composition.preedit);
+			str preedit = ToolCStr.ToCsStr(ctx.composition.preedit);
 			rimeApi.free_context(&ctx);
 			text = preedit;
 

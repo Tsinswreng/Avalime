@@ -1,7 +1,6 @@
 using Avalime.Core;
 using Avalime.Core.IF;
 using Avalime.Core.keys;
-using Avalime.UI;
 using Rime.Api;
 
 namespace Avalime.Rime;

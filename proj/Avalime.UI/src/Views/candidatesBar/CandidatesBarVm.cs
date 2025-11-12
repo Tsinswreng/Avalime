@@ -1,11 +1,13 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Avalime.Core.keys;
+using Avalime.Rime;
 using Avalime.UI.views.candidate;
 using Avalime.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
+using Tsinswreng.CsInterop;
 using Rime.Api;
-using Shr.Interop;
+
 
 namespace Avalime.UI.views.candidatesBar;
 using Ctx = CandidatesBarVm;
@@ -28,14 +30,14 @@ unsafe public partial class CandidatesBarVm
 
 	public CandidatesBarVm(){
 		imeState.afterInput += (s,e)=>{
-			G.debug("candidatesBar");//t
+			//G.debug("candidatesBar");//t
 			candVms.Clear();
 			var rime = RimeSetup.inst;
 			var rimeApi = rime.apiFn;
 			var iterrator = new RimeCandidateListIterator();
 
 			if( rimeApi.candidate_list_begin(rime.rimeSessionId, &iterrator) != RimeUtil.True ){
-				G.debug("no candidates"); //t
+				//G.debug("no candidates"); //t
 				return;
 			}
 			for(;rimeApi.candidate_list_next(&iterrator)==RimeUtil.True;){
@@ -50,8 +52,8 @@ unsafe public partial class CandidatesBarVm
 		in RimeCandidate cand
 	){
 		var ans = new CandidateVm();
-		ans.text = CStrUtil.cStrToCsStr(cand.text)??"";
-		ans.comment = CStrUtil.cStrToCsStr(cand.comment)??"";
+		ans.text = ToolCStr.ToCsStr(cand.text)??"";
+		ans.comment = ToolCStr.ToCsStr(cand.comment)??"";
 		return ans;
 	}
 
