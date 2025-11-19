@@ -64,7 +64,7 @@ unsafe public class RimeSetup
 		get{return _rimeSessionId;}
 	}
 
-	public DelegateRimeApiFn apiFn{get;protected set;}
+	public RimeApi apiFn{get;protected set;}
 
 	public RimeSetup(){
 		_setupRimeApi();
@@ -78,14 +78,14 @@ unsafe public class RimeSetup
 
 		var rime_get_api = RimeDllLoader.loadFn_rime_get_api(dllPath);
 		var rimeApi = rime_get_api();
-		apiFn = new DelegateRimeApiFn(rimeApi);
+		apiFn = *rimeApi;
 		return 0;
 	}
 
 
 	protected zero _setupRimeTraits(){
 		_traits = New<RimeTraits>();
-		traits->data_size = RimeUtil.dataSize<RimeTraits>();
+		traits->data_size = RimeUtil.DataSize<RimeTraits>();
 		traits->user_data_dir = ptrMgr.Str("D:/Program Files/Rime/User_Data");
 		traits->app_name = ptrMgr.Str("rime.avalime");
 		return 0;

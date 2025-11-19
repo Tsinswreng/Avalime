@@ -1,7 +1,13 @@
 <Project>
 	<!-- https://learn.microsoft.com/en-us/nuget/consume-packages/central-package-management -->
 	<PropertyGroup>
+		<AllowMissingPrunePackageData>true</AllowMissingPrunePackageData>
 		<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+		<TargetFramework>net10.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<PublishAot>true</PublishAot>
 	</PropertyGroup>
 	<ItemGroup>
 		<!-- Avalonia packages -->

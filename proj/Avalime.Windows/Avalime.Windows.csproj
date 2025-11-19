@@ -1,32 +1,27 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net10.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-	<PublishAot>true</PublishAot>
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Avalonia.Desktop" />
-    <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
-    <PackageReference Include="Avalonia.Diagnostics" >
-      <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
-      <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
-    </PackageReference>
+	<ItemGroup>
+		<PackageReference Include="Avalonia.Desktop" />
+		<!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
+		<PackageReference Include="Avalonia.Diagnostics">
+			<IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
+			<PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
+		</PackageReference>
 
-	<PackageReference Include="Microsoft.Extensions.DependencyInjection"/>
-  </ItemGroup>
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection"/>
+	</ItemGroup>
 
 
-  <ItemGroup>
-	<Compile Include="../TypeAlias.cs" />
-	<ProjectReference Include="../Avalime.Core/Avalime.Core.csproj" />
-	<ProjectReference Include="../Avalime.UI/Avalime.UI.csproj" />
-	<ProjectReference Include="../Avalime.Rime/Avalime.Rime.csproj" />
-	<ProjectReference Include="../CsRimeApi/RimeApi/RimeApi.csproj"/>
-  </ItemGroup>
+	<ItemGroup>
+		<Compile Include="../TypeAlias.cs" />
+		<ProjectReference Include="../Avalime.Core/Avalime.Core.csproj" />
+		<ProjectReference Include="../Avalime.UI/Avalime.UI.csproj" />
+		<ProjectReference Include="../Avalime.Rime/Avalime.Rime.csproj" />
+		<ProjectReference Include="../CsRimeApi/RimeApi/RimeApi.csproj"/>
+	</ItemGroup>
 
 </Project>

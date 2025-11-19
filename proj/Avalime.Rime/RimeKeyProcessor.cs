@@ -11,7 +11,7 @@ unsafe public class RimeKeyProcessor
 {
 	public event errHandler? errEvent;
 	protected RimeSetup rimeSetup = RimeSetup.inst;
-	public DelegateRimeApiFn rime{get;set;}
+	public RimeApi rime{get;set;}
 	public RimeKeyProcessor() {
 		rime = rimeSetup.apiFn;
 	}

@@ -25,7 +25,7 @@ public class InputVm
 			var rime = RimeSetup.inst;
 			var rimeApi = rime.apiFn;
 			var ctx = new RimeContext();
-			ctx.data_size = RimeUtil.dataSize<RimeContext>();
+			ctx.data_size = RimeUtil.DataSize<RimeContext>();
 			if(rimeApi.get_context(rime.rimeSessionId, &ctx) != RimeUtil.True){
 				//G.debug("get_context failed");//TODO
 				return;
