@@ -26,7 +26,7 @@ unsafe public partial class VmCandidatesBar
 		}
 	}
 
-	public ImeState ImeState{get;set;} = App.ServiceProvider.GetRequiredService<ImeState>();
+	public ImeState ImeState{get;set;} = App.SvcP.GetRequiredService<ImeState>();
 
 	public VmCandidatesBar(){
 		ImeState.AfterInput += (s,e)=>{

@@ -12,7 +12,7 @@ public class KeyEventConverter{
 	protected static KeyEventConverter? _inst = null;
 	public static KeyEventConverter inst => _inst??= new KeyEventConverter();
 
-	public i32 stateToDwFlags(IKeyState keyState){
+	public i32 StateToDwFlags(IKeyState keyState){
 		if(keyState.IsKeyDown){
 			return 0;
 		}else{
@@ -20,16 +20,16 @@ public class KeyEventConverter{
 		}
 	}
 
-	public (u8, u8, i32, i32) convertKeyEvent(
+	public (u8, u8, i32, i32) ConvertKeyEvent(
 		IKeyEvent keyEvent
 	){
 		u8 keyCode = 0;
-		keyCode = (u8)lower__keyCode[keyEvent.Key];
-		var dwFlags = stateToDwFlags(keyEvent.KeyState);
+		keyCode = (u8)Lower_KeyCode[keyEvent.Key];
+		var dwFlags = StateToDwFlags(keyEvent.KeyState);
 		return (keyCode, 0, 0, dwFlags);
 	}
 
-	public IDictionary<IKeyChar, i64> lower__keyCode = new Dictionary<IKeyChar, i64>{
+	public IDictionary<IKeyChar, i64> Lower_KeyCode = new Dictionary<IKeyChar, i64>{
 		 {KeyChars.a, 0x41}
 		,{KeyChars.b, 0x42}
 		,{KeyChars.c, 0x43}
@@ -59,7 +59,7 @@ public class KeyEventConverter{
 
 	};
 
-	public IDictionary<IKeyChar, i64> fn__keyCode = new Dictionary<IKeyChar, i64>{
+	public IDictionary<IKeyChar, i64> Fn_KeyCode = new Dictionary<IKeyChar, i64>{
 		 {KeyChars.Backspace, 0x08}
 	};
 

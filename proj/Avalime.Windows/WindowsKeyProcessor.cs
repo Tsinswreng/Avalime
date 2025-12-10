@@ -19,9 +19,9 @@ public class WindowsKeyProcessor
 
 	public event ErrHandler? OnErr;
 
-	public async Task<I_Result<object?>>  OnKeyEventsAsy(IEnumerable<IKeyEvent> keyEvents) {
+	public async Task<I_Result<object?>> OnKeyEventsAsy(IEnumerable<IKeyEvent> keyEvents) {
 		foreach (var keyEvent in keyEvents) {
-			var ans = KeyEventConverter.inst.convertKeyEvent(keyEvent);
+			var ans = KeyEventConverter.inst.ConvertKeyEvent(keyEvent);
 			KeySender.keybd_event(
 				ans.Item1,
 				ans.Item2,

@@ -32,7 +32,7 @@ sealed class Program{
 
 		var provider = services.BuildServiceProvider();
 		BuildAvaloniaApp()
-		.AfterSetup(e=>App.ConfigureServices(provider))
+		.AfterSetup(e=>App.SetSvcProvider(provider))
 		.StartWithClassicDesktopLifetime(args);
 	}
 

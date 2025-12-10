@@ -9,14 +9,21 @@ using Avalime.UI.Views;
 using Avalonia.Controls;
 using System;
 using Avalonia.Themes.Fluent;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Avalime.UI;
 
 public partial class App : Application {
 
-	public static IServiceProvider ServiceProvider { get; private set; } = null!;
-	public static void ConfigureServices(IServiceProvider serviceProvider){
-		ServiceProvider = serviceProvider;
+	public static IServiceProvider SvcP { get; private set; } = null!;
+	public static void SetSvcProvider(IServiceProvider SvcP){
+		App.SvcP = SvcP;
+	}
+
+	public static T GetRSvc<T>()
+		where T:class
+	{
+		return SvcP.GetRequiredService<T>();
 	}
 
 	public override void Initialize(){

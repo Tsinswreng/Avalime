@@ -20,7 +20,7 @@ public class VmInput
 		get{return field;}
 		set{SetProperty(ref field, value);}
 	}= "";
-	public ImeState imeState{get;set;} = App.ServiceProvider.GetRequiredService<ImeState>();
+	public ImeState imeState{get;set;} = App.SvcP.GetRequiredService<ImeState>();
 
 	unsafe public VmInput(){
 		imeState.AfterInput += (sender, args) => {
