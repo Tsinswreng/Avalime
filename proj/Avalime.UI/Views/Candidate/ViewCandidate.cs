@@ -1,13 +1,12 @@
 namespace Avalime.UI.Views.Candidate;
-using System.Collections.Generic;
-using Avalime.UI.Ext;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Layout;
 using Avalonia.Styling;
-using Shr.Avalonia;
 using Tsinswreng.AvlnTools.Controls;
+using Tsinswreng.AvlnTools.Tools;
 using Ctx = VmCandidate;
+
+
 public class ViewCandidate:UserControl{
 
 	public Ctx? Ctx{
@@ -35,7 +34,7 @@ public class ViewCandidate:UserControl{
 		//Styles.Add(grid);
 		{
 			var o = grid;
-			o.set(
+			o.Set(
 				Grid.ShowGridLinesProperty
 				,true
 			);
@@ -49,25 +48,25 @@ public class ViewCandidate:UserControl{
 		Styles.Add(btn);
 		{
 			var o = btn;
-			o.set(
+			o.Set(
 				MarginProperty
-				,new Thickness(0)
+				, new Thickness(0)
 			);
-			o.set(
+			o.Set(
 				PaddingProperty
-				,new Thickness(0)
+				, new Thickness(0)
 			);
-			o.set(
+			o.Set(
 				VerticalAlignmentProperty
-				,VerticalAlignment.Stretch
+				, VAlign.Stretch
 			);
-			o.set(
+			o.Set(
 				HorizontalAlignmentProperty
-				,HorizontalAlignment.Stretch
+				, HAlign.Stretch
 			);
-			o.set(
+			o.Set(
 				CornerRadiusProperty
-				,new CornerRadius(0)
+				, new CornerRadius(0)
 			);
 		}
 
@@ -78,9 +77,9 @@ public class ViewCandidate:UserControl{
 		Styles.Add(text);
 		{
 			var o = text;
-			o.set(
+			o.Set(
 				FontSizeProperty
-				,20.0
+				, 20.0
 			);
 
 		}
@@ -110,7 +109,7 @@ public class ViewCandidate:UserControl{
 					o.Classes.Add(cls.Comment);
 					o.Bind(
 						TextBlock.TextProperty
-						,new CBE(CBE.pth<Ctx>(x=>x.Comment))
+						,CBE.Mk<Ctx>(x=>x.Comment)
 					);
 				}
 
@@ -122,7 +121,7 @@ public class ViewCandidate:UserControl{
 					o.Classes.Add(cls.Text);
 					o.Bind(
 						TextBlock.TextProperty
-						,new CBE(CBE.pth<Ctx>(x=>x.Text))
+						,new CBE(CBE.Pth<Ctx>(x=>x.Text))
 					);
 				}
 			}}

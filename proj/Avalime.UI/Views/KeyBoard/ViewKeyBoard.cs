@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Avalime.Core.Keys;
-using Avalime.UI.Ext;
 using Avalime.ViewModels.key;
 using Avalime.ViewModels.KeyBoard;
 using Avalonia.Controls;

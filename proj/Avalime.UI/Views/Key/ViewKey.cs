@@ -1,22 +1,12 @@
-using System;
-using System.Linq.Expressions;
 using System.Reactive.Linq;
-using Avalime.UI.Ext;
 using Avalime.ViewModels.key;
 using Avalonia;
-using Avalonia.Animation;
 using Avalonia.Controls;
 using Avalonia.Controls.Presenters;
-using Avalonia.Data;
-using Avalonia.Data.Core;
-using Avalonia.Interactivity;
 using Avalonia.Layout;
-using Avalonia.Markup.Xaml.MarkupExtensions;
-using Avalonia.Markup.Xaml.MarkupExtensions.CompiledBindings;
 using Avalonia.Media;
 using Avalonia.Styling;
-using Shr.Avalonia;
-using Shr.Avalonia.util;
+using Tsinswreng.AvlnTools.Tools;
 using BaseBtn = Avalonia.Controls.Button;
 //using Button
 namespace Avalime.UI.Views.Key;
@@ -49,7 +39,7 @@ public partial class ViewKey : UserControl {
 		Styles.Add(noCornerRadius);
 		{
 			var o = noCornerRadius;
-			o.set(
+			o.Set(
 				CornerRadiusProperty
 				,new CornerRadius(0)
 			);
@@ -64,19 +54,19 @@ public partial class ViewKey : UserControl {
 		Styles.Add(btn);
 		{
 			var o = btn;
-			o.set(
+			o.Set(
 				MarginProperty
 				,new Thickness(0)
 			);
-			o.set(
+			o.Set(
 				PaddingProperty
 				,new Thickness(0)
 			);
-			o.set(
+			o.Set(
 				VerticalAlignmentProperty
 				,VerticalAlignment.Stretch
 			);
-			o.set(
+			o.Set(
 				HorizontalAlignmentProperty
 				,HorizontalAlignment.Stretch
 			);
@@ -88,7 +78,7 @@ public partial class ViewKey : UserControl {
 
 		var btnPointerover = new Style(x=>
 			x.Is<BaseBtn>()
-			.Class(PsdCls.inst.pointerover)
+			.Class(PsdCls.Inst.pointerover)
 			.Template()
 			.OfType<ContentPresenter>()
 		);
@@ -103,7 +93,7 @@ public partial class ViewKey : UserControl {
 
 		var btnPressed = new Style(x=>
 			x.Is<BaseBtn>()
-			.Class(PsdCls.inst.pressed)
+			.Class(PsdCls.Inst.pressed)
 			.Template()
 			.OfType<ContentPresenter>()
 		);
@@ -121,11 +111,11 @@ public partial class ViewKey : UserControl {
 		);
 		Styles.Add(container);
 		{var o = container;
-			o.set(
+			o.Set(
 				Control.WidthProperty
 				,32.0
 			);
-			o.set(
+			o.Set(
 				Control.HeightProperty
 				,32.0
 			);
@@ -144,15 +134,15 @@ public partial class ViewKey : UserControl {
 		//Styles.Add(labelBorder);
 		{
 			var o = labelBorder;
-			o.set(
+			o.Set(
 				Border.BorderThicknessProperty
 				,new Thickness(1)
 			);
-			o.set(
+			o.Set(
 				Border.BorderBrushProperty
 				,Brushes.Aqua
 			);
-			o.set(
+			o.Set(
 				Border.MarginProperty
 				,new Thickness(0,4,0,4)
 			);
@@ -162,23 +152,23 @@ public partial class ViewKey : UserControl {
 		);
 		Styles.Add(label);
 		{var o = label;
-			o.set(
+			o.Set(
 				Control.MinHeightProperty
 				,0.0
 			);
-			o.set(
+			o.Set(
 				Control.MinWidthProperty
 				,0.0
 			);
-			o.set(
+			o.Set(
 				Control.HorizontalAlignmentProperty
 				,HorizontalAlignment.Center
 			);
-			o.set(
+			o.Set(
 				Control.VerticalAlignmentProperty
 				,VerticalAlignment.Center
 			);
-			o.set(
+			o.Set(
 				FontSizeProperty
 				,24.0
 			);
@@ -220,7 +210,7 @@ public partial class ViewKey : UserControl {
 						o.Classes.Add(cls.label);
 						o.Bind(
 							TextBlock.TextProperty
-							,new CBE(CBE.pth<KeyVm, str>(x=>x.Label))
+							,new CBE(CBE.Pth<KeyVm, str>(x=>x.Label))
 						);
 					}//
 				}}//~keyBorder:Border

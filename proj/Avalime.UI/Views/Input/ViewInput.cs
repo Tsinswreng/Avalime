@@ -3,8 +3,9 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia;
-using Shr.Avalonia;
+
 using Avalonia.Data;
+using Tsinswreng.AvlnTools.Tools;
 
 namespace Avalime.UI.Views.input;
 using Ctx = Avalime.UI.Views.input.VmInput;
@@ -33,7 +34,7 @@ public class ViewInput : UserControl {
 					var o = text;
 					o.Bind(
 						TextBlock.TextProperty
-						,new CBE(CBE.pth<Ctx, str>(x=>x.Text)){
+						,new CBE(CBE.Pth<Ctx, str>(x=>x.Text)){
 							Mode=BindingMode.TwoWay
 						}
 					);
