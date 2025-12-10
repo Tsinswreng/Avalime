@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Avalime.Core.IF;
-using Avalime.Core.keys;
+using Avalime.Core.Keys;
 using Avalime.UI;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.DependencyInjection;

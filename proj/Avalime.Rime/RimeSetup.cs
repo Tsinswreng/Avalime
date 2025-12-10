@@ -101,7 +101,7 @@ unsafe public class RimeSetup
 	}
 
 
-	public void on_message(
+	public static void on_message(
 		void* context_object
 		,RimeSessionId session_id
 		,byte* message_type
@@ -117,13 +117,25 @@ unsafe public class RimeSetup
 		//略
 	}
 
-	public RimeNotificationHandler rimeNotificationHandler;
+	public RimeNotificationHandler ManagedRimeNotificationHandler = on_message;
+	// IntPtr IntPtrRimeNotificationHandler;
+	// public delegate* unmanaged[Cdecl]<
+	// 	void* // context_object
+	// 	,RimeSessionId // session_id
+	// 	,u8* //message_type // const char*
+	// 	,u8* //message_value // const char*
+	// 	,void
+	// > RimeNotificationHandler;
 
 	protected zero _setupRimeSession(){
 		apiFn.setup(traits);
-		rimeNotificationHandler = on_message;
-		apiFn.set_notification_handler(
-			rimeNotificationHandler
+		ManagedRimeNotificationHandler = on_message;
+		// RimeNotificationHandler = RimeToRimeNotificationHandler(
+		// 	//勿直把具名方法傳入GetFunctionPointerForDelegate。緣若此則其內會先生成臨時委託 後把臨時委託轉成指針。臨時委託ʹ壽ˋ短於傳入ʹ具名方法
+		// 	Marshal.GetFunctionPointerForDelegate(ManagedRimeNotificationHandler)
+		// );
+		apiFn.set_notification_handlerManaged(
+			ManagedRimeNotificationHandler
 			,null
 		);
 		apiFn.initialize(null);
@@ -136,6 +148,7 @@ unsafe public class RimeSetup
 	}
 
 	//TODO rime.destroy_session(rimeSessionId); rime.finalize();
+
 
 }
 

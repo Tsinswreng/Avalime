@@ -1,8 +1,8 @@
 using Avalime.Core.IF;
 
-namespace Avalime.Core.keys;
+namespace Avalime.Core.Keys;
 
-public interface I_ImeState{
+public interface IImeState{
 
 	public IDictionary<object, object?> config{get;set;}
 	public object? getOption();
@@ -15,7 +15,7 @@ public interface I_ImeState{
 	/// </summary>
 	/// <param name="keyChars"></param>
 	/// <returns></returns>
-	public I_Result<object?> input(IEnumerable<I_KeyChar> keyChars);
+	public I_Result<object?> input(IEnumerable<IKeyChar> keyChars);
 
 	public event EventHandler<object?>? onInput;
 

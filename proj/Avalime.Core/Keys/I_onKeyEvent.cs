@@ -1,6 +1,6 @@
 using Avalime.Core.IF;
 
-namespace Avalime.Core.keys;
+namespace Avalime.Core.Keys;
 
 
 public interface I_OnKeyEvents{

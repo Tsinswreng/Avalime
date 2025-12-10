@@ -1,4 +1,4 @@
-using Avalime.Core.keys;
+using Avalime.Core.Keys;
 
 namespace Avalime.Windows;
 
@@ -29,7 +29,7 @@ public class KeyEventConverter{
 		return (keyCode, 0, 0, dwFlags);
 	}
 
-	public IDictionary<I_KeyChar, i64> lower__keyCode = new Dictionary<I_KeyChar, i64>{
+	public IDictionary<IKeyChar, i64> lower__keyCode = new Dictionary<IKeyChar, i64>{
 		 {KeyChars.a, 0x41}
 		,{KeyChars.b, 0x42}
 		,{KeyChars.c, 0x43}
@@ -59,7 +59,7 @@ public class KeyEventConverter{
 
 	};
 
-	public IDictionary<I_KeyChar, i64> fn__keyCode = new Dictionary<I_KeyChar, i64>{
+	public IDictionary<IKeyChar, i64> fn__keyCode = new Dictionary<IKeyChar, i64>{
 		 {KeyChars.Backspace, 0x08}
 	};
 

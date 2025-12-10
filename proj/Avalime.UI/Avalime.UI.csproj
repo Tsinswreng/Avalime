@@ -35,7 +35,6 @@
 	<!-- 先叶後抽象 後當除此 -->
 	<ProjectReference Include="../CsRimeApi/RimeApi/RimeApi.csproj"/>
 	<ProjectReference Include="../Avalime.Rime/Avalime.Rime.csproj" />
-	<ProjectReference Include="../CsShared/CsShared.csproj" />
 
 </ItemGroup>
 </Project>

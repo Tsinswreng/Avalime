@@ -1,12 +1,13 @@
-﻿using System;
-using Avalime.Core.keys;
+﻿namespace Avalime.Windows;
+
+using System;
+using Avalime.Core.Keys;
 using Avalime.Rime;
 using Avalime.UI;
-using Avalime.Windows;
 using Avalonia;
 using Avalonia.Media;
 using Microsoft.Extensions.DependencyInjection;
-namespace Avalime.Desktop;
+
 
 sealed class Program
 {
@@ -17,13 +18,13 @@ sealed class Program
 	public static void Main(string[] args){
 		var services = new ServiceCollection();
 		services.AddSingleton<
-			Avalime.Core.keys.I_OsKeyProcessor
+			I_OsKeyProcessor
 			, WindowsKeyProcessor
 		>();
 
 		services.AddSingleton<
-			Avalime.Core.keys.I_ImeKeyProcessor
-			,RimeKeyProcessor
+			I_ImeKeyProcessor
+			, RimeKeyProcessor
 		>();
 
 		services.AddSingleton<

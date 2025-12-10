@@ -1,9 +1,9 @@
 ﻿using System;
-using Avalime.Core.keys;
+using Avalime.Core.Keys;
 using Avalonia.Input;
 using Avalonia.Remote.Protocol.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
-using KS = Avalime.Core.keys.KeyStates;
+using KS = Avalime.Core.Keys.KeyStates;
 namespace Avalime.ViewModels.key;
 
 public partial class KeyVm
@@ -12,7 +12,7 @@ public partial class KeyVm
 {
 
 	public KeyVm(){
-		label = key_click?.name??"";
+		label = key_click?.Name??"";
 
 		click = () => {
 			var state = imeState as ImeState;//TODO temp
@@ -51,11 +51,11 @@ public partial class KeyVm
 
 	public ImeState imeState{get;set;}//TODO 改用接口
 
-	protected I_KeyChar _key_click;
-	public I_KeyChar key_click{
+	protected IKeyChar _key_click;
+	public IKeyChar key_click{
 		get{return _key_click;}
 		set{
-			label = value.name??"";
+			label = value.Name??"";
 			SetProperty(ref _key_click, value);
 		}
 	}

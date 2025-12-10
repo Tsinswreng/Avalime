@@ -1,6 +1,6 @@
-using Avalime.Core.keys;
+using Avalime.Core.Keys;
 using Rime.Api;
-using KS = Avalime.Core.keys.KeyChars;
+using KS = Avalime.Core.Keys.KeyChars;
 namespace Avalime.Rime;
 
 public class RimeKeyCharConverter{
@@ -20,7 +20,7 @@ public class RimeKeyCharConverter{
 	}
 
 
-	public IDictionary<I_KeyChar, i64> lower__keyCode = new Dictionary<I_KeyChar, i64>{
+	public IDictionary<IKeyChar, i64> lower__keyCode = new Dictionary<IKeyChar, i64>{
 		{KS.A, 0x41}
 		,{KS.B, 0x42}
 		,{KS.C, 0x43}

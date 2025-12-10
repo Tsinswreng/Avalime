@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Avalime.Core.IF;
 
-namespace Avalime.Core.keys;
+namespace Avalime.Core.Keys;
 
 public class ImeState
 	//:I_ImeState //TODO 先叶後抽象

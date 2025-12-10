@@ -1,6 +1,6 @@
-using static Avalime.Core.keys.KeyChar;
-using IK = Avalime.Core.keys.I_KeyChar;
-namespace Avalime.Core.keys;
+using static Avalime.Core.Keys.KeyChar;
+using IK = Avalime.Core.Keys.IKeyChar;
+namespace Avalime.Core.Keys;
 using KS = KeyChars;
 
 public static class KeyChars{

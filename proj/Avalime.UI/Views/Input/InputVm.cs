@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
-using Avalime.Core.keys;
+using Avalime.Core.Keys;
 using Avalime.Rime;
 using Avalime.ViewModels;
 using Microsoft.Extensions.DependencyInjection;

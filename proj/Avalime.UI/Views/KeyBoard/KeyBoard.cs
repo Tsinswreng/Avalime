@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Avalime.Core.keys;
+using Avalime.Core.Keys;
 using Avalime.UI.Ext;
 using Avalime.ViewModels.key;
 using Avalime.ViewModels.KeyBoard;
@@ -117,7 +117,7 @@ public partial class KeyBoard : UserControl{
 					Grid.SetRow(row0, idx_keysGrid++);
 				}
 				{{
-					var k = (I_KeyChar key)=>{
+					var k = (IKeyChar key)=>{
 						var view = kView(key);
 						row0.Children.Add(view);
 						Grid.SetColumn(view, idx_row0++);
@@ -149,7 +149,7 @@ public partial class KeyBoard : UserControl{
 					// 	row1.Children.Add(keyView);
 					// 	Grid.SetColumn(keyView, idx_row1++);
 					// };
-					var k = (I_KeyChar key)=>{
+					var k = (IKeyChar key)=>{
 						var view = kView(key);
 						row1.Children.Add(view);
 						Grid.SetColumn(view, idx_row1++);
@@ -176,7 +176,7 @@ public partial class KeyBoard : UserControl{
 				}
 				{{//row2:Grid
 					//
-					var k = (I_KeyChar key)=>{
+					var k = (IKeyChar key)=>{
 						var view = kView(key);
 						row2.Children.Add(view);
 						Grid.SetColumn(view, idx_row2++);
@@ -204,7 +204,7 @@ public partial class KeyBoard : UserControl{
 				}
 				{{//row3:Grid
 					//
-					var k = (I_KeyChar key)=>{
+					var k = (IKeyChar key)=>{
 						var view = kView(key);
 						row3.Children.Add(view);
 						Grid.SetColumn(view, idx_row3++);
@@ -239,7 +239,7 @@ public partial class KeyBoard : UserControl{
 						row4.Children.Add(keyView);
 						Grid.SetColumn(keyView, idx_row4++);
 					};
-				var k = (I_KeyChar key)=>{
+				var k = (IKeyChar key)=>{
 						var view = kView(key);
 						row4.Children.Add(view);
 						Grid.SetColumn(view, idx_row4++);
@@ -296,7 +296,7 @@ public partial class KeyBoard : UserControl{
 	/// </summary>
 	/// <param name="key"></param>
 	/// <returns></returns>
-	protected KeyView kView(I_KeyChar key){
+	protected KeyView kView(IKeyChar key){
 		var vm = new KeyVm();
 		vm.key_click = key;
 		vm.imeState = ctx!.imeState;

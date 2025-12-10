@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using Avalime.Core.keys;
+using Avalime.Core.Keys;
 using Avalime.Rime;
 using Avalime.UI.views.candidate;
 using Avalime.ViewModels;

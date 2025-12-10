@@ -1,4 +1,4 @@
-namespace Avalime.Core.keys;
+namespace Avalime.Core.Keys;
 
 public delegate object? errHandler(object sender, object? arg);
 
