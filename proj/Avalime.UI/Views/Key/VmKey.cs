@@ -12,18 +12,18 @@ public partial class KeyVm
 {
 
 	public KeyVm(){
-		label = key_click?.Name??"";
+		Label = Key_Click?.Name??"";
 
 		Click = () => {
-			var state = imeState as ImeState;//TODO temp
+			var state = ImeState as ImeState;//TODO temp
 			try{
 				state?.Input([
 					new KeyEvent{
-						Key = key_click
+						Key = Key_Click
 						,KeyState = KS.Down
 					}
 					,new KeyEvent{
-						Key = key_click
+						Key = Key_Click
 						,KeyState = KS.Up
 					}
 				]);
@@ -49,23 +49,21 @@ public partial class KeyVm
 	public Func<zero>? SwipeUP{get;set;}
 	public Func<zero>? SwipeRight{get;set;}
 
-	public ImeState imeState{get;set;}//TODO 改用接口
+	public ImeState ImeState{get;set;}//TODO 改用接口
 
-	protected IKeyChar _key_click;
-	public IKeyChar key_click{
-		get{return _key_click;}
+	public IKeyChar Key_Click{
+		get{return field;}
 		set{
-			label = value.Name??"";
-			SetProperty(ref _key_click, value);
+			Label = value.Name??"";
+			SetProperty(ref field, value);
 		}
 	}
 
 
-	protected str _label="";
-	public str label{
-		get => _label;
-		set => SetProperty(ref _label, value);
-	}
+	public str Label{
+		get => field;
+		set => SetProperty(ref field, value);
+	}="";
 
 
 

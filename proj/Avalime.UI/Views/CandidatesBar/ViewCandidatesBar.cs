@@ -6,17 +6,17 @@ using Avalonia.Layout;
 using Shr.Avalonia;
 
 namespace Avalime.UI.Views.candidatesBar;
-using Ctx = CandidatesBarVm;
-public partial class CandidatesBar:UserControl{
+using Ctx = VmCandidatesBar;
+public partial class ViewCandidatesBar:UserControl{
 
-	public Ctx? ctx{
+	public Ctx? Ctx{
 		get{return DataContext as Ctx;}
 		set{DataContext = value;}
 	}
 
 
-	public CandidatesBar(){
-		ctx = new Ctx();
+	public ViewCandidatesBar(){
+		Ctx = new Ctx();
 		//ctx = Ctx.samples[0];
 		_style();
 		_render();
@@ -53,7 +53,7 @@ public partial class CandidatesBar:UserControl{
 			var o = ans;
 			o.Bind(
 				ItemsControl.ItemsSourceProperty
-				,new CBE(CBE.pth<Ctx>(x=>x.candVms))
+				,new CBE(CBE.pth<Ctx>(x=>x.CandVms))
 			);
 			o.ItemsPanel = new FuncTemplate<Panel?>(()=>{
 				return new StackPanel(){

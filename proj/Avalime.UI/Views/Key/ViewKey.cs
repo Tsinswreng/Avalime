@@ -220,7 +220,7 @@ public partial class ViewKey : UserControl {
 						o.Classes.Add(cls.label);
 						o.Bind(
 							TextBlock.TextProperty
-							,new CBE(CBE.pth<KeyVm, str>(x=>x.label))
+							,new CBE(CBE.pth<KeyVm, str>(x=>x.Label))
 						);
 					}//
 				}}//~keyBorder:Border

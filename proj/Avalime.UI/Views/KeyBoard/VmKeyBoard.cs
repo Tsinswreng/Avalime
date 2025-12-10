@@ -11,7 +11,7 @@ public partial class VmKeyBoard
 {
 
 	//TODO 改用接口
-	public ImeState imeState{get;set;} = App.ServiceProvider.GetRequiredService<ImeState>();
+	public ImeState ImeState{get;set;} = App.ServiceProvider.GetRequiredService<ImeState>();
 
 
 

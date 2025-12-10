@@ -63,7 +63,7 @@ public partial class ViewKeyBoard : UserControl{
 
 	protected ViewKey _key(str label){
 		var k = new ViewKey();
-		k.DataContext = new KeyVm(){label = label};
+		k.DataContext = new KeyVm(){Label = label};
 		return k;
 	}
 
@@ -298,8 +298,8 @@ public partial class ViewKeyBoard : UserControl{
 	/// <returns></returns>
 	protected ViewKey kView(IKeyChar key){
 		var vm = new KeyVm();
-		vm.key_click = key;
-		vm.imeState = ctx!.imeState;
+		vm.Key_Click = key;
+		vm.ImeState = ctx!.ImeState;
 		var ans = new ViewKey();
 		ans.DataContext = vm;
 		return ans;

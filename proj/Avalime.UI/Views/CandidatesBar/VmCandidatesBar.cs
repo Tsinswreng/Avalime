@@ -10,28 +10,28 @@ using Rime.Api;
 
 
 namespace Avalime.UI.Views.candidatesBar;
-using Ctx = CandidatesBarVm;
-unsafe public partial class CandidatesBarVm
+using Ctx = VmCandidatesBar;
+unsafe public partial class VmCandidatesBar
 	:ViewModelBase
 {
-	public static List<Ctx> samples = [];
-	static CandidatesBarVm(){
+	public static List<Ctx> Samples = [];
+	static VmCandidatesBar(){
 		{
 			var s = new Ctx();
-			samples.Add(s);
+			Samples.Add(s);
 			for(var i = 0; i < 100; i++){
-				s.candVms.Add(VmCandidate.Samples[0]);
-				s.candVms.Add(VmCandidate.Samples[1]);
+				s.CandVms.Add(VmCandidate.Samples[0]);
+				s.CandVms.Add(VmCandidate.Samples[1]);
 			}
 		}
 	}
 
-	public ImeState imeState{get;set;} = App.ServiceProvider.GetRequiredService<ImeState>();
+	public ImeState ImeState{get;set;} = App.ServiceProvider.GetRequiredService<ImeState>();
 
-	public CandidatesBarVm(){
-		imeState.AfterInput += (s,e)=>{
+	public VmCandidatesBar(){
+		ImeState.AfterInput += (s,e)=>{
 			//G.debug("candidatesBar");//t
-			candVms.Clear();
+			CandVms.Clear();
 			var rime = RimeSetup.inst;
 			var rimeApi = rime.apiFn;
 			var iterrator = new RimeCandidateListIterator();
@@ -41,14 +41,14 @@ unsafe public partial class CandidatesBarVm
 				return;
 			}
 			for(;rimeApi.candidate_list_next(&iterrator)==RimeUtil.True;){
-				var ua = toCand(iterrator.candidate);
-				candVms.Add(ua);
+				var ua = ToCand(iterrator.candidate);
+				CandVms.Add(ua);
 			}
 		};
 	}
 
 
-	public VmCandidate toCand(
+	public VmCandidate ToCand(
 		in RimeCandidate cand
 	){
 		var ans = new VmCandidate();
@@ -58,12 +58,10 @@ unsafe public partial class CandidatesBarVm
 	}
 
 
-
-	protected ObservableCollection<VmCandidate> _candVms = [];
-	public ObservableCollection<VmCandidate> candVms{
-		get{return _candVms;}
-		set{SetProperty(ref _candVms, value);}
-	}
+	public ObservableCollection<VmCandidate> CandVms{
+		get{return field;}
+		set{SetProperty(ref field, value);}
+	} = [];
 
 
 

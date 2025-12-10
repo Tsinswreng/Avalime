@@ -14,7 +14,7 @@ public class ViewTopBar : UserControl {
 	}
 
 	protected zero _render() {
-		Content = new CandidatesBar();
+		Content = new ViewCandidatesBar();
 		return 0;
 		var ans = new Grid();
 		Content = ans;
