@@ -1,11 +1,11 @@
 using System.Collections;
-using Avalime.UI.views.candidate;
+using Avalime.UI.Views.Candidate;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using Avalonia.Layout;
 using Shr.Avalonia;
 
-namespace Avalime.UI.views.candidatesBar;
+namespace Avalime.UI.Views.candidatesBar;
 using Ctx = CandidatesBarVm;
 public partial class CandidatesBar:UserControl{
 
@@ -64,13 +64,13 @@ public partial class CandidatesBar:UserControl{
 
 
 		}
-		ans.ItemTemplate = new FuncDataTemplate<CandidateVm>((vm,b)=>{
-			var ans2 = new CandidateView();
+		ans.ItemTemplate = new FuncDataTemplate<VmCandidate>((vm,b)=>{
+			var ans2 = new ViewCandidate();
 			{
 				var o = ans2;
 				o.Bind(
 					DataContextProperty
-					,new CBE(CBE.pth<CandidateVm>(x=>x))
+					,new CBE(CBE.pth<VmCandidate>(x=>x))
 				);
 			}
 			return ans2;

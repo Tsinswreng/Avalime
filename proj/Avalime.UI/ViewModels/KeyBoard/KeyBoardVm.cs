@@ -7,7 +7,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.DependencyInjection;
 namespace Avalime.ViewModels.KeyBoard;
 
-public partial class KeyBoardVm
+public partial class VmKeyBoard
 	:ViewModelBase
 {
 

@@ -18,11 +18,11 @@ using Avalonia.Styling;
 using Shr.Avalonia;
 using Shr.Avalonia.util;
 using BaseBtn = Avalonia.Controls.Button;
-using Button = Avalime.UI.controls.SwipeLongPressBtn;
-namespace Avalime.Views.Key;
+//using Button
+namespace Avalime.UI.Views.Key;
 
-public partial class KeyView : UserControl {
-	public KeyView() {
+public partial class ViewKey : UserControl {
+	public ViewKey() {
 		//InitializeComponent();
 		DataContext = new KeyVm();
 		_style();
@@ -193,7 +193,7 @@ public partial class KeyView : UserControl {
 		{
 			var o = btn;
 			o.Click += (s,e)=>{
-				ctx?.click?.Invoke();
+				ctx?.Click?.Invoke();
 			};
 
 		}

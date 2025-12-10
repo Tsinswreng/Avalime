@@ -4,20 +4,20 @@ namespace Avalime.Core.Keys;
 
 public interface IImeState{
 
-	public IDictionary<object, object?> config{get;set;}
-	public object? getOption();
-	public object setOption();
-	public I_OsKeyProcessor osKeyProcessor{get;set;}
-	public I_ImeKeyProcessor imeKeyProcessor{get;set;}
+	public IDictionary<object, object?> Cfg{get;set;}
+	public object? GetOption();
+	public object SetOption();
+	public I_OsKeyProcessor OsKeyProcessor{get;set;}
+	public IImeKeyProcessor ImeKeyProcessor{get;set;}
 
 	/// <summary>
 	/// test
 	/// </summary>
 	/// <param name="keyChars"></param>
 	/// <returns></returns>
-	public I_Result<object?> input(IEnumerable<IKeyChar> keyChars);
+	public I_Result<object?> Input(IEnumerable<IKeyChar> keyChars);
 
-	public event EventHandler<object?>? onInput;
+	public event EventHandler<object?>? OnInput;
 
 
 }

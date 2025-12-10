@@ -2,14 +2,14 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Avalime.Core.Keys;
 using Avalime.Rime;
-using Avalime.UI.views.candidate;
+using Avalime.UI.Views.Candidate;
 using Avalime.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using Tsinswreng.CsInterop;
 using Rime.Api;
 
 
-namespace Avalime.UI.views.candidatesBar;
+namespace Avalime.UI.Views.candidatesBar;
 using Ctx = CandidatesBarVm;
 unsafe public partial class CandidatesBarVm
 	:ViewModelBase
@@ -20,8 +20,8 @@ unsafe public partial class CandidatesBarVm
 			var s = new Ctx();
 			samples.Add(s);
 			for(var i = 0; i < 100; i++){
-				s.candVms.Add(CandidateVm.samples[0]);
-				s.candVms.Add(CandidateVm.samples[1]);
+				s.candVms.Add(VmCandidate.Samples[0]);
+				s.candVms.Add(VmCandidate.Samples[1]);
 			}
 		}
 	}
@@ -29,7 +29,7 @@ unsafe public partial class CandidatesBarVm
 	public ImeState imeState{get;set;} = App.ServiceProvider.GetRequiredService<ImeState>();
 
 	public CandidatesBarVm(){
-		imeState.afterInput += (s,e)=>{
+		imeState.AfterInput += (s,e)=>{
 			//G.debug("candidatesBar");//t
 			candVms.Clear();
 			var rime = RimeSetup.inst;
@@ -48,19 +48,19 @@ unsafe public partial class CandidatesBarVm
 	}
 
 
-	public CandidateVm toCand(
+	public VmCandidate toCand(
 		in RimeCandidate cand
 	){
-		var ans = new CandidateVm();
-		ans.text = ToolCStr.ToCsStr(cand.text)??"";
-		ans.comment = ToolCStr.ToCsStr(cand.comment)??"";
+		var ans = new VmCandidate();
+		ans.Text = ToolCStr.ToCsStr(cand.text)??"";
+		ans.Comment = ToolCStr.ToCsStr(cand.comment)??"";
 		return ans;
 	}
 
 
 
-	protected ObservableCollection<CandidateVm> _candVms = [];
-	public ObservableCollection<CandidateVm> candVms{
+	protected ObservableCollection<VmCandidate> _candVms = [];
+	public ObservableCollection<VmCandidate> candVms{
 		get{return _candVms;}
 		set{SetProperty(ref _candVms, value);}
 	}

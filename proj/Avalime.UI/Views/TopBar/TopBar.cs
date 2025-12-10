@@ -3,13 +3,13 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia;
-using Avalime.UI.controls;
-using Avalime.UI.views.candidatesBar;
+using Avalime.UI.Views.candidatesBar;
+using Tsinswreng.AvlnTools.Controls;
 
 
-namespace Avalime.UI.views.topBar;
-public class TopBar : UserControl {
-	public TopBar() {
+namespace Avalime.UI.Views.topBar;
+public class ViewTopBar : UserControl {
+	public ViewTopBar() {
 		_render();
 	}
 
@@ -32,7 +32,7 @@ public class TopBar : UserControl {
 					o.Click += (sender, e) => {
 						System.Console.WriteLine("click");
 					};
-					o.LongPressed += (sender, e) => {
+					o.OnLongPressed += (sender, e) => {
 						System.Console.WriteLine("long press");
 					};
 				}
@@ -41,7 +41,7 @@ public class TopBar : UserControl {
 				wrap.Children.Add(swipeBtn);
 				{
 					var o = swipeBtn;
-					o.Swipe += (sender, e) => {
+					o.OnSwipe += (sender, e) => {
 						System.Console.WriteLine(e.Direction);
 					};
 					o.Click += (sender, e) => {
@@ -53,13 +53,13 @@ public class TopBar : UserControl {
 				wrap.Children.Add(both);
 				{
 					var o = both;
-					o.Swipe += (sender, e) => {
+					o.OnSwipe += (sender, e) => {
 						System.Console.WriteLine(e.Direction);
 					};
 					o.Click += (sender, e) => {
 						System.Console.WriteLine("click");
 					};
-					o.LongPressed += (sender, e) => {
+					o.OnLongPressed += (sender, e) => {
 						System.Console.WriteLine("long press");
 					};
 				}

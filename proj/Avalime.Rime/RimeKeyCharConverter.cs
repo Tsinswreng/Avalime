@@ -8,14 +8,14 @@ public class RimeKeyCharConverter{
 	public static RimeKeyCharConverter inst => _inst??= new RimeKeyCharConverter();
 
 
-	public (i32, i32) convert(I_KeyEvent keyEvent){
+	public (i32, i32) convert(IKeyEvent keyEvent){
 		i32 mask;
-		if(keyEvent.keyState.isKeyDown){
+		if(keyEvent.KeyState.IsKeyDown){
 			mask = RimeModifier.zero;
 		}else{
 			mask = RimeModifier.kReleaseMask;
 		}
-		var keyCode = (i32)lower__keyCode[keyEvent.key];//TODO handle err
+		var keyCode = (i32)lower__keyCode[keyEvent.Key];//TODO handle err
 		return (keyCode, mask);
 	}
 

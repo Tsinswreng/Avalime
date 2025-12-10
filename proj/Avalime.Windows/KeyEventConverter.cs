@@ -12,8 +12,8 @@ public class KeyEventConverter{
 	protected static KeyEventConverter? _inst = null;
 	public static KeyEventConverter inst => _inst??= new KeyEventConverter();
 
-	public i32 stateToDwFlags(I_KeyState keyState){
-		if(keyState.isKeyDown){
+	public i32 stateToDwFlags(IKeyState keyState){
+		if(keyState.IsKeyDown){
 			return 0;
 		}else{
 			return 2;
@@ -21,11 +21,11 @@ public class KeyEventConverter{
 	}
 
 	public (u8, u8, i32, i32) convertKeyEvent(
-		I_KeyEvent keyEvent
+		IKeyEvent keyEvent
 	){
 		u8 keyCode = 0;
-		keyCode = (u8)lower__keyCode[keyEvent.key];
-		var dwFlags = stateToDwFlags(keyEvent.keyState);
+		keyCode = (u8)lower__keyCode[keyEvent.Key];
+		var dwFlags = stateToDwFlags(keyEvent.KeyState);
 		return (keyCode, 0, 0, dwFlags);
 	}
 

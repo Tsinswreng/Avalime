@@ -23,7 +23,7 @@ sealed class Program
 		>();
 
 		services.AddSingleton<
-			I_ImeKeyProcessor
+			IImeKeyProcessor
 			, RimeKeyProcessor
 		>();
 

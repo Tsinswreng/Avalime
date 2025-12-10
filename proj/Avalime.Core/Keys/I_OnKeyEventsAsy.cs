@@ -5,6 +5,6 @@ namespace Avalime.Core.Keys;
 
 public interface I_OnKeyEvents{
 	public Task<I_Result<object?>> OnKeyEventsAsy(
-		IEnumerable<I_KeyEvent> keyEvents
+		IEnumerable<IKeyEvent> keyEvents
 	);
 }

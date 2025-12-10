@@ -1,3 +1,5 @@
+
+
 using System.Collections.Generic;
 using System.Linq;
 using Avalime.Core.Keys;
@@ -7,20 +9,21 @@ using Microsoft.Extensions.DependencyInjection;
 using Rime.Api;
 using Tsinswreng.CsInterop;
 
+namespace Avalime.UI.Views.input;
 
-namespace Avalime.UI.views.input;
-public class InputVm
+
+
+public class VmInput
 	:ViewModelBase
 {
-	protected str _text = "";
-	public str text{
-		get{return _text;}
-		set{SetProperty(ref _text, value);}
-	}
+	public str Text{
+		get{return field;}
+		set{SetProperty(ref field, value);}
+	}= "";
 	public ImeState imeState{get;set;} = App.ServiceProvider.GetRequiredService<ImeState>();
 
-	unsafe public InputVm(){
-		imeState.afterInput += (sender, args) => {
+	unsafe public VmInput(){
+		imeState.AfterInput += (sender, args) => {
 			//G.debug("InputVm");//t
 			var rime = RimeSetup.inst;
 			var rimeApi = rime.apiFn;
@@ -32,7 +35,7 @@ public class InputVm
 			}
 			str preedit = ToolCStr.ToCsStr(ctx.composition.preedit);
 			rimeApi.free_context(&ctx);
-			text = preedit;
+			Text = preedit;
 
 			// var sb= new List<str>();
 			// foreach(var keyEvent in args){

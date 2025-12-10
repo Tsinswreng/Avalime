@@ -4,22 +4,22 @@ using Avalime.Core.Keys;
 using Avalime.UI.Ext;
 using Avalime.ViewModels.key;
 using Avalime.ViewModels.KeyBoard;
-using Avalime.Views.Key;
 using Avalonia.Controls;
 using Avalonia.Styling;
-using Avalime.UI.views.topBar;
-using Avalime.UI.views.input;
-namespace Avalime.UI.views.KeyBoard;
+using Avalime.UI.Views.topBar;
+using Avalime.UI.Views.input;
+using Avalime.UI.Views.Key;
+namespace Avalime.UI.Views.KeyBoard;
 
-public partial class KeyBoard : UserControl{
-	public KeyBoard(){
-		DataContext = new KeyBoardVm();
+public partial class ViewKeyBoard : UserControl{
+	public ViewKeyBoard(){
+		DataContext = new VmKeyBoard();
 		_style();
 		_render();
 	}
 
-	public KeyBoardVm? ctx{
-		get{return DataContext as KeyBoardVm;}
+	public VmKeyBoard? ctx{
+		get{return DataContext as VmKeyBoard;}
 		set{DataContext = value;}
 	}
 
@@ -61,8 +61,8 @@ public partial class KeyBoard : UserControl{
 		return rd;
 	}
 
-	protected KeyView _key(str label){
-		var k = new KeyView();
+	protected ViewKey _key(str label){
+		var k = new ViewKey();
 		k.DataContext = new KeyVm(){label = label};
 		return k;
 	}
@@ -82,14 +82,14 @@ public partial class KeyBoard : UserControl{
 			]);
 		}
 		{{
-			var input = new Input();
+			var input = new ViewInput();
 			container.Children.Add(input);
 			{
 				var o = input;
 				Grid.SetRow(o, idx_container++);
 			}
 
-			var topBar = new TopBar();
+			var topBar = new ViewTopBar();
 			//var topBar = new TextBlock(){Text = "TopBar"};
 			container.Children.Add(topBar);
 			{
@@ -296,11 +296,11 @@ public partial class KeyBoard : UserControl{
 	/// </summary>
 	/// <param name="key"></param>
 	/// <returns></returns>
-	protected KeyView kView(IKeyChar key){
+	protected ViewKey kView(IKeyChar key){
 		var vm = new KeyVm();
 		vm.key_click = key;
 		vm.imeState = ctx!.imeState;
-		var ans = new KeyView();
+		var ans = new ViewKey();
 		ans.DataContext = vm;
 		return ans;
 	}

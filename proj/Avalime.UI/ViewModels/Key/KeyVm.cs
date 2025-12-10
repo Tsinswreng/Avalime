@@ -8,23 +8,23 @@ namespace Avalime.ViewModels.key;
 
 public partial class KeyVm
 	:ViewModelBase
-	,I_KeyViewModel
+	,IKeyViewModel
 {
 
 	public KeyVm(){
 		label = key_click?.Name??"";
 
-		click = () => {
+		Click = () => {
 			var state = imeState as ImeState;//TODO temp
 			try{
-				state?.input([
+				state?.Input([
 					new KeyEvent{
-						key = key_click
-						,keyState = KS.Down
+						Key = key_click
+						,KeyState = KS.Down
 					}
 					,new KeyEvent{
-						key = key_click
-						,keyState = KS.Up
+						Key = key_click
+						,KeyState = KS.Up
 					}
 				]);
 				// state?.osKeyProcessor.OnKeyEventAsy(
@@ -42,12 +42,12 @@ public partial class KeyVm
 		};
 	}
 
-	public Func<zero>? click{get;set;}
-	public Func<zero>? longPress{get;set;}
-	public Func<zero>? swipeLeft{get;set;}
-	public Func<zero>? swipeDown{get;set;}
-	public Func<zero>? swipeUP{get;set;}
-	public Func<zero>? swipeRight{get;set;}
+	public Func<zero>? Click{get;set;}
+	public Func<zero>? LongPress{get;set;}
+	public Func<zero>? SwipeLeft{get;set;}
+	public Func<zero>? SwipeDown{get;set;}
+	public Func<zero>? SwipeUP{get;set;}
+	public Func<zero>? SwipeRight{get;set;}
 
 	public ImeState imeState{get;set;}//TODO 改用接口
 

@@ -7,16 +7,16 @@ namespace Avalime.Rime;
 
 
 unsafe public class RimeKeyProcessor
-	: I_ImeKeyProcessor
+	: IImeKeyProcessor
 {
-	public event errHandler? errEvent;
+	public event ErrHandler? OnErr;
 	protected RimeSetup rimeSetup = RimeSetup.inst;
 	public RimeApi rime{get;set;}
 	public RimeKeyProcessor() {
 		rime = rimeSetup.apiFn;
 	}
 
-	public async Task<I_Result<object?>> OnKeyEventsAsy(IEnumerable<I_KeyEvent> keyEvents) {
+	public async Task<I_Result<object?>> OnKeyEventsAsy(IEnumerable<IKeyEvent> keyEvents) {
 		foreach (var keyEvent in keyEvents) {
 			var tuple = RimeKeyCharConverter.inst.convert(keyEvent);
 			rime.process_key(

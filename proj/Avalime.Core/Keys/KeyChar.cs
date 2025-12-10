@@ -6,7 +6,7 @@ public class KeyChar:IKeyChar{
 	public KeyChar(str name){
 		this.Name = name;
 	}
-	public static IKeyChar k(str name){
+	public static IKeyChar K(str name){
 		var key = new KeyChar(name);
 		return key;
 	}

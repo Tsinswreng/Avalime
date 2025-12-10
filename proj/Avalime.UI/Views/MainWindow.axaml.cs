@@ -1,7 +1,7 @@
 using Avalonia;
 using Avalonia.Controls;
 
-namespace Avalime.UI.views;
+namespace Avalime.UI.Views;
 
 public partial class MainWindow : Window {
 	public MainWindow() {

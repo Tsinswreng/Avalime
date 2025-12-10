@@ -1,24 +1,22 @@
+namespace Avalime.UI.Views.Candidate;
 using System.Collections.Generic;
-using Avalime.UI.controls;
 using Avalime.UI.Ext;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Layout;
 using Avalonia.Styling;
 using Shr.Avalonia;
+using Tsinswreng.AvlnTools.Controls;
+using Ctx = VmCandidate;
+public class ViewCandidate:UserControl{
 
-namespace Avalime.UI.views.candidate;
-using Ctx = CandidateVm;
-public class CandidateView:UserControl{
-
-
-	public Ctx? ctx{
+	public Ctx? Ctx{
 		get{return DataContext as Ctx;}
 		set{DataContext = value;}
 	}
-	public CandidateView(){
+	public ViewCandidate(){
 		//ctx = new Ctx();
-		ctx = Ctx.samples[0];
+		Ctx = Ctx.Samples[0];
 		_style();
 		_render();
 	}
@@ -112,7 +110,7 @@ public class CandidateView:UserControl{
 					o.Classes.Add(cls.Comment);
 					o.Bind(
 						TextBlock.TextProperty
-						,new CBE(CBE.pth<Ctx>(x=>x.comment))
+						,new CBE(CBE.pth<Ctx>(x=>x.Comment))
 					);
 				}
 
@@ -124,7 +122,7 @@ public class CandidateView:UserControl{
 					o.Classes.Add(cls.Text);
 					o.Bind(
 						TextBlock.TextProperty
-						,new CBE(CBE.pth<Ctx>(x=>x.text))
+						,new CBE(CBE.pth<Ctx>(x=>x.Text))
 					);
 				}
 			}}

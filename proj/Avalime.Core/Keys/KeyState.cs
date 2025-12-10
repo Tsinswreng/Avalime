@@ -1,12 +1,12 @@
 namespace Avalime.Core.Keys;
 
 public class KeyState
-	:I_KeyState
+	:IKeyState
 {
-	public bool isKeyDown{get;set;}
+	public bool IsKeyDown{get;set;}
 }
 
 public static class KeyStates{
-	public static I_KeyState Down = new KeyState{isKeyDown = true};
-	public static I_KeyState Up = new KeyState{isKeyDown = false};
+	public static IKeyState Down = new KeyState{IsKeyDown = true};
+	public static IKeyState Up = new KeyState{IsKeyDown = false};
 }

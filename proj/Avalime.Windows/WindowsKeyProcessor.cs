@@ -7,7 +7,7 @@ namespace Avalime.Windows;
 
 public class WindowsKeyProcessor
 	:I_OsKeyProcessor
-	,I_ImeKeyProcessor//TODO test
+	,IImeKeyProcessor//TODO test
 {
 
 	protected static WindowsKeyProcessor? _inst = null;
@@ -17,9 +17,9 @@ public class WindowsKeyProcessor
 	}
 
 
-	public event errHandler? errEvent;
+	public event ErrHandler? OnErr;
 
-	public async Task<I_Result<object?>>  OnKeyEventsAsy(IEnumerable<I_KeyEvent> keyEvents) {
+	public async Task<I_Result<object?>>  OnKeyEventsAsy(IEnumerable<IKeyEvent> keyEvents) {
 		foreach (var keyEvent in keyEvents) {
 			var ans = KeyEventConverter.inst.convertKeyEvent(keyEvent);
 			KeySender.keybd_event(

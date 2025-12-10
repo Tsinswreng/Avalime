@@ -2,37 +2,35 @@ using System.Collections;
 using System.Collections.Generic;
 using Avalime.ViewModels;
 
-namespace Avalime.UI.views.candidate;
-using Ctx = CandidateVm;
-public class CandidateVm
+namespace Avalime.UI.Views.Candidate;
+using Ctx = VmCandidate;
+public class VmCandidate
 	:ViewModelBase
 {
-	public static List<CandidateVm> samples = [];
-	static CandidateVm(){
+	public static List<VmCandidate> Samples = [];
+	static VmCandidate(){
 		{
 			var s = new Ctx();
-			samples.Add(s);
-			s.text = "之";
-			s.comment = "tɯ";
+			Samples.Add(s);
+			s.Text = "之";
+			s.Comment = "tɯ";
 		}
 		{
 			var s = new Ctx();
-			samples.Add(s);
-			s.text = "之前";
-			s.comment = "tɯ dzˁɛn";
+			Samples.Add(s);
+			s.Text = "之前";
+			s.Comment = "tɯ dzˁɛn";
 		}
 	}
 
-	protected str _text="";
-	public str text{
-		get{return _text;}
-		set{SetProperty(ref _text, value);}
-	}
+	public str Text{
+		get{return field;}
+		set{SetProperty(ref field, value);}
+	}="";
 
-	protected str? _comment;
-	public str? comment{
-		get{return _comment;}
-		set{SetProperty(ref _comment, value);}
+	public str? Comment{
+		get{return field;}
+		set{SetProperty(ref field, value);}
 	}
 
 }
