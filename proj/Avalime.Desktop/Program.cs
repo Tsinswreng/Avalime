@@ -5,26 +5,25 @@ using Avalonia.Media;
 
 namespace Avalime.Desktop;
 
-sealed class Program
-{
-    // Initialization code. Don't use any Avalonia, third-party APIs or any
-    // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
-    // yet and stuff might break.
-    [STAThread]
-    public static void Main(string[] args) => BuildAvaloniaApp()
-        .StartWithClassicDesktopLifetime(args);
+sealed class Program {
+	// Initialization code. Don't use any Avalonia, third-party APIs or any
+	// SynchronizationContext-reliant code before AppMain is called: things aren't initialized
+	// yet and stuff might break.
+	[STAThread]
+	public static void Main(string[] args) => BuildAvaloniaApp()
+		.StartWithClassicDesktopLifetime(args);
 
-    // Avalonia configuration, don't remove; also used by visual designer.
-    public static AppBuilder BuildAvaloniaApp(){
+	// Avalonia configuration, don't remove; also used by visual designer.
+	public static AppBuilder BuildAvaloniaApp() {
 		var options = new FontManagerOptions {
-           DefaultFamilyName = "孤鹜 筑紫明朝",  // 默认字体
-           FontFallbacks = new[] { new FontFallback { FontFamily = "Microsoft YaHei" } } // 备选字体
-       };
+			DefaultFamilyName = "孤鹜 筑紫明朝",  // 默认字体
+			FontFallbacks = new[] { new FontFallback { FontFamily = "Microsoft YaHei" } } // 备选字体
+		};
 		return AppBuilder.Configure<App>()
-            .UsePlatformDetect()
-            //.WithInterFont()
+			.UsePlatformDetect()
+			//.WithInterFont()
 			.With(options)
-            .LogToTrace();
+			.LogToTrace();
 	}
 
 }
