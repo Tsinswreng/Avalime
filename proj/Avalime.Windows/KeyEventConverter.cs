@@ -24,7 +24,7 @@ public class KeyEventConverter{
 		IKeyEvent keyEvent
 	){
 		u8 keyCode = 0;
-		keyCode = (u8)Lower_KeyCode[keyEvent.Key];
+		keyCode = (u8)Lower_KeyCode[keyEvent.KeyChar];
 		var dwFlags = StateToDwFlags(keyEvent.KeyState);
 		return (keyCode, 0, 0, dwFlags);
 	}

@@ -25,7 +25,7 @@ public class VmInput
 	unsafe public VmInput(){
 		imeState.AfterInput += (sender, args) => {
 			//G.debug("InputVm");//t
-			var rime = RimeSetup.inst;
+			var rime = RimeSetup.Inst;
 			var rimeApi = rime.apiFn;
 			var ctx = new RimeContext();
 			ctx.data_size = RimeUtil.DataSize<RimeContext>();

@@ -4,23 +4,22 @@ using KS = Avalime.Core.Keys.KeyChars;
 namespace Avalime.Rime;
 
 public class RimeKeyCharConverter{
-	protected static RimeKeyCharConverter? _inst = null;
-	public static RimeKeyCharConverter inst => _inst??= new RimeKeyCharConverter();
+	public static RimeKeyCharConverter Inst => field??= new RimeKeyCharConverter();
 
 
-	public (i32, i32) convert(IKeyEvent keyEvent){
+	public (i32, i32) Convert(IKeyEvent keyEvent){
 		i32 mask;
 		if(keyEvent.KeyState.IsKeyDown){
 			mask = RimeModifier.zero;
 		}else{
 			mask = RimeModifier.kReleaseMask;
 		}
-		var keyCode = (i32)lower__keyCode[keyEvent.Key];//TODO handle err
+		var keyCode = (i32)Lower_KeyCode[keyEvent.KeyChar];//TODO handle err
 		return (keyCode, mask);
 	}
 
 
-	public IDictionary<IKeyChar, i64> lower__keyCode = new Dictionary<IKeyChar, i64>{
+	public IDictionary<IKeyChar, i64> Lower_KeyCode = new Dictionary<IKeyChar, i64>{
 		{KS.A, 0x41}
 		,{KS.B, 0x42}
 		,{KS.C, 0x43}

@@ -1,7 +1,3 @@
-
-using System.Threading.Tasks;
-using Avalime.Core.IF;
-
 namespace Avalime.Core.Keys;
 
 public class ImeState
@@ -22,11 +18,11 @@ public class ImeState
 	}
 
 
-	public async Task<I_Result<object?>> Input(IEnumerable<IKeyEvent> keyEvents){
+	public async Task<RespInput> Input(IEnumerable<IKeyEvent> keyEvents){
 		BeforeInput?.Invoke(this, keyEvents);
 		await ImeKeyProcessor.OnKeyEventsAsy(keyEvents);
 		AfterInput?.Invoke(this, keyEvents);
-		return new Result<object?>();
+		return new();
 	}
 
 	public event EventHandler<IEnumerable<IKeyEvent>> BeforeInput;

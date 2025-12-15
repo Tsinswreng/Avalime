@@ -19,11 +19,11 @@ public partial class KeyVm
 			try{
 				state?.Input([
 					new KeyEvent{
-						Key = Key_Click
+						KeyChar = Key_Click
 						,KeyState = KS.Down
 					}
 					,new KeyEvent{
-						Key = Key_Click
+						KeyChar = Key_Click
 						,KeyState = KS.Up
 					}
 				]);

@@ -1,5 +1,3 @@
-using Avalime.Core;
-using Avalime.Core.IF;
 using Avalime.Core.Keys;
 using Rime.Api;
 
@@ -10,21 +8,21 @@ unsafe public class RimeKeyProcessor
 	: IImeKeyProcessor
 {
 	public event ErrHandler? OnErr;
-	protected RimeSetup rimeSetup = RimeSetup.inst;
-	public RimeApi rime{get;set;}
+	protected RimeSetup RimeSetup = RimeSetup.Inst;
+	public RimeApi Rime{get;set;}
 	public RimeKeyProcessor() {
-		rime = rimeSetup.apiFn;
+		Rime = RimeSetup.apiFn;
 	}
 
-	public async Task<I_Result<object?>> OnKeyEventsAsy(IEnumerable<IKeyEvent> keyEvents) {
-		foreach (var keyEvent in keyEvents) {
-			var tuple = RimeKeyCharConverter.inst.convert(keyEvent);
-			rime.process_key(
-				rimeSetup.rimeSessionId
+	public async Task<RespOnKeyEvent> OnKeyEventsAsy(IEnumerable<IKeyEvent> KeyEvents) {
+		foreach (var keyEvent in KeyEvents) {
+			var tuple = RimeKeyCharConverter.Inst.Convert(keyEvent);
+			Rime.process_key(
+				RimeSetup.rimeSessionId
 				,tuple.Item1
 				,tuple.Item2
 			);
 		}
-		return Result<object?>.Ok;
+		return new();
 	}
 }

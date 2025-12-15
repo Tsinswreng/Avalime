@@ -32,7 +32,7 @@ unsafe public partial class VmCandidatesBar
 		ImeState.AfterInput += (s,e)=>{
 			//G.debug("candidatesBar");//t
 			CandVms.Clear();
-			var rime = RimeSetup.inst;
+			var rime = RimeSetup.Inst;
 			var rimeApi = rime.apiFn;
 			var iterrator = new RimeCandidateListIterator();
 

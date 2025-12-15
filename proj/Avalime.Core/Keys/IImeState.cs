@@ -1,6 +1,8 @@
-using Avalime.Core.IF;
-
 namespace Avalime.Core.Keys;
+
+public class RespInput{
+
+}
 
 public interface IImeState{
 
@@ -13,9 +15,9 @@ public interface IImeState{
 	/// <summary>
 	/// test
 	/// </summary>
-	/// <param name="keyChars"></param>
+	/// <param name="KeyChars"></param>
 	/// <returns></returns>
-	public I_Result<object?> Input(IEnumerable<IKeyChar> keyChars);
+	public RespInput Input(IEnumerable<IKeyChar> KeyChars);
 
 	public event EventHandler<object?>? OnInput;
 

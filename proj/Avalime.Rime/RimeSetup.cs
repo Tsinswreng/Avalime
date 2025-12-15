@@ -8,13 +8,14 @@ using System;
 
 
 #region RimeTypes
-using Bool = System.Int32;
-using size_t = nuint;
-using RimeSessionId = nuint;
+// using Bool = System.Int32;
+// using size_t = nuint;
+// using RimeSessionId = nuint;
 #endregion RimeTypes
 
 using static Tsinswreng.CsInterop.Ptr;
 using Tsinswreng.CsInterop;
+using Rime.Api.Types;
 namespace Avalime.Rime;
 
 
@@ -22,8 +23,7 @@ unsafe public class RimeSetup
 	:IDisposable
 {
 
-	protected static RimeSetup? _inst = null;
-	public static RimeSetup inst => _inst??= new RimeSetup();
+	public static RimeSetup Inst => field??= new RimeSetup();
 	//TODO test
 	public static str dllPath = "D:/ENV/Rime/weasel-0.15.0/rime.dll";
 	public PtrMgr ptrMgr = new PtrMgr();
