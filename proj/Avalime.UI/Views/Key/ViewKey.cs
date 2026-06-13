@@ -36,8 +36,8 @@ public class ViewKey : AppViewBase<Ctx>
 		public static readonly SolidColorBrush HiKeyBg = Brush("#4DB6AC");    //高亮按鍵背景青 (hilited_key_back_color)
 		public static readonly SolidColorBrush HiKeyText = Brush("#000000");  //高亮按鍵文字黑 (hilited_key_text_color)
 		public static readonly CornerRadius Round = new(0);                   //無圓角 (round_corner: 0)
-		public static readonly Thickness KeyMargin = new(1, 1);              //按鍵間距 (horizontal_gap:1 vertical_gap:1)
-		public static readonly Thickness BorderThick = new(0.5);             //邊框粗細
+		public static readonly Thickness KeyMargin = new(0);                 //按鍵緊密相連、無縫隙
+		public static readonly Thickness BorderThick = new(0.5);             //邊框即爲視覺分隔線
 	}
 
 	static SolidColorBrush Brush(str Hex)=>SolidColorBrush.Parse(Hex);

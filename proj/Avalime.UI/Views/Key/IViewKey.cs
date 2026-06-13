@@ -1,7 +1,9 @@
 namespace Avalime.UI.Views.Key;
 using Tsinswreng.CsCore;
 
-[Doc(@$"輸入法觸摸鍵盤上的按鍵")]
+[Doc(@$"輸入法觸摸鍵盤上的按鍵
+不能給按鍵之間加無法點擊的縫隙 分隔線應僅是視覺上的作用 邏輯上 每個按鍵都緊密相連
+")]
 public interface IViewKey{
 	[Doc(@$"單擊")]
 	public Task<nil> Click(CT Ct);
