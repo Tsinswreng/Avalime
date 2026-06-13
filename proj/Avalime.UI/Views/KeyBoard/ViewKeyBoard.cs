@@ -4,6 +4,7 @@ using Avalime.Core.Keys;
 using Avalime.ViewModels.KeyBoard;
 using Avalime.ViewModels.key;
 using Avalonia.Controls;
+using Avalonia.Media;
 using Avalime.UI.Views.input;
 using Avalime.UI.Views.Key;
 using Avalime.UI.Infra;
@@ -34,9 +35,13 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 		;
 	}
 
-	/// 構建6行按鍵網格
+	/// 構建6行按鍵網格，Row1/Row6略矮(匹配TswG height_lower)
 	Grid MkKeysGrid(){
-		var G = new Grid{RowDefinitions = new("*,*,*,*,*,*")};
+		//Row1:0.8, Row2-5:1, Row6:0.8 — 上下行略矮
+		var G = new Grid{
+			RowDefinitions = new("0.8*,*,*,*,*,0.8*"),
+			Background = SolidColorBrush.Parse("#E1E3E7"), //鍵盤區底色、匹配TswG keyboard_back_color
+		};
 		i32 RowIdx = 0;
 		AddRow(G, MkRow1(), ref RowIdx);
 		AddRow(G, MkRow2(), ref RowIdx);
