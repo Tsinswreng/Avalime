@@ -25,7 +25,13 @@ unsafe public class RimeSetup
 
 	public static RimeSetup Inst => field??= new RimeSetup();
 	//TODO test
+#if ANDROID
+	public static str dllPath = "librime_jni.so";
+	public static str userDataDir = "/sdcard/rime";
+#else
 	public static str dllPath = "D:/ENV/Rime/weasel-0.15.0/rime.dll";
+	public static str userDataDir = "D:/Program Files/Rime/User_Data";
+#endif
 	public PtrMgr ptrMgr = new PtrMgr();
 
 
@@ -86,7 +92,7 @@ unsafe public class RimeSetup
 	protected zero _setupRimeTraits(){
 		_traits = New<RimeTraits>();
 		traits->data_size = RimeUtil.DataSize<RimeTraits>();
-		traits->user_data_dir = ptrMgr.Str("D:/Program Files/Rime/User_Data");
+		traits->user_data_dir = ptrMgr.Str(userDataDir);
 		traits->app_name = ptrMgr.Str("rime.avalime");
 		return 0;
 	}
