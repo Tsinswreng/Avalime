@@ -65,7 +65,7 @@ public class ViewKey : AppViewBase<Ctx>
 				border.Classes.Add(Cls.LabelBorder);
 				border.SetChild(new TextBlock(), o=>{
 					o.Classes.Add(Cls.Label);
-					o.Bind(TextBlock.TextProperty, CBE.Mk<Ctx>(x=>x.Label));
+					Ctx.Bind(o, x=>x.Text, x=>x.Label);
 				});
 			});
 		});

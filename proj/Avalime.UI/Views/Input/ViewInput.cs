@@ -18,10 +18,7 @@ public class ViewInput : AppViewBase<Ctx>
 		Root
 		.A(new WrapPanel(), wp=>{
 			wp.A(new TextBlock(), o=>{
-				o.Bind(
-					TextBlock.TextProperty,
-					CBE.Mk<Ctx>(x=>x.Text, Mode: BindingMode.TwoWay)
-				);
+				Ctx.Bind(o, x=>x.Text, x=>x.Text, Mode: BindingMode.TwoWay);
 			});
 		})
 		;

@@ -52,11 +52,11 @@ public class ViewCandidate : AppViewBase<Ctx>
 		Root
 		.A(new TextBlock(), o=>{
 			o.Classes.Add(Cls.Comment);
-			o.Bind(TextBlock.TextProperty, CBE.Mk<Ctx>(x=>x.Comment));
+			Ctx.Bind(o, x=>x.Text, x=>x.Comment);
 		})
 		.A(new TextBlock(), o=>{
 			o.Classes.Add(Cls.Text);
-			o.Bind(TextBlock.TextProperty, CBE.Mk<Ctx>(x=>x.Text));
+			Ctx.Bind(o, x=>x.Text, x=>x.Text);
 		})
 		;
 	}

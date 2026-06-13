@@ -27,13 +27,13 @@ public class ViewCandidatesBar : AppViewBase<Ctx>
 		var R = new ItemsControl();
 		R.SetItemTemplate<VmCandidate>((vm, ns)=>{
 			var v = new ViewCandidate();
-			v.Bind(DataContextProperty, CBE.Mk<VmCandidate>(x=>x));
+			v.CBind<VmCandidate>(DataContextProperty, x=>x);
 			return v;
 		}).SetItemsPanel(()=>new StackPanel{
 			Orientation = Orientation.Horizontal,
 			Spacing = 2.0
 		});
-		R.Bind(ItemsControl.ItemsSourceProperty, CBE.Mk<Ctx>(x=>x.CandVms));
+		Ctx.Bind(R, ItemsControl.ItemsSourceProperty, x=>x.CandVms);
 		return R;
 	}
 }
