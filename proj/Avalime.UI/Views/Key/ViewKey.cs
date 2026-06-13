@@ -26,13 +26,13 @@ public class ViewKey : AppViewBase<Ctx>
 	}
 
 	/// TswG 暗色配色
+	/// 分隔線顏色 = 鍵盤底色、模擬TswG的gap效果、相鄰兩鍵0.5+0.5=1px線即背景色
 	static class TswG{
 		public static readonly SolidColorBrush KeyBg = Brush("#000000");
 		public static readonly SolidColorBrush KeyText = Brush("#E0E0E0");
-		public static readonly SolidColorBrush KeyBorder = Brush("#ECEFF1");
+		public static readonly SolidColorBrush GapLine = Brush("#253238"); //邊框線=鍵盤底色(keyboard_back_color)
 		public static readonly SolidColorBrush HintText = Brush("#BDBDBD");
 		public static readonly SolidColorBrush PressedBg = Brush("#4DB6AC");
-		public static readonly SolidColorBrush PressedText = Brush("#37474F");
 		public static readonly CornerRadius Round = new(0);
 		public static readonly Thickness KeyMargin = new(0);
 		public static readonly Thickness BorderThick = new(0.5);
@@ -52,7 +52,7 @@ public class ViewKey : AppViewBase<Ctx>
 			.Set(MarginProperty, TswG.KeyMargin)
 			.Set(PaddingProperty, new Thickness(0))
 			.Set(BackgroundProperty, TswG.KeyBg)
-			.Set(BorderBrushProperty, TswG.KeyBorder)
+			.Set(BorderBrushProperty, TswG.GapLine)       //邊框=鍵盤底色、模擬gap
 			.Set(BorderThicknessProperty, TswG.BorderThick)
 		).A(
 			Sty.Is<Control>(x=>x.Class(Cls.Label))
@@ -67,12 +67,10 @@ public class ViewKey : AppViewBase<Ctx>
 			.Set(FontSizeProperty, 10.0)
 			.Set(ForegroundProperty, TswG.HintText)
 			.Set(HorizontalAlignmentProperty, HAlign.Center)
-			.Set(VerticalAlignmentProperty, VAlign.Top)
-			.Set(MarginProperty, new Thickness(0, 2, 0, 0))
 		);
 	}
 
-	#region 手勢（用Border直控、不用Button避免事件被吞）
+	#region 手勢
 	Border _border = default!;
 	Point _pressPoint;
 	DispatcherTimer? _longPressTimer;
@@ -103,7 +101,6 @@ public class ViewKey : AppViewBase<Ctx>
 		var dy = pos.Y - _pressPoint.Y;
 
 		if(Math.Abs(dx) > SwipeThreshold || Math.Abs(dy) > SwipeThreshold){
-			//判定滑動方向
 			if(Math.Abs(dx) > Math.Abs(dy)){
 				if(dx > 0) Ctx?.SwipeRight?.Invoke();
 				else Ctx?.SwipeLeft?.Invoke();
@@ -112,7 +109,6 @@ public class ViewKey : AppViewBase<Ctx>
 				else Ctx?.SwipeUP?.Invoke();
 			}
 		}else{
-			//普通點擊
 			Ctx?.Click?.Invoke();
 		}
 	}
@@ -144,24 +140,25 @@ public class ViewKey : AppViewBase<Ctx>
 		border.Classes.Add(Cls.KeyBorder);
 		Content = border;
 
-		//在Border上直接處理所有手勢、不用Button
 		border.PointerPressed += OnPointerPressed;
 		border.PointerMoved += OnPointerMoved;
 		border.PointerReleased += OnPointerReleased;
 		border.PointerCaptureLost += OnPointerCaptureLost;
 
 		border.SetChild(new Grid(), grid=>{
-			//Hint: Auto高度、Label: * 填充剩餘
-			grid.RowDefinitions = new("Auto,*");
-			grid.A(new TextBlock(), tb=>{
-				tb.Classes.Add(Cls.HintLabel);
-				Ctx.Bind(tb, x=>x.Text, x=>x.Hint);
-				Grid.SetRow(tb, 0);
-			}).A(new TextBlock(), tb=>{
-				tb.Classes.Add(Cls.Label);
-				Ctx.Bind(tb, x=>x.Text, x=>x.Label);
-				Grid.SetRow(tb, 1);
-			});
+			//單格疊放：Hint疊在頂部、Label居中、互不搶空間
+			var label = new TextBlock();
+			label.Classes.Add(Cls.Label);
+			Ctx.Bind(label, x=>x.Text, x=>x.Label);
+
+			var hint = new TextBlock();
+			hint.Classes.Add(Cls.HintLabel);
+			hint.VerticalAlignment = VAlign.Top;
+			hint.Margin = new(0, 1, 0, 0);
+			Ctx.Bind(hint, x=>x.Text, x=>x.Hint);
+
+			grid.Children.Add(label);
+			grid.Children.Add(hint); //hint在label上層
 		});
 	}
 }
