@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>net10.0</TargetFramework>
 		<Nullable>enable</Nullable>
@@ -6,12 +6,11 @@
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<PublishAot>true</PublishAot>
 		<AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
-
-		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="../../../Tsinswreng.AvlnTools/proj/Tsinswreng.AvlnTools/Tsinswreng.AvlnTools.csproj" />
+		<ProjectReference Include="../../../Tsinswreng.Avln.Dsl/proj/Tsinswreng.Avln.Dsl/Tsinswreng.Avln.Dsl.csproj" />
+		<ProjectReference Include="../../../Tsinswreng.Avln.Grid/proj/Tsinswreng.Avln.Grid/Tsinswreng.Avln.Grid.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -22,8 +21,7 @@
 		<PackageReference Include="Avalonia" />
 		<PackageReference Include="Avalonia.Themes.Fluent" />
 		<PackageReference Include="Avalonia.Fonts.Inter" />
-		<!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
-		<PackageReference Include="Avalonia.Diagnostics">
+		<PackageReference Include="AvaloniaUI.DiagnosticsSupport">
 			<IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
 			<PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
 		</PackageReference>
@@ -35,10 +33,7 @@
 	<ItemGroup>
 		<Compile Include="../TypeAlias.cs" />
 		<ProjectReference Include="../Avalime.Core/Avalime.Core.csproj"/>
-		<!-- <ProjectReference Include="../CsRimeApi/RimeApi/RimeApi.csproj"/> -->
-		<!-- 先叶後抽象 後當除此 -->
 		<ProjectReference Include="../CsRimeApi/RimeApi/RimeApi.csproj"/>
 		<ProjectReference Include="../Avalime.Rime/Avalime.Rime.csproj" />
-
 	</ItemGroup>
 </Project>

@@ -1,14 +1,11 @@
-using Avalonia;
+//主視窗
 using Avalonia.Controls;
 
 namespace Avalime.UI.Views;
 
-public partial class MainWindow : Window {
-	public MainWindow() {
-		//InitializeComponent();
-		Content=new MainView();
-#if DEBUG
-		this.AttachDevTools();
-#endif
+public class MainWindow : Window
+{
+	public MainWindow(){
+		Content = new MainView();
 	}
 }

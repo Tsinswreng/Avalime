@@ -1,318 +1,134 @@
-using System;
+//鍵盤主視圖：候選欄 + 輸入區 + 六行按鍵
 using System.Collections.Generic;
 using Avalime.Core.Keys;
-using Avalime.ViewModels.key;
 using Avalime.ViewModels.KeyBoard;
+using Avalime.ViewModels.key;
 using Avalonia.Controls;
-using Avalonia.Styling;
-using Avalime.UI.Views.topBar;
 using Avalime.UI.Views.input;
 using Avalime.UI.Views.Key;
+using Avalime.UI.Infra;
+
 namespace Avalime.UI.Views.KeyBoard;
+using Ctx = VmKeyBoard;
 
-public partial class ViewKeyBoard : UserControl{
+public class ViewKeyBoard : AppViewBase<Ctx>
+{
 	public ViewKeyBoard(){
-		DataContext = new VmKeyBoard();
-		_style();
-		_render();
+		Ctx = Ctx.Mk();
+		Render();
 	}
 
-	public VmKeyBoard? ctx{
-		get{return DataContext as VmKeyBoard;}
-		set{DataContext = value;}
+	const i32 ColCnt = 11;
+	GridStack Root = new(IsRow: true){Grid = {
+		RowDefinitions = new("1*,2.5*,12*")
+	}};
+
+	void Render(){
+		this.SetContent(Root.Grid);
+		//輸入區
+		Root.A(new ViewInput());
+		//TopBar(候選欄)
+		Root.A(new Avalime.UI.Views.topBar.ViewTopBar());
+		//按鍵區
+		Root.A(MkKeysGrid());
 	}
 
+	Grid MkKeysGrid(){
+		var G = new Grid{RowDefinitions = new("*,*,*,*,*,*")};
+		G.A(MkRow1());
+		G.A(MkRow2());
+		G.A(MkRow3());
+		G.A(MkRow4());
+		G.A(MkRow5());
+		G.A(MkRow6());
+		return G;
+	}
 
-	protected zero _style(){
-		var gridLine = new Style(x=>
-			x.Is<Grid>()
-		);
-		Styles.Add(gridLine);
-		{
-			var o = gridLine;
-			// o.set(
-			// 	Grid.ShowGridLinesProperty
-			// 	,true
-			// );
+	Grid MkRowOfKeys(IKeyChar[] Keys){
+		var R = new Grid();
+		foreach(var _ in Keys){
+			R.ColumnDefinitions.Add(new(1, GUT.Star));
 		}
-		return 0;
-	}
-
-	public i32 colCnt = 11;
-
-	public List<Grid> rows{get;set;}=new List<Grid>(7);
-	public i32 idx_keysGrid = 0;
-	public i32 idx_container = 0;
-
-	public static IList<RowDefinition> Rd_Auto(i32 n){
-		var rd = new List<RowDefinition>();
-		for(i32 i = 0; i < n; i++){
-			rd.Add(new RowDefinition(){Height = GridLength.Star});
+		foreach(var k in Keys){
+			R.A(KView(k));
 		}
-		return rd;
+		return R;
 	}
 
-	public static IList<ColumnDefinition> Cd_Auto(i32 n){
-		var rd = new List<ColumnDefinition>();
-		for(i32 i = 0; i < n; i++){
-			rd.Add(new ColumnDefinition(){Width = GridLength.Star});
+	Grid MkRowOfLabels(str[] Labels){
+		var R = new Grid();
+		foreach(var _ in Labels){
+			R.ColumnDefinitions.Add(new(1, GUT.Star));
 		}
-		return rd;
-	}
-
-	protected ViewKey _key(str label){
-		var k = new ViewKey();
-		k.DataContext = new KeyVm(){Label = label};
-		return k;
-	}
-
-	protected zero _render(){
-		var container = new Grid();
-		Content = container;
-		{
-			var o = container;
-			o.RowDefinitions.AddRange([
-				//Input:
-				new RowDefinition(){Height = new GridLength(1, GridUnitType.Star)}
-				//TopBar:
-				,new RowDefinition(){Height = new GridLength(2.5, GridUnitType.Star)}
-				//Keys:
-				,new RowDefinition(){Height = new GridLength(12, GridUnitType.Star)}
-			]);
+		foreach(var l in Labels){
+			R.A(MkKeyByLabel(l));
 		}
-		{{
-			var input = new ViewInput();
-			container.Children.Add(input);
-			{
-				var o = input;
-				Grid.SetRow(o, idx_container++);
-			}
-
-			var topBar = new ViewTopBar();
-			//var topBar = new TextBlock(){Text = "TopBar"};
-			container.Children.Add(topBar);
-			{
-				var o = topBar;
-				Grid.SetRow(o, idx_container++);
-			}
-
-			//
-			var keysGrid = new Grid();
-			container.Children.Add(keysGrid);
-			{
-				var o = keysGrid;
-				Grid.SetRow(o, idx_container++);
-				o.RowDefinitions.AddRange(Rd_Auto(6));
-			}
-			{{//keysGrid:Grid
-				//var row0 = new Grid();
-				var row0 = new Grid();
-				rows.Add(row0);
-				keysGrid.Children.Add(row0);
-				var idx_row0 = 0;
-				{
-					var o = row0;
-					o.ColumnDefinitions.AddRange(Cd_Auto(colCnt));
-					Grid.SetRow(row0, idx_keysGrid++);
-				}
-				{{
-					var k = (IKeyChar key)=>{
-						var view = kView(key);
-						row0.Children.Add(view);
-						Grid.SetColumn(view, idx_row0++);
-					};
-					k(KeyChars.D1);
-					k(KeyChars.D2);
-					k(KeyChars.D3);
-					k(KeyChars.D4);
-					k(KeyChars.D5);
-					k(KeyChars.D6);
-					k(KeyChars.D7);
-					k(KeyChars.D8);
-					k(KeyChars.D9);
-					k(KeyChars.D0);
-					k(KeyChars.Grave);
-				}}
-				var row1 = new Grid();
-				keysGrid.Children.Add(row1);
-				var idx_row1 = 0;
-				{
-					var o = row1;
-					o.ColumnDefinitions.AddRange(Cd_Auto(colCnt));
-					Grid.SetRow(row1, idx_keysGrid++);
-				}
-				{{//row1:Grid
-					//
-					// var strK=(str label)=>{
-					// 	var keyView = _key(label);
-					// 	row1.Children.Add(keyView);
-					// 	Grid.SetColumn(keyView, idx_row1++);
-					// };
-					var k = (IKeyChar key)=>{
-						var view = kView(key);
-						row1.Children.Add(view);
-						Grid.SetColumn(view, idx_row1++);
-					};
-					k(KeyChars.q);
-					k(KeyChars.w);
-					k(KeyChars.e);
-					k(KeyChars.r);
-					k(KeyChars.t);
-					k(KeyChars.y);
-					k(KeyChars.u);
-					k(KeyChars.i);
-					k(KeyChars.o);
-					k(KeyChars.p);
-					k(KeyChars.SquareBracket_L);
-				}}//~row1:Grid
-				var row2 = new Grid();
-				keysGrid.Children.Add(row2);
-				var idx_row2 = 0;
-				{
-					var o = row2;
-					o.ColumnDefinitions.AddRange(Cd_Auto(colCnt));
-					Grid.SetRow(row2, idx_keysGrid++);
-				}
-				{{//row2:Grid
-					//
-					var k = (IKeyChar key)=>{
-						var view = kView(key);
-						row2.Children.Add(view);
-						Grid.SetColumn(view, idx_row2++);
-					};
-					//
-					k(KeyChars.a);
-					k(KeyChars.s);
-					k(KeyChars.d);
-					k(KeyChars.f);
-					k(KeyChars.g);
-					k(KeyChars.h);
-					k(KeyChars.j);
-					k(KeyChars.k);
-					k(KeyChars.l);
-					k(KeyChars.Semicolon);
-					k(KeyChars.Apostrophe);
-				}}//~row2:Grid
-				var row3 = new Grid();
-				keysGrid.Children.Add(row3);
-				var idx_row3 = 0;
-				{
-					var o = row3;
-					o.ColumnDefinitions.AddRange(Cd_Auto(colCnt));
-					Grid.SetRow(row3, idx_keysGrid++);
-				}
-				{{//row3:Grid
-					//
-					var k = (IKeyChar key)=>{
-						var view = kView(key);
-						row3.Children.Add(view);
-						Grid.SetColumn(view, idx_row3++);
-					};
-
-					k(KeyChars.z);
-					k(KeyChars.x);
-					k(KeyChars.c);
-					k(KeyChars.v);
-					k(KeyChars.b);
-					k(KeyChars.n);
-					k(KeyChars.m);
-					k(KeyChars.Comma);
-					k(KeyChars.Period);
-					// k(KeyChars.Alt_R);
-					// k(KeyChars.Alt_R);
-					k(KeyChars.Backspace);
-					k(KeyChars.Backspace);
-				}}//~row3:Grid
-				var row4 = new Grid();
-				keysGrid.Children.Add(row4);
-				var idx_row4 = 0;
-				{
-					var o = row4;
-					o.ColumnDefinitions.AddRange(Cd_Auto(colCnt));
-					Grid.SetRow(row4, idx_keysGrid++);
-				}
-				{{//row4:Grid
-					//
-					var kStr=(str label)=>{
-						var keyView = _key(label);
-						row4.Children.Add(keyView);
-						Grid.SetColumn(keyView, idx_row4++);
-					};
-				var k = (IKeyChar key)=>{
-						var view = kView(key);
-						row4.Children.Add(view);
-						Grid.SetColumn(view, idx_row4++);
-					};
-
-					//
-					kStr("數");
-					k(KeyChars.Dollar);
-					k(KeyChars.Up);
-					k(KeyChars.Shift_L);
-					k(KeyChars.Space);
-					k(KeyChars.Space);
-					k(KeyChars.Space);
-					k(KeyChars.Space);
-					k(KeyChars.Space);
-					k(KeyChars.Enter);
-					k(KeyChars.Enter);
-				}}//~row4:Grid
-				var row5 = new Grid();
-				keysGrid.Children.Add(row5);
-				var idx_row5 = 0;
-				{
-					var o = row5;
-					o.ColumnDefinitions.AddRange(Cd_Auto(colCnt));
-					Grid.SetRow(row5, idx_keysGrid++);
-				}
-
-				{{//row5:Grid
-					var k=(str label)=>{
-						var keyView = _key(label);
-						row5.Children.Add(keyView);
-						Grid.SetColumn(keyView, idx_row5++);
-					};
-
-					k("⌨");
-					k("←");
-					k("↓");
-					k("→");
-					k("\\t");
-					k("\\t");
-					k("⇤");
-					k("⇥");
-					k("/");
-					k("\\");
-					k("⇪");
-				}}//row5:Grid
-			}}//~keysGrid:Grid
-		}}//~container:Grid
-		return 0;
+		return R;
 	}
 
-	/// <summary>
-	/// 並設imeState等
-	/// </summary>
-	/// <param name="key"></param>
-	/// <returns></returns>
-	protected ViewKey kView(IKeyChar key){
-		var vm = new KeyVm();
-		vm.Key_Click = key;
-		vm.ImeState = ctx!.ImeState;
-		var ans = new ViewKey();
-		ans.DataContext = vm;
-		return ans;
+	//從 IKeyChar 建一個 ViewKey
+	ViewKey KView(IKeyChar Key){
+		var Vm = KeyVm.Mk();
+		Vm.Key_Click = Key;
+		Vm.ImeState = Ctx!.ImeState;
+		return new ViewKey{Ctx = Vm};
 	}
 
+	//從字串建一個 ViewKey
+	ViewKey MkKeyByLabel(str Label){
+		var Vm = KeyVm.Mk();
+		Vm.Label = Label;
+		Vm.ImeState = Ctx!.ImeState;
+		return new ViewKey{Ctx = Vm};
+	}
 
-	// protected Func<str, zero> _geneFn_addKey(str key, Panel panel){
-	// 	return (str label)=>{
-	// 		var keyView = _key(label);
-	// 		panel.Children.Add(keyView);
-	// 		Grid.SetColumn(keyView, idx_row0++);
-	// 		return 0;
-	// 	};
-	// }
+	#region 各行按鍵定義
+	Grid MkRow1()=>MkRowOfKeys([
+		KeyChars.D1, KeyChars.D2, KeyChars.D3, KeyChars.D4, KeyChars.D5,
+		KeyChars.D6, KeyChars.D7, KeyChars.D8, KeyChars.D9, KeyChars.D0, KeyChars.Grave
+	]);
 
+	Grid MkRow2()=>MkRowOfKeys([
+		KeyChars.q, KeyChars.w, KeyChars.e, KeyChars.r, KeyChars.t,
+		KeyChars.y, KeyChars.u, KeyChars.i, KeyChars.o, KeyChars.p, KeyChars.SquareBracket_L
+	]);
 
+	Grid MkRow3()=>MkRowOfKeys([
+		KeyChars.a, KeyChars.s, KeyChars.d, KeyChars.f, KeyChars.g,
+		KeyChars.h, KeyChars.j, KeyChars.k, KeyChars.l, KeyChars.Semicolon, KeyChars.Apostrophe
+	]);
+
+	Grid MkRow4()=>MkRowOfKeys([
+		KeyChars.z, KeyChars.x, KeyChars.c, KeyChars.v, KeyChars.b,
+		KeyChars.n, KeyChars.m, KeyChars.Comma, KeyChars.Period, KeyChars.Backspace, KeyChars.Backspace
+	]);
+
+	//第5行混合 KeyChar 和字串
+	Grid MkRow5(){
+		var Keys = new List<Control>();
+		Keys.Add(MkKeyByLabel("數"));
+		Keys.Add(KView(KeyChars.Dollar));
+		Keys.Add(KView(KeyChars.Up));
+		Keys.Add(KView(KeyChars.Shift_L));
+		for(var i=0;i<5;i++) Keys.Add(KView(KeyChars.Space));
+		Keys.Add(KView(KeyChars.Enter));
+		Keys.Add(KView(KeyChars.Enter));
+		return MkRowOfControls(Keys);
+	}
+
+	Grid MkRow6(){
+		return MkRowOfLabels(["⌨","←","↓","→","\\t","\\t","⇤","⇥","/","\\","⇪"]);
+	}
+	#endregion
+
+	Grid MkRowOfControls(IList<Control> Ctrls){
+		var R = new Grid();
+		foreach(var _ in Ctrls){
+			R.ColumnDefinitions.Add(new(1, GUT.Star));
+		}
+		foreach(var c in Ctrls){
+			R.A(c);
+		}
+		return R;
+	}
 }

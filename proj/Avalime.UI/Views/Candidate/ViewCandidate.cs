@@ -2,132 +2,62 @@ namespace Avalime.UI.Views.Candidate;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Styling;
-using Tsinswreng.AvlnTools.Controls;
-using Tsinswreng.AvlnTools.Tools;
+using Avalime.UI.Infra;
 using Ctx = VmCandidate;
 
-
-public class ViewCandidate:UserControl{
-
-	public Ctx? Ctx{
-		get{return DataContext as Ctx;}
-		set{DataContext = value;}
-	}
+public class ViewCandidate : AppViewBase<Ctx>
+{
 	public ViewCandidate(){
-		//ctx = new Ctx();
 		Ctx = Ctx.Samples[0];
-		_style();
-		_render();
+		Style();
+		Render();
 	}
 
 	public class Cls{
-		public str Text=nameof(Cls.Text);
-		public str Comment=nameof(Cls.Comment);
-	}
-	public Cls cls{get;} = new Cls();
-
-	protected zero _style(){
-
-		var grid = new Style(x=>
-			x.Is<Grid>()
-		);
-		//Styles.Add(grid);
-		{
-			var o = grid;
-			o.Set(
-				Grid.ShowGridLinesProperty
-				,true
-			);
-		}
-		var btn = new Style(x=>
-			Selectors.Or(
-				x.Is<Button>()
-				,x.Is<Control>()
-			)
-		);
-		Styles.Add(btn);
-		{
-			var o = btn;
-			o.Set(
-				MarginProperty
-				, new Thickness(0)
-			);
-			o.Set(
-				PaddingProperty
-				, new Thickness(0)
-			);
-			o.Set(
-				VerticalAlignmentProperty
-				, VAlign.Stretch
-			);
-			o.Set(
-				HorizontalAlignmentProperty
-				, HAlign.Stretch
-			);
-			o.Set(
-				CornerRadiusProperty
-				, new CornerRadius(0)
-			);
-		}
-
-		var text = new Style(x=>
-			x.Is<Control>()
-			.Class(cls.Text)
-		);
-		Styles.Add(text);
-		{
-			var o = text;
-			o.Set(
-				FontSizeProperty
-				, 20.0
-			);
-
-		}
-		return 0;
+		public const str Text = nameof(Text);
+		public const str Comment = nameof(Comment);
 	}
 
-	protected zero _render(){
-		var container = new SwipeLongPressBtn();
-		Content = container;
-		{{
-			var grid = new Grid();
-			container.Content = grid;
-			{
-				var o = grid;
-				o.RowDefinitions.AddRange([
-					new RowDefinition(1, GridUnitType.Star)
-					,new RowDefinition(4, GridUnitType.Star)
-					,new RowDefinition(1, GridUnitType.Star)
-				]);
-			}
-			{{
-				var comment = new TextBlock();
-				grid.Children.Add(comment);
-				{
-					var o = comment;
-					Grid.SetRow(o, 0);
-					o.Classes.Add(cls.Comment);
-					o.Bind(
-						TextBlock.TextProperty
-						,CBE.Mk<Ctx>(x=>x.Comment)
-					);
-				}
+	GridStack Root = new(IsRow: true);
 
-				var text = new TextBlock();
-				grid.Children.Add(text);
-				{
-					var o = text;
-					Grid.SetRow(o, 1);
-					o.Classes.Add(cls.Text);
-					o.Bind(
-						TextBlock.TextProperty
-						,new CBE(CBE.Pth<Ctx>(x=>x.Text))
-					);
-				}
-			}}
-		}}
-		return 0;
+	void Style(){
+		Styles.A(
+			Sty.Is<Button>()
+			.Set(MarginProperty, new Thickness(0))
+			.Set(PaddingProperty, new Thickness(0))
+			.Set(VerticalAlignmentProperty, VAlign.Stretch)
+			.Set(HorizontalAlignmentProperty, HAlign.Stretch)
+			.Set(CornerRadiusProperty, new CornerRadius(0))
+		).A(
+			Sty.Is<Control>()
+			.Set(MarginProperty, new Thickness(0))
+			.Set(PaddingProperty, new Thickness(0))
+			.Set(VerticalAlignmentProperty, VAlign.Stretch)
+			.Set(HorizontalAlignmentProperty, HAlign.Stretch)
+			.Set(CornerRadiusProperty, new CornerRadius(0))
+		).A(
+			Sty.Is<Control>(x=>x.Class(Cls.Text))
+			.Set(FontSizeProperty, 20.0)
+		);
 	}
 
+	void Render(){
+		this.SetContent(Root.Grid);
+		Root.SetRowDefs([
+			new(1, GUT.Star),
+			new(4, GUT.Star),
+			new(1, GUT.Star),
+		]);
 
+		Root
+		.A(new TextBlock(), o=>{
+			o.Classes.Add(Cls.Comment);
+			o.Bind(TextBlock.TextProperty, CBE.Mk<Ctx>(x=>x.Comment));
+		})
+		.A(new TextBlock(), o=>{
+			o.Classes.Add(Cls.Text);
+			o.Bind(TextBlock.TextProperty, CBE.Mk<Ctx>(x=>x.Text));
+		})
+		;
+	}
 }

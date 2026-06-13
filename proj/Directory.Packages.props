@@ -10,16 +10,17 @@
 		<PublishAot>true</PublishAot>
 	</PropertyGroup>
 	<ItemGroup>
-		<!-- Avalonia packages -->
+		<!-- Avalonia 12 packages -->
 		<!-- Important: keep version in sync! -->
-		<PackageVersion Include="Avalonia" Version="11.2.1" />
-		<PackageVersion Include="Avalonia.Themes.Fluent" Version="11.2.1" />
-		<PackageVersion Include="Avalonia.Fonts.Inter" Version="11.2.1" />
-		<PackageVersion Include="Avalonia.Diagnostics" Version="11.2.1" />
-		<PackageVersion Include="Avalonia.Desktop" Version="11.2.1" />
-		<PackageVersion Include="Avalonia.iOS" Version="11.2.1" />
-		<PackageVersion Include="Avalonia.Browser" Version="11.2.1" />
-		<PackageVersion Include="Avalonia.Android" Version="11.2.1" />
+		<PackageVersion Include="Avalonia" Version="12.0.4" />
+		<PackageVersion Include="Avalonia.Themes.Fluent" Version="12.0.4" />
+		<PackageVersion Include="Avalonia.Fonts.Inter" Version="12.0.4" />
+		<PackageVersion Include="Avalonia.Desktop" Version="12.0.4" />
+		<PackageVersion Include="Avalonia.iOS" Version="12.0.4" />
+		<PackageVersion Include="Avalonia.Browser" Version="12.0.4" />
+		<PackageVersion Include="Avalonia.Android" Version="12.0.4" />
+		<!-- Avalonia 12: Diagnostics replaced by DiagnosticsSupport -->
+		<PackageVersion Include="AvaloniaUI.DiagnosticsSupport" Version="2.2.0" />
 
 		<PackageVersion Include="CommunityToolkit.Mvvm" Version="8.3.2" />
 

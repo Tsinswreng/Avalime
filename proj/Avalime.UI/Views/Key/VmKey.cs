@@ -1,42 +1,34 @@
-﻿using System;
+using System;
 using Avalime.Core.Keys;
-using Avalonia.Input;
-using Avalonia.Remote.Protocol.Input;
-using CommunityToolkit.Mvvm.ComponentModel;
+using Avalime.ViewModels;
 using KS = Avalime.Core.Keys.KeyStates;
-namespace Avalime.ViewModels.key;
 
-public partial class KeyVm
-	:ViewModelBase
-	,IKeyViewModel
+namespace Avalime.ViewModels.key;
+using Ctx = KeyVm;
+
+public partial class KeyVm : ViewModelBase, IKeyViewModel
 {
+	public static Ctx Mk(){return new Ctx();}
 
 	public KeyVm(){
 		Label = Key_Click?.Name??"";
 
-		Click = () => {
+		Click = ()=>{
 			var state = ImeState as ImeState;//TODO temp
 			try{
 				state?.Input([
 					new KeyEvent{
-						KeyChar = Key_Click
-						,KeyState = KS.Down
-					}
-					,new KeyEvent{
-						KeyChar = Key_Click
-						,KeyState = KS.Up
+						KeyChar = Key_Click,
+						KeyState = KS.Down
+					},
+					new KeyEvent{
+						KeyChar = Key_Click,
+						KeyState = KS.Up
 					}
 				]);
-				// state?.osKeyProcessor.OnKeyEventAsy(
-				// 	new KeyEvent{
-				// 		key = key_click,
-				// 		keyState = KS.Down,
-				// 	}
-				// );
-
 			}
-			catch (System.Exception e){
-				System.Console.WriteLine(e);//TODO
+			catch(Exception e){
+				HandleErr(e);
 			}
 			return 0;
 		};
@@ -52,19 +44,15 @@ public partial class KeyVm
 	public ImeState ImeState{get;set;}//TODO 改用接口
 
 	public IKeyChar Key_Click{
-		get{return field;}
+		get => field;
 		set{
 			Label = value.Name??"";
 			SetProperty(ref field, value);
 		}
 	}
 
-
 	public str Label{
 		get => field;
 		set => SetProperty(ref field, value);
-	}="";
-
-
-
+	} = "";
 }

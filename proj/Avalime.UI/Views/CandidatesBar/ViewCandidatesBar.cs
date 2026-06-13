@@ -1,80 +1,39 @@
+//候選欄：水平滾動的候選詞列表
 using Avalime.UI.Views.Candidate;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using Avalonia.Layout;
+using Avalime.UI.Infra;
 
 namespace Avalime.UI.Views.candidatesBar;
 using Ctx = VmCandidatesBar;
-public partial class ViewCandidatesBar:UserControl{
 
-	public Ctx? Ctx{
-		get{return DataContext as Ctx;}
-		set{DataContext = value;}
-	}
-
-
+public class ViewCandidatesBar : AppViewBase<Ctx>
+{
 	public ViewCandidatesBar(){
-		Ctx = new Ctx();
-		//ctx = Ctx.samples[0];
-		_style();
-		_render();
+		Ctx = Ctx.Mk();
+		Render();
 	}
 
-	public class Cls{
+	GridStack Root = new(IsRow: true);
 
-	}
-	public Cls cls{get;set;} = new Cls();
-
-	protected zero _style(){
-
-		return 0;
+	void Render(){
+		this.SetContent(Root.Grid);
+		var Items = MkItems();
+		Root.A(Items);
 	}
 
-	protected zero _render(){
-		var container = new ScrollViewer();
-		Content = container;
-		{
-			var o = container;
-			o.HorizontalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Visible;
-			//o.MaxWidth = 300.0;
-		}
-		{{
-			var items = _items();
-			container.Content = items;
-		}}
-		return 0;
-	}
-
-	protected Control _items(){
-		var ans = new ItemsControl();
-		{
-			var o = ans;
-			o.Bind(
-				ItemsControl.ItemsSourceProperty
-				,CBE.Mk<Ctx>(x=>x.CandVms)
-			);
-			o.ItemsPanel = new FuncTemplate<Panel?>(()=>{
-				return new StackPanel(){
-					Orientation = Orientation.Horizontal
-					,Spacing = 2.0
-				};
-			});
-
-
-		}
-		ans.ItemTemplate = new FuncDataTemplate<VmCandidate>((vm,b)=>{
-			var ans2 = new ViewCandidate();
-			{
-				var o = ans2;
-				o.Bind(
-					DataContextProperty
-					,CBE.Mk<VmCandidate>(x=>x)
-				);
-			}
-			return ans2;
+	ItemsControl MkItems(){
+		var R = new ItemsControl();
+		R.SetItemTemplate<VmCandidate>((vm, ns)=>{
+			var v = new ViewCandidate();
+			v.Bind(DataContextProperty, CBE.Mk<VmCandidate>(x=>x));
+			return v;
+		}).SetItemsPanel(()=>new StackPanel{
+			Orientation = Orientation.Horizontal,
+			Spacing = 2.0
 		});
-		return ans;
+		R.Bind(ItemsControl.ItemsSourceProperty, CBE.Mk<Ctx>(x=>x.CandVms));
+		return R;
 	}
-
-
 }
