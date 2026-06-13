@@ -13,4 +13,10 @@ public partial class VmKeyBoard : ViewModelBase
 
 	//TODO 改用接口
 	public ImeState ImeState{get;set;} = App.SvcP.GetRequiredService<ImeState>();
+
+	/// 是否顯示數字鍵盤佈局
+	public bool IsNumLayout{
+		get => field;
+		set => SetProperty(ref field, value);
+	}
 }
