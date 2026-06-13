@@ -1,4 +1,4 @@
-//鍵盤主視圖：輸入區 + 候選欄 + 六行按鍵，佈局兼容 TswG
+//鍵盤主視圖：輸入區 + 候選欄 + 六行按鍵，佈局/提示/手勢兼容 TswG
 using System.Collections.Generic;
 using Avalime.Core.Keys;
 using Avalime.ViewModels.KeyBoard;
@@ -8,6 +8,8 @@ using Avalonia.Media;
 using Avalime.UI.Views.input;
 using Avalime.UI.Views.Key;
 using Avalime.UI.Infra;
+using static Avalime.Core.Keys.KeyChars;
+using KS = Avalime.Core.Keys.KeyStates;
 
 namespace Avalime.UI.Views.KeyBoard;
 using Ctx = VmKeyBoard;
@@ -37,10 +39,9 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 
 	/// 構建6行按鍵網格，Row1/Row6略矮(匹配TswG height_lower)
 	Grid MkKeysGrid(){
-		//Row1:0.8, Row2-5:1, Row6:0.8 — 上下行略矮
 		var G = new Grid{
 			RowDefinitions = new("0.8*,*,*,*,*,0.8*"),
-			Background = SolidColorBrush.Parse("#253238"), //鍵盤區底色、匹配TswG鍵盤 keyboard_back_color
+			Background = SolidColorBrush.Parse("#253238"), //鍵盤區底色、匹配TswG keyboard_back_color
 		};
 		i32 RowIdx = 0;
 		AddRow(G, MkRow1(), ref RowIdx);
@@ -57,27 +58,27 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 		Grid.SetRow(Row, Idx++);
 	}
 
-	/// 以等寬列建立按鍵行
-	Grid MkRowOfKeys(IKeyChar[] Keys){
-		var R = new Grid();
-		i32 Col = 0;
-		foreach(var _ in Keys)
-			R.ColumnDefinitions.Add(new(1, GUT.Star));
-		foreach(var k in Keys){
-			R.Children.Add(KView(k));
-			Grid.SetColumn(R.Children[^1], Col++);
-		}
-		return R;
+	#region KeyCfg
+	/// 按鍵完整配置：鍵值、顯示標籤、提示文字、長按/滑動手勢
+	readonly struct KeyCfg{
+		public required IKeyChar Key{get;init;}
+		public str? Label{get;init;}
+		public str? Hint{get;init;}
+		public IKeyChar? LongClick{get;init;}
+		public IKeyChar? SwipeUp{get;init;}
+		public IKeyChar? SwipeDown{get;init;}
+		public IKeyChar? SwipeLeft{get;init;}
+		public IKeyChar? SwipeRight{get;init;}
 	}
 
-	/// 以等寬列建立按鍵行、可指定自定義標籤(用于希臘字母等特殊顯示)
-	Grid MkRowOfKeysLabeled(params (IKeyChar Key, str? Label)[] Pairs){
+	/// 以KeyCfg陣列建立等寬按鍵行
+	Grid MkRowCfg(params KeyCfg[] Cfgs){
 		var R = new Grid();
 		i32 Col = 0;
-		foreach(var _ in Pairs)
+		foreach(var _ in Cfgs)
 			R.ColumnDefinitions.Add(new(1, GUT.Star));
-		foreach(var (Key, Label) in Pairs){
-			R.Children.Add(KView(Key, Label));
+		foreach(var c in Cfgs){
+			R.Children.Add(KView(c));
 			Grid.SetColumn(R.Children[^1], Col++);
 		}
 		return R;
@@ -101,14 +102,18 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 		return R;
 	}
 
-	/// 建立按鍵視圖、可選自定義顯示標籤
-	/// <param name="Label">非null時覆蓋Key.Name作爲顯示文本</param>
-	ViewKey KView(IKeyChar Key, str? Label = null){
+	/// 從KeyCfg建立ViewKey、設定Vm的Label/Hint/手勢
+	ViewKey KView(KeyCfg Cfg){
 		var Vm = KeyVm.Mk();
-		Vm.Key_Click = Key;
-		if(Label is not null)
-			Vm.Label = Label;
+		Vm.Key_Click = Cfg.Key;
+		if(Cfg.Label is not null) Vm.Label = Cfg.Label;
+		if(Cfg.Hint is not null) Vm.Hint = Cfg.Hint;
 		Vm.ImeState = Ctx!.ImeState;
+		if(Cfg.LongClick is not null) Vm.LongPress = MkSendKey(Cfg.LongClick);
+		if(Cfg.SwipeUp is not null) Vm.SwipeUP = MkSendKey(Cfg.SwipeUp);
+		if(Cfg.SwipeDown is not null) Vm.SwipeDown = MkSendKey(Cfg.SwipeDown);
+		if(Cfg.SwipeLeft is not null) Vm.SwipeLeft = MkSendKey(Cfg.SwipeLeft);
+		if(Cfg.SwipeRight is not null) Vm.SwipeRight = MkSendKey(Cfg.SwipeRight);
 		return new ViewKey{Ctx = Vm};
 	}
 
@@ -120,67 +125,109 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 		return new ViewKey{Ctx = Vm};
 	}
 
-	#region 各行按鍵定義 — 與 TswG 鍵盤佈局一致
-	/// 第一行：數字 1-0
-	Grid MkRow1()=>MkRowOfKeys([
-		KeyChars.D1, KeyChars.D2, KeyChars.D3, KeyChars.D4, KeyChars.D5,
-		KeyChars.D6, KeyChars.D7, KeyChars.D8, KeyChars.D9, KeyChars.D0
-	]);
+	/// 建立發送按鍵事件的委託
+	Func<zero> MkSendKey(IKeyChar K) => () => {
+		var state = Ctx!.ImeState;
+		state.Input([
+			new KeyEvent{KeyChar = K, KeyState = KS.Down},
+			new KeyEvent{KeyChar = K, KeyState = KS.Up}
+		]);
+		return 0;
+	};
+	#endregion
 
-	/// 第二行：Q W E R T U I O Π Y（TswG特有順序：U在I前、Y在末尾、Π爲P的標籤）
-	Grid MkRow2()=>MkRowOfKeysLabeled(
-		(KeyChars.q, "Q"), (KeyChars.w, "W"), (KeyChars.e, "E"),
-		(KeyChars.r, "R"), (KeyChars.t, "T"), (KeyChars.u, "U"),
-		(KeyChars.i, "I"), (KeyChars.o, "O"), (KeyChars.p, "Π"),
-		(KeyChars.y, "Y")
+	#region 各行按鍵定義 — 與 TswG 鍵盤佈局一致，含 Hint 及手勢
+	/// 第一行：數字 1-0，長按/上滑打出符號
+	Grid MkRow1()=>MkRowCfg(
+		new(){Key=D1, LongClick=Exclamation, SwipeUp=Exclamation},
+		new(){Key=D2, LongClick=At, SwipeUp=At},
+		new(){Key=D3, LongClick=HashTag, SwipeUp=HashTag},
+		new(){Key=D4, LongClick=Dollar, SwipeUp=Dollar},
+		new(){Key=D5, LongClick=Percent, SwipeUp=Percent},
+		new(){Key=D6, LongClick=Caret, SwipeUp=Caret},
+		new(){Key=D7, LongClick=Ampersand, SwipeUp=Ampersand},
+		new(){Key=D8, LongClick=Asterisk, SwipeUp=Asterisk},
+		new(){Key=D9, LongClick=Paren_L, SwipeUp=Paren_L},
+		new(){Key=D0, LongClick=Paren_R, SwipeUp=Paren_R}
 	);
 
-	/// 第三行：A Σ Δ F G H J K Λ ;（Σ/Δ/Λ爲希臘字母標籤）
-	Grid MkRow3()=>MkRowOfKeysLabeled(
-		(KeyChars.a, "A"), (KeyChars.s, "Σ"), (KeyChars.d, "Δ"),
-		(KeyChars.f, "F"), (KeyChars.g, "G"), (KeyChars.h, "H"),
-		(KeyChars.j, "J"), (KeyChars.k, "K"), (KeyChars.l, "Λ"),
-		(KeyChars.Semicolon, null) //; 標籤與動作一致
+	/// 第二行：Q W E R T U I O Π Y
+	Grid MkRow2()=>MkRowCfg(
+		new(){Key=q, Label="Q",                        SwipeUp=Q},
+		new(){Key=w, Label="W",                        SwipeUp=W},
+		new(){Key=e, Label="E",                        SwipeUp=E},
+		new(){Key=r, Label="R",                        SwipeUp=R},
+		new(){Key=t, Label="T",                        SwipeUp=T},
+		new(){Key=u, Label="U",                        SwipeUp=U,   SwipeLeft=Paren_L, SwipeRight=Paren_R},
+		new(){Key=i, Label="I",                        SwipeUp=I,   SwipeLeft=SquareBracket_L, SwipeRight=SquareBracket_R},
+		new(){Key=o, Label="O",                        SwipeUp=O,   SwipeLeft=Braces_L, SwipeRight=Braces_R},
+		new(){Key=p, Label="Π",                        SwipeUp=P,   SwipeLeft=Less, SwipeRight=Greater},
+		new(){Key=y, Label="Y", Hint="⇆", SwipeUp=Y}
+	);
+
+	/// 第三行：A Σ Δ F G H J K Λ ;
+	Grid MkRow3()=>MkRowCfg(
+		new(){Key=a, Label="A",                         SwipeUp=A},
+		new(){Key=s, Label="Σ", Hint="⇪", SwipeUp=S},
+		new(){Key=d, Label="Δ",                         SwipeUp=D},
+		new(){Key=f, Label="F",                         SwipeUp=F},
+		new(){Key=g, Label="G",                         SwipeUp=G,   SwipeLeft=Left, SwipeRight=Right, SwipeDown=Down},
+		new(){Key=h, Label="H",                         SwipeUp=H},
+		new(){Key=j, Label="J",                         SwipeUp=J},
+		new(){Key=k, Label="K",                         SwipeUp=K},
+		new(){Key=l, Label="Λ",                         SwipeUp=L},
+		new(){Key=Semicolon, Label=";", Hint=":",       SwipeUp=Colon, LongClick=Colon}
 	);
 
 	/// 第四行：Z X C V B N M , . '
-	Grid MkRow4()=>MkRowOfKeysLabeled(
-		(KeyChars.z, "Z"), (KeyChars.x, "X"), (KeyChars.c, "C"),
-		(KeyChars.v, "V"), (KeyChars.b, "B"), (KeyChars.n, "N"),
-		(KeyChars.m, "M"), (KeyChars.Comma, null), //, 標籤與動作一致
-		(KeyChars.Period, null), //. 標籤與動作一致
-		(KeyChars.Apostrophe, null) //' 標籤與動作一致
+	Grid MkRow4()=>MkRowCfg(
+		new(){Key=z, Label="Z",                        SwipeUp=Z},
+		new(){Key=x, Label="X",                        SwipeUp=X},
+		new(){Key=c, Label="C",                        SwipeUp=C},
+		new(){Key=v, Label="V",                        SwipeUp=V},
+		new(){Key=b, Label="B",                        SwipeUp=B},
+		new(){Key=n, Label="N",                        SwipeUp=N},
+		new(){Key=m, Label="M", Hint="$m,",            SwipeUp=M},
+		new(){Key=Comma, Label=",", Hint="<",          SwipeUp=Less,  LongClick=Less,  SwipeLeft=Less},
+		new(){Key=Period, Label=".", Hint=">",         SwipeUp=Greater, LongClick=Greater, SwipeRight=Greater},
+		new(){Key=Apostrophe, Label="'", Hint="\"",    SwipeUp=Quote}
 	);
 
 	/// 第五行：↵ ␉ ← (空格) → ⇪ ⌫ — 功能鍵行、部分鍵2倍寬
 	Grid MkRow5(){
-		//列寬比例：Enter(2):Tab(1):Left(1):Space(2):Right(1):Shift(1):Backspace(2) = 總10單位
 		var ColWidths = new List<i32>{2,1,1,2,1,1,2};
 		var Ctrls = new List<Control>{
-			KView(KeyChars.Enter, "↵"),
-			KView(KeyChars.Tab, "␉"),
-			KView(KeyChars.Left, "←"),
-			KView(KeyChars.Space, ""), //空格鍵無顯示標籤
-			KView(KeyChars.Right, "→"),
-			KView(KeyChars.Shift_L, "⇪"),
-			KView(KeyChars.Backspace, "⌫"),
+			//↵ Enter
+			KView(new(){Key=Enter, Label="↵", Hint="↩"}),
+			//␉ Tab
+			KView(new(){Key=Tab, Label="␉"}),
+			//← Left，長按/上滑 Home
+			KView(new(){Key=Left, Label="←"}),
+			//空格，左右滑動即 Left/Right
+			KView(new(){Key=Space, Label="", SwipeLeft=Left, SwipeRight=Right}),
+			//→ Right
+			KView(new(){Key=Right, Label="→"}),
+			//⇪ Shift，長按/上滑 $
+			KView(new(){Key=Shift_L, Label="⇪", LongClick=Dollar, SwipeUp=Dollar}),
+			//⌫ Backspace
+			KView(new(){Key=Backspace, Label="⌫"}),
 		};
 		return MkRowOfControls(Ctrls, ColWidths);
 	}
 
-	/// 第六行：- = [ ] ↑ ↓ / \ ` 123 — 符號行、末尾爲數字鍵盤切換鍵
+	/// 第六行：- = [ ] ↑ ↓ / \ ` 123 — 符號行、含提示及手勢
 	Grid MkRow6(){
 		var Ctrls = new List<Control>{
-			KView(KeyChars.Minus, "-"),        // -
-			KView(KeyChars.Equal, "="),         // =
-			KView(KeyChars.SquareBracket_L, "["), // [
-			KView(KeyChars.SquareBracket_R, "]"), // ]
-			KView(KeyChars.Up, "↑"),            // ↑
-			KView(KeyChars.Down, "↓"),          // ↓
-			KView(KeyChars.Slash, "/"),          // /
-			KView(KeyChars.BackSlash, "\\"),     // \
-			KView(KeyChars.Grave, "`"),         // `
-			MkKeyByLabel("123"),                 //切換數字鍵盤
+			KView(new(){Key=Minus, Label="-", Hint="_",              SwipeUp=Underscore}),
+			KView(new(){Key=Equal, Label="=", Hint="+",             SwipeUp=Plus}),
+			KView(new(){Key=SquareBracket_L, Label="[",             SwipeUp=Braces_L, LongClick=Braces_L}),
+			KView(new(){Key=SquareBracket_R, Label="]",             SwipeUp=Braces_R, LongClick=Braces_R}),
+			KView(new(){Key=Up, Label="↑"}),
+			KView(new(){Key=Down, Label="↓"}),
+			KView(new(){Key=Slash, Label="/", Hint="?",             SwipeUp=Question}),
+			KView(new(){Key=BackSlash, Label="\\", Hint="|"}),
+			KView(new(){Key=Grave, Label="`", Hint="~",             SwipeUp=Tilde}),
+			MkKeyByLabel("123"), //切換數字鍵盤
 		};
 		return MkRowOfControls(Ctrls);
 	}

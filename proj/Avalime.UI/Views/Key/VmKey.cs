@@ -55,4 +55,10 @@ public partial class KeyVm : ViewModelBase, IKeyViewModel
 		get => field;
 		set => SetProperty(ref field, value);
 	} = "";
+
+	/// 按鍵提示文字（顯示滑動/長按的結果）
+	public str Hint{
+		get => field;
+		set => SetProperty(ref field, value);
+	} = "";
 }

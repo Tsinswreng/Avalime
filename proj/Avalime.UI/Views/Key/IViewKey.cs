@@ -5,6 +5,12 @@ using Tsinswreng.CsCore;
 不能給按鍵之間加無法點擊的縫隙 分隔線應僅是視覺上的作用 邏輯上 每個按鍵都緊密相連
 ")]
 public interface IViewKey{
+	[Doc("按鍵上顯示的文字")]
+	public str Label{get;}
+
+	[Doc(@$"上方小字提示")]
+	public str UpperHint{get;}
+
 	[Doc(@$"單擊")]
 	public Task<nil> Click(CT Ct);
 
