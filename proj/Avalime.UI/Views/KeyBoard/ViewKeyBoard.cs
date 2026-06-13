@@ -40,7 +40,7 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 		//Row1:0.8, Row2-5:1, Row6:0.8 — 上下行略矮
 		var G = new Grid{
 			RowDefinitions = new("0.8*,*,*,*,*,0.8*"),
-			Background = SolidColorBrush.Parse("#E1E3E7"), //鍵盤區底色、匹配TswG keyboard_back_color
+			Background = SolidColorBrush.Parse("#253238"), //鍵盤區底色、匹配TswG鍵盤 keyboard_back_color
 		};
 		i32 RowIdx = 0;
 		AddRow(G, MkRow1(), ref RowIdx);

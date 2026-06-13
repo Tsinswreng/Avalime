@@ -1,4 +1,4 @@
-//ViewKey: 單個鍵盤按鍵視圖、樣式匹配 TswG
+//ViewKey: 單個鍵盤按鍵視圖、樣式匹配 TswG 暗色方案
 using Avalime.ViewModels.key;
 using Avalonia;
 using Avalonia.Controls;
@@ -25,20 +25,19 @@ public class ViewKey : AppViewBase<Ctx>
 		public const str KeyBtn = nameof(KeyBtn);
 	}
 
-	/// TswG 配色常量
+	/// TswG 暗色配色常量
+	/// 來源: TswG-3.3.10.trime.yaml preset_color_schemes.TswG
 	static class TswG{
-		public static readonly SolidColorBrush KeyBg = Brush("#FFFFFF");       //按鍵背景白
-		public static readonly SolidColorBrush KeyText = Brush("#000000");     //按鍵文字黑
-		public static readonly SolidColorBrush KeyBorder = Brush("#ECEFF1");   //按鍵邊框淺灰
-		public static readonly SolidColorBrush FuncBg = Brush("#ACB2C2");      //功能鍵背景灰
-		public static readonly SolidColorBrush FuncText = Brush("#FFFFFF");    //功能鍵文字白
-		public static readonly SolidColorBrush EnterBg = Brush("#3266A0");     //回車鍵背景藍
-		public static readonly SolidColorBrush EnterText = Brush("#FFFFFF");   //回車鍵文字白
-		public static readonly SolidColorBrush SpaceBg = Brush("#FFFFFF");     //空格鍵背景白
-		public static readonly SolidColorBrush LabelColor = Brush("#3266A0");  //標籤色藍
-		public static readonly CornerRadius Round = new(12);          //圓角半徑
-		public static readonly Thickness KeyMargin = new(2, 4);       //按鍵間距(H:2 V:4)
-		public static readonly Thickness BorderThick = new(0.5);     //邊框粗細
+		public static readonly SolidColorBrush KeyBg = Brush("#000000");       //按鍵背景黑 (off_key_back_color)
+		public static readonly SolidColorBrush KeyText = Brush("#E0E0E0");    //按鍵文字淺灰 (key_text_color)
+		public static readonly SolidColorBrush KeyBorder = Brush("#ECEFF1");  //按鍵邊框淺灰 (key_border_color)
+		public static readonly SolidColorBrush OnKeyBg = Brush("#4DB6AC");    //按下時背景青 (on_key_back_color)
+		public static readonly SolidColorBrush OnKeyText = Brush("#37474F");  //按下時文字深灰 (on_key_text_color)
+		public static readonly SolidColorBrush HiKeyBg = Brush("#4DB6AC");    //高亮按鍵背景青 (hilited_key_back_color)
+		public static readonly SolidColorBrush HiKeyText = Brush("#000000");  //高亮按鍵文字黑 (hilited_key_text_color)
+		public static readonly CornerRadius Round = new(0);                   //無圓角 (round_corner: 0)
+		public static readonly Thickness KeyMargin = new(1, 1);              //按鍵間距 (horizontal_gap:1 vertical_gap:1)
+		public static readonly Thickness BorderThick = new(0.5);             //邊框粗細
 	}
 
 	static SolidColorBrush Brush(str Hex)=>SolidColorBrush.Parse(Hex);
