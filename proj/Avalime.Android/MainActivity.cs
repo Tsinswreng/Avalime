@@ -3,7 +3,6 @@ using Android.Content.PM;
 using Android.OS;
 using Android.Util;
 using Avalime.Core.Keys;
-using Avalime.Rime;
 using Avalime.UI;
 using Avalonia.Android;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,59 +20,32 @@ namespace Avalime.Android;
 	ConfigurationChanges = ConfigChanges.Orientation | ConfigChanges.ScreenSize | ConfigChanges.UiMode)]
 public class MainActivity : AvaloniaMainActivity
 {
-	const string Tag = "Avalime.Android";
+	const string Tag = "Avalime";
 
 	protected override void OnCreate(Bundle? savedInstanceState){
-		Log.Info(Tag, "OnCreate start");
-		try{
-			Init();
-		}catch(Exception ex){
-			Log.Error(Tag, $"Init failed: {ex}");
-			throw;
-		}
-		Log.Info(Tag, "OnCreate calling base");
+		Log.Info(Tag, "OnCreate");
+		var svc = new ServiceCollection();
+		svc.AddSingleton<IImeKeyProcessor, StubImeKeyProcessor>();
+		svc.AddSingleton<I_OsKeyProcessor, StubOsKeyProcessor>();
+		svc.AddSingleton<ImeState>();
+		var sp = svc.BuildServiceProvider(new ServiceProviderOptions{ValidateOnBuild = false, ValidateScopes = false});
+		App.SetSvcProvider(sp);
+		Log.Info(Tag, "OnCreate DI done");
 		base.OnCreate(savedInstanceState);
 		Log.Info(Tag, "OnCreate done");
 	}
-
-	/// 初始化 DI 及 Rime、在 base.OnCreate (即 Avalonia 啟動) 之前執行
-	void Init(){
-		Log.Info(Tag, "Init start");
-
-		// 1. 初始化 Rime
-		try{
-			Log.Info(Tag, $"Loading Rime: {RimeSetup.dllPath}");
-			var rimeSetup = RimeSetup.Inst;
-			Log.Info(Tag, $"Rime ok, session={rimeSetup.rimeSessionId}");
-		}catch(Exception ex){
-			Log.Error(Tag, $"Rime init failed: {ex}");
-		}
-
-		// 2. 建立 DI 容器
-		var svc = new ServiceCollection();
-		try{
-			svc.AddSingleton<IImeKeyProcessor, RimeKeyProcessor>();
-			svc.AddSingleton<I_OsKeyProcessor, StubOsKeyProcessor>();
-			svc.AddSingleton<ImeState>();
-		}catch(Exception ex){
-			Log.Error(Tag, $"DI register failed: {ex}");
-		}
-
-		var sp = svc.BuildServiceProvider(new ServiceProviderOptions{
-			ValidateOnBuild = false,
-			ValidateScopes = false
-		});
-		App.SetSvcProvider(sp);
-		Log.Info(Tag, "Init done");
-	}
 }
 
-/// Android 端 OS KeyProcessor 空實現
 class StubOsKeyProcessor : I_OsKeyProcessor
 {
 	public event ErrHandler? OnErr;
+	public Task<RespOnKeyEvent> OnKeyEventsAsy(IEnumerable<IKeyEvent> keyEvents)
+		=> Task.FromResult(new RespOnKeyEvent());
+}
 
-	public Task<RespOnKeyEvent> OnKeyEventsAsy(IEnumerable<IKeyEvent> keyEvents){
-		return Task.FromResult(new RespOnKeyEvent());
-	}
+class StubImeKeyProcessor : IImeKeyProcessor
+{
+	public event ErrHandler? OnErr;
+	public Task<RespOnKeyEvent> OnKeyEventsAsy(IEnumerable<IKeyEvent> keyEvents)
+		=> Task.FromResult(new RespOnKeyEvent());
 }
