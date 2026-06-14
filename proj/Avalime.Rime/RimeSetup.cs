@@ -27,13 +27,8 @@ unsafe public class RimeSetup
 
 	public static RimeSetup Inst => field??= new RimeSetup();
 	//TODO test
-#if ANDROID
-	public static str dllPath = "librime_jni.so";
-	public static str userDataDir = "/sdcard/rime";
-#else
 	public static str dllPath = "D:/ENV/Rime/weasel-0.15.0/rime.dll";
 	public static str userDataDir = "D:/Program Files/Rime/User_Data";
-#endif
 	public PtrMgr ptrMgr = new PtrMgr();
 
 
