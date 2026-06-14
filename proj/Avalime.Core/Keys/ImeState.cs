@@ -20,7 +20,9 @@ public class ImeState
 
 	public async Task<RespInput> Input(IEnumerable<IKeyEvent> keyEvents){
 		BeforeInput?.Invoke(this, keyEvents);
-		await ImeKeyProcessor.OnKeyEventsAsy(keyEvents);
+		if(ImeKeyProcessor is not null){
+			await ImeKeyProcessor.OnKeyEventsAsy(keyEvents);
+		}
 		AfterInput?.Invoke(this, keyEvents);
 		return new();
 	}
