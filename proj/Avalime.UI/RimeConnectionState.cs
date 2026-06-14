@@ -35,7 +35,7 @@ public partial class RimeConnectionState : ObservableObject
 		}
 		StatusText = "正在連接 Rime";
 		LogInfo("Creating RimeSetup");
-		var setup = new RimeSetup();
+		var setup = RimeSetup.Inst;
 		LogInfo("RimeSetup created");
 		var imeState = App.SvcP.GetRequiredService<ImeState>();
 		LogInfo("Resolving ImeState done");

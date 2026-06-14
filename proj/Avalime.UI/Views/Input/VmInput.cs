@@ -18,15 +18,10 @@ public class VmInput : ViewModelBase
 	} = "";
 
 	public ImeState ImeState{get;set;} = App.SvcP.GetRequiredService<ImeState>();
-	public RimeConnectionState RimeConnection{get;set;} = App.SvcP.GetRequiredService<RimeConnectionState>();
 
 	unsafe public VmInput(){
 		ImeState.AfterInput += (sender, args)=>{
-			var rime = RimeConnection.Setup;
-			if(rime is null){
-				Text = "";
-				return;
-			}
+			var rime = RimeSetup.Inst;
 			var rimeApi = rime.apiFn;
 			var ctx = new RimeContext();
 			ctx.data_size = RimeUtil.DataSize<RimeContext>();

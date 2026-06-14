@@ -28,18 +28,13 @@ unsafe public partial class VmCandidatesBar : ViewModelBase
 	}
 
 	public ImeState ImeState{get;set;} = App.SvcP.GetRequiredService<ImeState>();
-	public RimeConnectionState RimeConnection{get;set;} = App.SvcP.GetRequiredService<RimeConnectionState>();
 
 	public VmCandidatesBar(){
 		ImeState.AfterInput += (s,e)=>{
 			CandVms.Clear();
-			var rime = RimeConnection.Setup;
-			if(rime is null){
-				return;
-			}
+			var rime = RimeSetup.Inst;
 			var rimeApi = rime.apiFn;
 			var iterrator = new RimeCandidateListIterator();
-
 			if(rimeApi.candidate_list_begin(rime.rimeSessionId, &iterrator) != RimeUtil.True){
 				return;
 			}

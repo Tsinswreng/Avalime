@@ -30,7 +30,9 @@ sealed class Program{
 			ImeState
 		>();
 
-		var provider = services.BuildServiceProvider();
+					services.AddSingleton<RimeConnectionState>();
+
+			var provider = services.BuildServiceProvider();
 		BuildAvaloniaApp()
 		.AfterSetup(e=>App.SetSvcProvider(provider))
 		.StartWithClassicDesktopLifetime(args);
