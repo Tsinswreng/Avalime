@@ -1,4 +1,3 @@
-//主視圖：根節點，掛載鍵盤
 using Avalonia.Controls;
 using Avalime.UI.Views.KeyBoard;
 

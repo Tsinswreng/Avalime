@@ -1,28 +1,26 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Themes.Fluent;
 using Avalime.ViewModels;
 using Avalime.UI.Views;
-using Microsoft.Extensions.DependencyInjection;
+using Avalonia.Markup.Xaml;
 
 namespace Avalime.UI;
 
 public partial class App : Application
 {
-	public static IServiceProvider SvcP{get; private set;} = null!;
-	public static void SetSvcProvider(IServiceProvider SvcP){App.SvcP = SvcP;}
-
-	public static T GetRSvc<T>() where T:class => SvcP.GetRequiredService<T>();
+	public static IServiceProvider SvcP => AppServices.SvcP;
+	public static void SetSvcProvider(IServiceProvider svcP){ AppServices.SetSvcProvider(svcP); }
+	public static T GetRSvc<T>() where T:class => AppServices.GetRequiredService<T>();
 
 	public override void Initialize(){
-		Styles.Add(new FluentTheme());
+		AvaloniaXamlLoader.Load(this);
 	}
 
 	public override void OnFrameworkInitializationCompleted(){
-#if DEBUG
-		this.AttachDeveloperTools();
-#endif
 		if(ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop){
+#if DEBUG
+			this.AttachDeveloperTools();
+#endif
 			desktop.MainWindow = new MainWindow{
 				DataContext = new MainViewModel(),
 				Width = 1920/4,
@@ -30,6 +28,11 @@ public partial class App : Application
 				Height = 1080/4,
 				MinHeight = 0,
 				ExtendClientAreaToDecorationsHint = true
+			};
+		}
+		else if(ApplicationLifetime is IActivityApplicationLifetime activityLifetime){
+			activityLifetime.MainViewFactory = () => new MainView{
+				DataContext = new MainViewModel()
 			};
 		}
 		else if(ApplicationLifetime is ISingleViewApplicationLifetime singleViewPlatform){

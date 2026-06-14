@@ -5,6 +5,7 @@ using Rime.Api;
 using static System.Runtime.InteropServices.NativeMemory;
 using static System.Runtime.InteropServices.Marshal;
 using System;
+using System.Diagnostics;
 
 
 #region RimeTypes
@@ -22,6 +23,7 @@ namespace Avalime.Rime;
 unsafe public class RimeSetup
 	:IDisposable
 {
+	static void LogInfo(str message){ Debug.WriteLine("[AvalimeRime] " + message); }
 
 	public static RimeSetup Inst => field??= new RimeSetup();
 	//TODO test
@@ -73,27 +75,35 @@ unsafe public class RimeSetup
 	public RimeApi apiFn{get;protected set;}
 
 	public RimeSetup(){
+		LogInfo("RimeSetup ctor begin");
 		_setupRimeApi();
+		LogInfo("_setupRimeApi done");
 		_setupRimeTraits();
+		LogInfo("_setupRimeTraits done");
 		_setupRimeSession();
+		LogInfo("_setupRimeSession done");
 	}
 
 	protected zero _setupRimeApi(){
 		//traits = (RimeTraits*)AllocZeroed((nuint)SizeOf<RimeTraits>());
 		//var rimeApi = RimeApiFn.rime_get_api();
-
+		LogInfo("_setupRimeApi: loading " + dllPath);
 		var rime_get_api = RimeDllLoader.loadFn_rime_get_api(dllPath);
+		LogInfo("_setupRimeApi: loadFn_rime_get_api done");
 		var rimeApi = rime_get_api();
+		LogInfo("_setupRimeApi: rime_get_api invoked");
 		apiFn = *rimeApi;
 		return 0;
 	}
 
 
 	protected zero _setupRimeTraits(){
+		LogInfo("_setupRimeTraits: begin");
 		_traits = New<RimeTraits>();
 		traits->data_size = RimeUtil.DataSize<RimeTraits>();
 		traits->user_data_dir = ptrMgr.Str(userDataDir);
 		traits->app_name = ptrMgr.Str("rime.avalime");
+		LogInfo("_setupRimeTraits: userDataDir=" + userDataDir);
 		return 0;
 	}
 
@@ -134,22 +144,29 @@ unsafe public class RimeSetup
 	// > RimeNotificationHandler;
 
 	protected zero _setupRimeSession(){
+		LogInfo("_setupRimeSession: apiFn.setup");
 		apiFn.setup(traits);
 		ManagedRimeNotificationHandler = on_message;
 		// RimeNotificationHandler = RimeToRimeNotificationHandler(
 		// 	//勿直把具名方法傳入GetFunctionPointerForDelegate。緣若此則其內會先生成臨時委託 後把臨時委託轉成指針。臨時委託ʹ壽ˋ短於傳入ʹ具名方法
 		// 	Marshal.GetFunctionPointerForDelegate(ManagedRimeNotificationHandler)
 		// );
+		LogInfo("_setupRimeSession: set_notification_handlerManaged");
 		apiFn.set_notification_handlerManaged(
 			ManagedRimeNotificationHandler
 			,null
 		);
+		LogInfo("_setupRimeSession: initialize");
 		apiFn.initialize(null);
 		var full_check = RimeUtil.True;
+		LogInfo("_setupRimeSession: start_maintenance");
 		if(apiFn.start_maintenance(full_check) != RimeUtil.False){
+			LogInfo("_setupRimeSession: join_maintenance_thread");
 			apiFn.join_maintenance_thread();
 		}
+		LogInfo("_setupRimeSession: create_session");
 		_rimeSessionId = apiFn.create_session();
+		LogInfo("_setupRimeSession: session=" + _rimeSessionId);
 		return 0;
 	}
 

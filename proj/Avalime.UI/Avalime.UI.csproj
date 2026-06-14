@@ -4,7 +4,7 @@
 		<Nullable>enable</Nullable>
 		<LangVersion>latest</LangVersion>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<PublishAot>true</PublishAot>
+		<PublishAot>false</PublishAot>
 		<AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
 	</PropertyGroup>
 
@@ -33,7 +33,6 @@
 	<ItemGroup>
 		<Compile Include="../TypeAlias.cs" />
 		<ProjectReference Include="../Avalime.Core/Avalime.Core.csproj"/>
-		<ProjectReference Include="../CsRimeApi/RimeApi/RimeApi.csproj"/>
 		<ProjectReference Include="../Avalime.Rime/Avalime.Rime.csproj" />
 	</ItemGroup>
 </Project>

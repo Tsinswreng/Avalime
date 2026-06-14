@@ -8,9 +8,13 @@ unsafe public class RimeKeyProcessor
 	: IImeKeyProcessor
 {
 	public event ErrHandler? OnErr;
-	protected RimeSetup RimeSetup = RimeSetup.Inst;
+	protected RimeSetup RimeSetup;
 	public RimeApi Rime{get;set;}
-	public RimeKeyProcessor() {
+	public RimeKeyProcessor()
+		: this(RimeSetup.Inst){}
+
+	public RimeKeyProcessor(RimeSetup setup) {
+		RimeSetup = setup;
 		Rime = RimeSetup.apiFn;
 	}
 
