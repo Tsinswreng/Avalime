@@ -35,16 +35,25 @@ public partial class RimeConnectionState : ObservableObject
 		}
 		StatusText = "正在連接 Rime";
 		LogInfo("Creating RimeSetup");
-		var setup = RimeSetup.Inst;
-		LogInfo("RimeSetup created");
-		var imeState = App.SvcP.GetRequiredService<ImeState>();
-		LogInfo("Resolving ImeState done");
-		imeState.ImeKeyProcessor = new RimeKeyProcessor(setup);
-		LogInfo("ImeKeyProcessor switched to RimeKeyProcessor");
-		Setup = setup;
-		IsConnected = true;
-		StatusText = "Rime 已連接";
-		LogInfo("Connect() success");
+		try{
+			var setup = RimeSetup.Inst;
+			if(setup is null){
+				SetError("Rime 初始化失敗：RimeSetup.Inst 為 null");
+				return;
+			}
+			LogInfo("RimeSetup created");
+			var imeState = App.SvcP.GetRequiredService<ImeState>();
+			LogInfo("Resolving ImeState done");
+			imeState.ImeKeyProcessor = new RimeKeyProcessor(setup);
+			LogInfo("ImeKeyProcessor switched to RimeKeyProcessor");
+			Setup = setup;
+			IsConnected = true;
+			StatusText = "Rime 已連接";
+			LogInfo("Connect() success");
+		}catch(Exception ex){
+			LogError("Connect exception: " + ex);
+			SetError("Rime 連接失敗: " + ex.Message);
+		}
 	}
 
 	public void SetError(str message){
