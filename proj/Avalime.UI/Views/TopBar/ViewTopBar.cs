@@ -15,30 +15,33 @@ public class ViewTopBar : AppViewBase<VmTopBar>
 
 	void Render(){
 		var root = new Grid{
-			ColumnDefinitions = new("Auto,*"),
+			ColumnDefinitions = new("*,Auto"),
 			RowDefinitions = new("Auto,Auto")
 		};
 
+		var candidates = new ViewCandidatesBar();
+		Grid.SetColumn(candidates, 0);
+		Grid.SetRowSpan(candidates, 2);
+
 		var btn = new Button{
 			Content = "連接 Rime",
-			HorizontalAlignment = HorizontalAlignment.Left
+			HorizontalAlignment = HorizontalAlignment.Right
 		};
 		btn.Click += (_, _) => Ctx?.ConnectRime();
+		Grid.SetColumn(btn, 1);
 
 		var status = new TextBlock{
 			VerticalAlignment = VerticalAlignment.Center,
-			Margin = new(12, 0, 0, 0)
+			HorizontalAlignment = HorizontalAlignment.Right,
+			Margin = new(0, 2, 4, 0)
 		};
 		Ctx!.Bind(status, x => x.Text, x => x.StatusText);
+		Grid.SetColumn(status, 1);
+		Grid.SetRow(status, 1);
 
-		var candidates = new ViewCandidatesBar();
-
+		root.Children.Add(candidates);
 		root.Children.Add(btn);
 		root.Children.Add(status);
-		root.Children.Add(candidates);
-		Grid.SetColumn(status, 1);
-		Grid.SetRow(candidates, 1);
-		Grid.SetColumnSpan(candidates, 2);
 
 		this.SetContent(root);
 	}
