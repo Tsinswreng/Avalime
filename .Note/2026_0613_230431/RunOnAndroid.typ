@@ -70,3 +70,9 @@ Android 的 [Application] 屬性會在 AndroidManifest.xml 中註冊為 <applica
 你還是沒有說清楚他是要按哪個App來啓動的
 註冊在哪裏
 ]
+
+
+2026_0615_125908[
+
+]
+

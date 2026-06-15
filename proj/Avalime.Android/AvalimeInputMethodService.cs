@@ -5,7 +5,8 @@ using Android.InputMethodServices;
 using Android.Runtime;
 using Android.Views;
 using Android.Views.InputMethods;
-using Android.Widget;
+using Avalonia.Android;
+using Avalime.UI.Views;
 
 namespace Avalime.Android;
 
@@ -21,7 +22,24 @@ public class AvalimeInputMethodService : InputMethodService
     public AvalimeInputMethodService(nint javaReference, JniHandleOwnership transfer)
         : base(javaReference, transfer) { }
 
-    global::Android.Views.View? _inputView;
+    AvaloniaView? _inputView;
+
+    int GetHalfScreenHeight()
+    {
+        var screenHeight = Resources?.DisplayMetrics?.HeightPixels ?? 0;
+        return screenHeight > 0 ? screenHeight / 2 : ViewGroup.LayoutParams.WrapContent;
+    }
+
+    public override bool OnEvaluateFullscreenMode()
+    {
+        return false;
+    }
+
+    public override void OnConfigureWindow(Window? win, bool isFullscreen, bool isCandidatesOnly)
+    {
+        base.OnConfigureWindow(win, false, isCandidatesOnly);
+        win?.SetLayout(ViewGroup.LayoutParams.MatchParent, GetHalfScreenHeight());
+    }
 
     public override global::Android.Views.View OnCreateInputView()
     {
@@ -30,27 +48,14 @@ public class AvalimeInputMethodService : InputMethodService
         if (_inputView != null)
             return _inputView;
 
-        var layout = new LinearLayout(this)
+        _inputView = new AvaloniaView(this)
         {
-            Orientation = Orientation.Vertical
+            Content = new MainView()
         };
-        layout.LayoutParameters = new ViewGroup.LayoutParams(
+        _inputView.LayoutParameters = new ViewGroup.LayoutParams(
             ViewGroup.LayoutParams.MatchParent,
-            ViewGroup.LayoutParams.WrapContent);
+            GetHalfScreenHeight());
 
-        var testView = new TextView(this)
-        {
-            Text = "Avalime IME Prototype\nPress keys here",
-            TextSize = 24,
-            Gravity = GravityFlags.Center
-        };
-        testView.LayoutParameters = new ViewGroup.LayoutParams(
-            ViewGroup.LayoutParams.MatchParent,
-            400);
-        testView.SetBackgroundColor(global::Android.Graphics.Color.DarkGray);
-        layout.AddView(testView);
-
-        _inputView = layout;
         return _inputView;
     }
 

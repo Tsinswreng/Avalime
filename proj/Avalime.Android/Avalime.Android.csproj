@@ -27,4 +27,8 @@
 	<ItemGroup>
 		<ProjectReference Include="../Avalime.UI/Avalime.UI.csproj" />
 	</ItemGroup>
+
+	<ItemGroup>
+		<AndroidResource Include="Resources\xml\ime_method.xml" />
+	</ItemGroup>
 </Project>
