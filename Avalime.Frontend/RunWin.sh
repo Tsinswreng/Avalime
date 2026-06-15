@@ -1,2 +1,1 @@
-cd proj/Avalime.Windows
-dotnet run -p:AllowMissingPrunePackageData=true -r win-x86
+dotnet run --project ./proj/Avalime.Windows/Avalime.Windows.csproj -p:AllowMissingPrunePackageData=true -r win-x86
