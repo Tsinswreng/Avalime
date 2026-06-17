@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using Avalime.Core.Keys;
 using Avalime.ViewModels;
 using KS = Avalime.Core.Keys.KeyStates;
@@ -16,6 +17,8 @@ public partial class KeyVm : ViewModelBase, IKeyViewModel
 		Click = ()=>{
 			var state = ImeState as ImeState;//TODO temp
 			try{
+				var sw = Stopwatch.StartNew();
+				Debug.WriteLine($"[Perf] KeyVm.Click→Input start: {sw.ElapsedMilliseconds}ms");
 				state?.Input([
 					new KeyEvent{
 						KeyChar = Key_Click,
@@ -26,6 +29,7 @@ public partial class KeyVm : ViewModelBase, IKeyViewModel
 						KeyState = KS.Up
 					}
 				]);
+				Debug.WriteLine($"[Perf] KeyVm.Click→Input done: {sw.ElapsedMilliseconds}ms");
 			}
 			catch(Exception e){
 				HandleErr(e);

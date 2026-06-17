@@ -1,4 +1,5 @@
 //ViewKey: 單個鍵盤按鍵視圖、支援點擊/長按/滑動 + Hint提示文字、樣式匹配 TswG 暗色方案
+using System.Diagnostics;
 using Avalime.ViewModels.key;
 using Avalonia;
 using Avalonia.Controls;
@@ -92,6 +93,7 @@ public class ViewKey : AppViewBase<Ctx>
 	}
 
 	void OnPointerReleased(object? s, PointerReleasedEventArgs e){
+		var swPerf = Stopwatch.StartNew();
 		StopLongPressTimer();
 		_border.Background = TswG.KeyBg; //復原背景
 
@@ -109,7 +111,9 @@ public class ViewKey : AppViewBase<Ctx>
 				else Ctx?.SwipeUP?.Invoke();
 			}
 		}else{
+			Debug.WriteLine($"[Perf] OnPointerReleased→Click start: {swPerf.ElapsedMilliseconds}ms");
 			Ctx?.Click?.Invoke();
+			Debug.WriteLine($"[Perf] OnPointerReleased→Click done: {swPerf.ElapsedMilliseconds}ms");
 		}
 	}
 

@@ -32,6 +32,8 @@ unsafe public partial class VmCandidatesBar : ViewModelBase
 
 	public VmCandidatesBar(){
 		ImeState.AfterInput += (s,e)=>{
+			var sw = System.Diagnostics.Stopwatch.StartNew();
+			System.Diagnostics.Debug.WriteLine($"[Perf] VmCandidatesBar.AfterInput start: {sw.ElapsedMilliseconds}ms");
 			CandVms.Clear();
 			var rime = RimeConnection.Setup;
 			if(rime is null) return;
@@ -40,10 +42,14 @@ unsafe public partial class VmCandidatesBar : ViewModelBase
 			if(rimeApi.candidate_list_begin(rime.rimeSessionId, &iterrator) != RimeUtil.True){
 				return;
 			}
-			for(;rimeApi.candidate_list_next(&iterrator) == RimeUtil.True;){
+			var count = 0;
+			const int maxCandidates = 16;
+			for(;count < maxCandidates && rimeApi.candidate_list_next(&iterrator) == RimeUtil.True;){
 				var ua = ToCand(iterrator.candidate);
 				CandVms.Add(ua);
+				count++;
 			}
+			System.Diagnostics.Debug.WriteLine($"[Perf] VmCandidatesBar.AfterInput done: {sw.ElapsedMilliseconds}ms, candidates: {count}");
 		};
 	}
 

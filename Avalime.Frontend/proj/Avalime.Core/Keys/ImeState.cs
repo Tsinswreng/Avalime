@@ -19,12 +19,18 @@ public class ImeState
 
 
 	public async Task<RespInput> Input(IEnumerable<IKeyEvent> keyEvents){
+		var sw = System.Diagnostics.Stopwatch.StartNew();
+		System.Diagnostics.Debug.WriteLine($"[Perf] ImeState.Input start: {sw.ElapsedMilliseconds}ms");
 		BeforeInput?.Invoke(this, keyEvents);
 		RespOnKeyEvent? resp = null;
 		if(ImeKeyProcessor is not null){
+			var swProc = System.Diagnostics.Stopwatch.StartNew();
 			resp = await ImeKeyProcessor.OnKeyEventsAsy(keyEvents);
+			System.Diagnostics.Debug.WriteLine($"[Perf] ImeState.Input OnKeyEventsAsy done: {swProc.ElapsedMilliseconds}ms");
 		}
+		var swAfter = System.Diagnostics.Stopwatch.StartNew();
 		AfterInput?.Invoke(this, keyEvents);
+		System.Diagnostics.Debug.WriteLine($"[Perf] ImeState.Input AfterInput done: {swAfter.ElapsedMilliseconds}ms");
 
 		// 觸發 commit 事件
 		if(resp?.Commits is not null){
@@ -33,6 +39,7 @@ public class ImeState
 			}
 		}
 
+		System.Diagnostics.Debug.WriteLine($"[Perf] ImeState.Input total done: {sw.ElapsedMilliseconds}ms");
 		return new();
 	}
 

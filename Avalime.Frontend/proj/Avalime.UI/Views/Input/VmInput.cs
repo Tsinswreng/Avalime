@@ -22,6 +22,8 @@ public class VmInput : ViewModelBase
 
 	unsafe public VmInput(){
 		ImeState.AfterInput += (sender, args)=>{
+			var sw = System.Diagnostics.Stopwatch.StartNew();
+			System.Diagnostics.Debug.WriteLine($"[Perf] VmInput.AfterInput start: {sw.ElapsedMilliseconds}ms");
 			var rime = RimeConnection.Setup;
 			if(rime is null){ Text = ""; return; }
 			var rimeApi = rime.apiFn;
@@ -33,6 +35,7 @@ public class VmInput : ViewModelBase
 			str preedit = ToolCStr.ToCsStr(ctx.composition.preedit);
 			rimeApi.free_context(&ctx);
 			Text = preedit;
+			System.Diagnostics.Debug.WriteLine($"[Perf] VmInput.AfterInput done: {sw.ElapsedMilliseconds}ms, preedit: {preedit}");
 		};
 	}
 }
