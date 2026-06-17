@@ -1,7 +1,7 @@
 namespace Avalime.Core.Keys;
 
 public class RespOnKeyEvent{
-
+	public List<string> Commits{get;set;} = [];
 }
 
 public interface I_OnKeyEvents{

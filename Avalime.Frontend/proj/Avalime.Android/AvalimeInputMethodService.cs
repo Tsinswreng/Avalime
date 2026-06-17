@@ -6,7 +6,10 @@ using Android.Runtime;
 using Android.Views;
 using Android.Views.InputMethods;
 using Avalonia.Android;
+using Avalime.Core.Keys;
+using Avalime.UI;
 using Avalime.UI.Views;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Avalime.Android;
 
@@ -63,6 +66,21 @@ public class AvalimeInputMethodService : InputMethodService
     {
         base.OnCreate();
         Debug.WriteLine("[IME] OnCreate");
+
+        var imeState = App.SvcP.GetRequiredService<ImeState>();
+        imeState.OnCommit += (sender, text) =>
+        {
+            var ic = CurrentInputConnection;
+            if (ic is not null)
+            {
+                ic.CommitText(text, 1);
+                Debug.WriteLine($"[IME] CommitText: {text}");
+            }
+            else
+            {
+                Debug.WriteLine("[IME] CommitText skipped: no InputConnection");
+            }
+        };
     }
 
     public override void OnStartInputView(EditorInfo? info, bool restarting)

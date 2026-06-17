@@ -20,15 +20,29 @@ public class ImeState
 
 	public async Task<RespInput> Input(IEnumerable<IKeyEvent> keyEvents){
 		BeforeInput?.Invoke(this, keyEvents);
+		RespOnKeyEvent? resp = null;
 		if(ImeKeyProcessor is not null){
-			await ImeKeyProcessor.OnKeyEventsAsy(keyEvents);
+			resp = await ImeKeyProcessor.OnKeyEventsAsy(keyEvents);
 		}
 		AfterInput?.Invoke(this, keyEvents);
+
+		// 觸發 commit 事件
+		if(resp?.Commits is not null){
+			foreach(var commitText in resp.Commits){
+				OnCommit?.Invoke(this, commitText);
+			}
+		}
+
 		return new();
 	}
 
 	public event EventHandler<IEnumerable<IKeyEvent>> BeforeInput;
 	public event EventHandler<IEnumerable<IKeyEvent>> AfterInput;
+
+	/// <summary>
+	/// 當 Rime 引擎 commit 文字時觸發。參數為 commit 的文字內容。
+	/// </summary>
+	public event EventHandler<string>? OnCommit;
 
 
 	public object? GetOption() {

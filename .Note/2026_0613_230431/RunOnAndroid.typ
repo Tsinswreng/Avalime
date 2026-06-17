@@ -73,6 +73,12 @@ Android 的 [Application] 屬性會在 AndroidManifest.xml 中註冊為 <applica
 
 
 2026_0615_125908[
+看Avalime及其文檔 然後幫我做一個功能  在安卓端 要能 按空格鍵 上屏候選詞 
+上屏是commit。 要經過引擎 也要輸出到OS 在文本輸入框中顯示。
+所有按鍵都必須經過引擎 我記得引擎有onCommit回調
+
+2 你自己找不到罷了
+
 
 ]
 

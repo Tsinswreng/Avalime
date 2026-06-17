@@ -21,6 +21,12 @@ using Tsinswreng.CsCore;
 	`OnConfigureWindow()` 把高度限制成半屏。
 ]
 
+#H[文字輸出][
+	`OnCreate` 中訂閱 `ImeState.OnCommit` 事件。
+	收到 commit 文字後，通過 `CurrentInputConnection.CommitText` 將文字輸出到目標 App 的輸入框。
+	若當前沒有 `InputConnection`（輸入法未連接目標），則跳過輸出並記錄日誌。
+]
+
 """)]
 file class _{
 }

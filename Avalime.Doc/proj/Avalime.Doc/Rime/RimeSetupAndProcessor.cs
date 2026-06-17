@@ -19,6 +19,11 @@ using Tsinswreng.CsCore;
 	`RimeKeyCharConverter` 負責把 `IKeyEvent` 轉成 Rime 的 keycode / mask。
 ]
 
+#H[Commit 檢測][
+	`RimeKeyProcessor.OnKeyEventsAsy` 在每個 `process_key` 之後調用 `get_commit`。
+	若有 commit 文字，收集到 `RespOnKeyEvent.Commits` 中返回給 `ImeState`，然後調用 `free_commit` 釋放。
+]
+
 """)]
 file class _{
 }
