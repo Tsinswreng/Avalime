@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -6,5 +6,12 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Avalime.Frontend\proj\Avalime.Core\Avalime.Core.csproj" />
+    <ProjectReference Include="..\..\..\Avalime.Frontend\proj\Avalime.Rime\Avalime.Rime.csproj" />
+    <ProjectReference Include="..\..\..\Avalime.Frontend\proj\Avalime.UI\Avalime.UI.csproj" />
+    <ProjectReference Include="..\..\..\Avalime.Frontend\proj\Avalime.Windows\Avalime.Windows.csproj" />
+  </ItemGroup>
 
 </Project>
