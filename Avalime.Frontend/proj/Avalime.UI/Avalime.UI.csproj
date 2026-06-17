@@ -11,7 +11,7 @@
 	<ItemGroup>
 		<ProjectReference Include="../../../../Tsinswreng.Avln.Dsl/proj/Tsinswreng.Avln.Dsl/Tsinswreng.Avln.Dsl.csproj" />
 		<ProjectReference Include="../../../../Tsinswreng.Avln.Grid/proj/Tsinswreng.Avln.Grid/Tsinswreng.Avln.Grid.csproj" />
-		<ProjectReference Include="../../../../Tsinswreng.CsCore/proj/Tsinswreng.CsCore/Tsinswreng.CsCore.csproj" />
+		<PackageReference Include="Tsinswreng.CsCore"/>
 	</ItemGroup>
 
 	<ItemGroup>

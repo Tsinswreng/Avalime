@@ -29,4 +29,7 @@
 		<PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="9.0.2" />
 		<PackageVersion Include="Tsinswreng.CsInterop" Version="0.1.0.25463" />
 	</ItemGroup>
+	<ItemGroup>
+		<PackageVersion Include="Tsinswreng.CsCore" Version="0.0.1-alpha" />
+	</ItemGroup>
 </Project>
