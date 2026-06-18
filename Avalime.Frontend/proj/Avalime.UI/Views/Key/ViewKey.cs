@@ -83,6 +83,7 @@ public class ViewKey : AppViewBase<Ctx>
 		_pressPoint = e.GetPosition(_border);
 		_longPressFired = false;
 		_border.Background = TswG.PressedBg; //按下視覺反饋
+		Console.WriteLine($"[Key] Pressed, hasLongPress={Ctx?.LongPress is not null}, isRepeat={Ctx?.IsRepeat}");
 		StartLongPressTimer();
 	}
 
@@ -99,7 +100,10 @@ public class ViewKey : AppViewBase<Ctx>
 		StopLongPressTimer();
 		_border.Background = TswG.KeyBg; //復原背景
 
-		if(_longPressFired) return;
+		if(_longPressFired){
+			Console.WriteLine("[Key] Released after long press, skipping Click");
+			return;
+		}
 		var pos = e.GetPosition(_border);
 		var dx = pos.X - _pressPoint.X;
 		var dy = pos.Y - _pressPoint.Y;
@@ -129,6 +133,7 @@ public class ViewKey : AppViewBase<Ctx>
 		_longPressTimer.Tick += (_, _) => {
 			_longPressTimer.Stop();
 			_longPressFired = true;
+			Console.WriteLine($"[Key] LongPress fired, isRepeat={Ctx?.IsRepeat}");
 			Ctx?.LongPress?.Invoke();
 			if(Ctx?.IsRepeat == true){
 				StartRepeatTimer();

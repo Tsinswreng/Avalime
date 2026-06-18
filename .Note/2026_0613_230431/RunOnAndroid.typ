@@ -132,3 +132,4 @@ Android 的 [Application] 屬性會在 AndroidManifest.xml 中註冊為 <applica
 長按退格鍵的時候就相當于多次快速單擊退格鍵
 
 ]
+

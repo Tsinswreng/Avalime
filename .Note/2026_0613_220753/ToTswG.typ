@@ -26,6 +26,7 @@ File: d:\Program Files\Rime\User_Data\TswG-3.3.10.trime.yaml
 
 看這個文件
 這個文件非常大
+只挑你要看的部分來看 其他地方別看
 
 重點看 TswG 的鍵盤佈局。
 
@@ -35,5 +36,11 @@ E:\_code\CsRime\Avalime\proj\Avalime.UI\Views\KeyBoard\ViewKeyBoard.cs
 
 的佈局和功能也改成和他的一樣。
 
+
+]
+
+
+2026_0618_185004[
+键盘长按弄了吗?? 自己看 yaml裏面long click的部分
 
 ]
