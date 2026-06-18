@@ -45,6 +45,9 @@ public partial class KeyVm : ViewModelBase, IKeyViewModel
 	public Func<zero>? SwipeUP{get;set;}
 	public Func<zero>? SwipeRight{get;set;}
 
+	/// <summary>長按後是否持續重複觸發 Click</summary>
+	public bool IsRepeat{get;set;}
+
 	public ImeState ImeState{get;set;}//TODO 改用接口
 
 	public IKeyChar Key_Click{

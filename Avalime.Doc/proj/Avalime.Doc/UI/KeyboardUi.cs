@@ -19,6 +19,8 @@ using Tsinswreng.CsCore;
 #H[交互][
 	`VmKeyBoard` 維持佈局狀態。
 	`VmKey` 負責按鍵、長按與滑動動作。
+	`KeyCfg.IsRepeat` 控制長按後是否持續重複：長按 400ms 後首次觸發 `LongPress`，之後每 50ms 觸發一次 `Click`。
+	退格鍵（`Backspace`）設了 `IsRepeat=true`，長按可連續刪除。
 	`VmCandidatesBar` 和 `VmInput` 都依賴 `ImeState.AfterInput`。
 	`VmCandidate` 支援點擊（`Click`），點擊後發送對應數字鍵選中該候選詞上屏。
 	候選詞列表最多顯示 16 個。

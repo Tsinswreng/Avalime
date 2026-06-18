@@ -21,6 +21,11 @@ using Tsinswreng.CsCore;
 	`OnConfigureWindow()` 把高度限制成半屏。
 ]
 
+#H[默認字體][
+	`Application.CustomizeAppBuilder` 中設置 `DefaultFamilyName = "serif"`（帶襯線字體）。
+	替代了原來的 `WithInterFont()`（無襯線）。
+]
+
 #H[文字輸出][
 	`OnCreate` 中設定 `ImeState.OsKeyProcessor` 為 `AndroidOsKeyProcessor`，
 	並訂閱 `ImeState.OnCommit` 事件。

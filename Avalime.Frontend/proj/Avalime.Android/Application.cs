@@ -70,6 +70,8 @@ public class Application : AvaloniaAndroidApplication<App>
 	protected override AppBuilder CustomizeAppBuilder(AppBuilder builder)
 	{
 		return base.CustomizeAppBuilder(builder)
-			.WithInterFont();
+			.With(new Avalonia.Media.FontManagerOptions{
+				DefaultFamilyName = "serif"
+			});
 	}
 }

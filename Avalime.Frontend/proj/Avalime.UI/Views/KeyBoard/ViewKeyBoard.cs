@@ -97,6 +97,7 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 		public IKeyChar? SwipeDown{get;init;}
 		public IKeyChar? SwipeLeft{get;init;}
 		public IKeyChar? SwipeRight{get;init;}
+			public bool IsRepeat{get;init;}
 	}
 
 	Grid MkRowCfg(params KeyCfg[] Cfgs){
@@ -136,6 +137,7 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 		if(Cfg.SwipeDown is not null) Vm.SwipeDown = MkSendKey(Cfg.SwipeDown);
 		if(Cfg.SwipeLeft is not null) Vm.SwipeLeft = MkSendKey(Cfg.SwipeLeft);
 		if(Cfg.SwipeRight is not null) Vm.SwipeRight = MkSendKey(Cfg.SwipeRight);
+		if(Cfg.IsRepeat) Vm.IsRepeat = true;
 		return new ViewKey{Ctx = Vm};
 	}
 
@@ -221,7 +223,7 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 			KView(new(){Key=Space, Label="", SwipeLeft=Left, SwipeRight=Right}),
 			KView(new(){Key=Right, Label="→"}),
 			KView(new(){Key=Shift_L, Label="⇪", LongClick=Dollar, SwipeUp=Dollar}),
-			KView(new(){Key=Backspace, Label="⌫"}),
+			KView(new(){Key=Backspace, Label="⌫", LongClick=Backspace, IsRepeat=true}),
 		};
 		return MkRowOfControls(Ctrls, ColWidths);
 	}
@@ -311,7 +313,7 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 			KView(new(){Key=D0}), //0
 			KView(new(){Key=Space, Label="", SwipeLeft=Left, SwipeRight=Right}),
 			KView(new(){Key=Period, Label=".", Hint=">", SwipeUp=Greater}),
-			KView(new(){Key=Backspace, Label="⌫"}),
+			KView(new(){Key=Backspace, Label="⌫", LongClick=Backspace, IsRepeat=true}),
 		};
 		return MkRowOfControls(Ctrls, ColWidths);
 	}

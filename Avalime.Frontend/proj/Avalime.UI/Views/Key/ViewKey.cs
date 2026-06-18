@@ -41,6 +41,7 @@ public class ViewKey : AppViewBase<Ctx>
 
 	const double SwipeThreshold = 20;
 	const int LongPressMs = 400;
+	const int RepeatIntervalMs = 50;
 
 	static SolidColorBrush Brush(str Hex)=>SolidColorBrush.Parse(Hex);
 
@@ -75,6 +76,7 @@ public class ViewKey : AppViewBase<Ctx>
 	Border _border = default!;
 	Point _pressPoint;
 	DispatcherTimer? _longPressTimer;
+	DispatcherTimer? _repeatTimer;
 	bool _longPressFired;
 
 	void OnPointerPressed(object? s, PointerPressedEventArgs e){
@@ -128,13 +130,26 @@ public class ViewKey : AppViewBase<Ctx>
 			_longPressTimer.Stop();
 			_longPressFired = true;
 			Ctx?.LongPress?.Invoke();
+			if(Ctx?.IsRepeat == true){
+				StartRepeatTimer();
+			}
 		};
 		_longPressTimer.Start();
+	}
+
+	void StartRepeatTimer(){
+		_repeatTimer = new DispatcherTimer{Interval = TimeSpan.FromMilliseconds(RepeatIntervalMs)};
+		_repeatTimer.Tick += (_, _) => {
+			Ctx?.Click?.Invoke();
+		};
+		_repeatTimer.Start();
 	}
 
 	void StopLongPressTimer(){
 		_longPressTimer?.Stop();
 		_longPressTimer = null;
+		_repeatTimer?.Stop();
+		_repeatTimer = null;
 	}
 	#endregion
 
