@@ -170,7 +170,7 @@ public class ViewKey : AppViewBase<Ctx>
 		border.PointerCaptureLost += OnPointerCaptureLost;
 
 		border.SetChild(new Grid(), grid=>{
-			//單格疊放：Hint疊在頂部、Label居中、互不搶空間
+			//單格疊放：Hint疊在頂部、Label居中、BottomHint在底部、互不搶空間
 			var label = new TextBlock();
 			label.Classes.Add(Cls.Label);
 			Ctx.Bind(label, x=>x.Text, x=>x.Label);
@@ -178,11 +178,20 @@ public class ViewKey : AppViewBase<Ctx>
 			var hint = new TextBlock();
 			hint.Classes.Add(Cls.HintLabel);
 			hint.VerticalAlignment = VAlign.Top;
-			hint.Margin = new(0, 1, 0, 0);
+			hint.HorizontalAlignment = HAlign.Right;
+			hint.Margin = new(0, 1, 3, 0);
 			Ctx.Bind(hint, x=>x.Text, x=>x.Hint);
 
+			var hintBottom = new TextBlock();
+			hintBottom.Classes.Add(Cls.HintLabel);
+			hintBottom.VerticalAlignment = VAlign.Bottom;
+			hintBottom.HorizontalAlignment = HAlign.Left;
+			hintBottom.Margin = new(2, 0, 0, 2);
+			Ctx.Bind(hintBottom, x=>x.Text, x=>x.BottomHint);
+
 			grid.Children.Add(label);
-			grid.Children.Add(hint); //hint在label上層
+			grid.Children.Add(hint);       //hint在右上角
+			grid.Children.Add(hintBottom); //hintBottom在左下角
 		});
 	}
 }

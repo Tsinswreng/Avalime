@@ -68,3 +68,40 @@ ascii模式是引擎的概念 不是純前端的概念
 安卓端
 我还没打字呢 我就连接rime之后 滑了几次y键 就闪退了 看看甚么原因。
 ]
+
+
+2026_0618_224933[
+A
+Z
+X
+C
+Y
+這幾個按鍵 長按或向右滑 效果是相當於 ctrl+該鍵
+如 長按A鍵 或 A鍵右滑 就是全選
+這幾個功能你也沒加上。
+這幾個鍵的hint也沒有。
+````yaml
+File: d:\Program Files\Rime\User_Data\TswG-3.3.10.trime.yaml
+4171:   select_all: {label: '☑', functional: false, send: Control+a}
+4172:   cut: {label: '✁', functional: false, send: Control+x}
+4173:   copy: {label: '❐', functional: false, send: Control+c}
+4174:   paste: {label: '▣', functional: false, send: Control+v}
+4175:   paste_clip: {label: 粘贴, send: function, command: clipboard}
+4176:   paste_text: {label: 貼上文本, send: Control+Shift+Alt+v} #>=Android 6.0
+4177:   share_text: {label: 分享文本, send: Control+Alt+s} #>=Android 6.0
+4178:   redo: {label: '↷', functional: false, send: Control+Shift+z} #>=Android 6.0
+4179:   undo: {label: '↶', functional: false, send: Control+z} #>=Android 6.0
+
+````
+上面的label就是他的hint
+無關的別看。
+上面這些功能鍵的hint放下面。
+
+
+第一排數字鍵的hint都沒顯示。
+把第一排數字鍵的hint顯示在按鍵的右上角
+
+
+
+
+]

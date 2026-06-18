@@ -87,4 +87,10 @@ public partial class KeyVm : ViewModelBase, IKeyViewModel
 		get => field;
 		set => SetProperty(ref field, value);
 	} = "";
+
+	/// 按鍵底部提示文字（Ctrl 組合鍵等功能）
+	public str BottomHint{
+		get => field;
+		set => SetProperty(ref field, value);
+	} = "";
 }

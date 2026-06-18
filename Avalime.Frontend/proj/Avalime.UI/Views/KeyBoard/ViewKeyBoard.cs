@@ -94,12 +94,15 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 		public required IKeyChar Key{get;init;}
 		public str? Label{get;init;}
 		public str? Hint{get;init;}
+		public str? HintBottom{get;init;}
 		public IKeyChar? LongClick{get;init;}
+		public Func<zero>? LongClickAction{get;init;}
 		public IKeyChar? SwipeUp{get;init;}
 		public IKeyChar? SwipeDown{get;init;}
 		public IKeyChar? SwipeLeft{get;init;}
 		public Func<zero>? SwipeLeftAction{get;init;}
 		public IKeyChar? SwipeRight{get;init;}
+		public Func<zero>? SwipeRightAction{get;init;}
 			public bool IsRepeat{get;init;}
 	}
 
@@ -134,13 +137,16 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 		Vm.Key_Click = Cfg.Key;
 		if(Cfg.Label is not null) Vm.Label = Cfg.Label;
 		if(Cfg.Hint is not null) Vm.Hint = Cfg.Hint;
+		if(Cfg.HintBottom is not null) Vm.BottomHint = Cfg.HintBottom;
 		Vm.ImeState = Ctx!.ImeState;
 		if(Cfg.LongClick is not null) Vm.LongPress = MkSendKey(Cfg.LongClick);
+		if(Cfg.LongClickAction is not null) Vm.LongPress = Cfg.LongClickAction;
 		if(Cfg.SwipeUp is not null) Vm.SwipeUP = MkSendKey(Cfg.SwipeUp);
 		if(Cfg.SwipeDown is not null) Vm.SwipeDown = MkSendKey(Cfg.SwipeDown);
 		if(Cfg.SwipeLeft is not null) Vm.SwipeLeft = MkSendKey(Cfg.SwipeLeft);
 		if(Cfg.SwipeLeftAction is not null) Vm.SwipeLeft = Cfg.SwipeLeftAction;
 		if(Cfg.SwipeRight is not null) Vm.SwipeRight = MkSendKey(Cfg.SwipeRight);
+		if(Cfg.SwipeRightAction is not null) Vm.SwipeRight = Cfg.SwipeRightAction;
 		if(Cfg.IsRepeat) Vm.IsRepeat = true;
 		return new ViewKey{Ctx = Vm};
 	}
@@ -169,20 +175,31 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 		rimeCon.ToggleAsciiMode();
 		return 0;
 	};
+
+	Func<zero> MkSendCtrlKey(IKeyChar K) => () => {
+		var state = Ctx!.ImeState;
+		state.Input([
+			new KeyEvent{KeyChar = Ctrl_L, KeyState = KS.Down},
+			new KeyEvent{KeyChar = K, KeyState = KS.Down},
+			new KeyEvent{KeyChar = K, KeyState = KS.Up},
+			new KeyEvent{KeyChar = Ctrl_L, KeyState = KS.Up},
+		]);
+		return 0;
+	};
 	#endregion
 
 	#region 主鍵盤佈局（TswG default）
 	Grid MkRow1()=>MkRowCfg(
-		new(){Key=D1, LongClick=Exclamation, SwipeUp=Exclamation},
-		new(){Key=D2, LongClick=At, SwipeUp=At},
-		new(){Key=D3, LongClick=HashTag, SwipeUp=HashTag},
-		new(){Key=D4, LongClick=Dollar, SwipeUp=Dollar},
-		new(){Key=D5, LongClick=Percent, SwipeUp=Percent},
-		new(){Key=D6, LongClick=Caret, SwipeUp=Caret},
-		new(){Key=D7, LongClick=Ampersand, SwipeUp=Ampersand},
-		new(){Key=D8, LongClick=Asterisk, SwipeUp=Asterisk},
-		new(){Key=D9, LongClick=Paren_L, SwipeUp=Paren_L},
-		new(){Key=D0, LongClick=Paren_R, SwipeUp=Paren_R}
+		new(){Key=D1, Hint="!", LongClick=Exclamation, SwipeUp=Exclamation},
+		new(){Key=D2, Hint="@", LongClick=At, SwipeUp=At},
+		new(){Key=D3, Hint="#", LongClick=HashTag, SwipeUp=HashTag},
+		new(){Key=D4, Hint="$", LongClick=Dollar, SwipeUp=Dollar},
+		new(){Key=D5, Hint="%", LongClick=Percent, SwipeUp=Percent},
+		new(){Key=D6, Hint="^", LongClick=Caret, SwipeUp=Caret},
+		new(){Key=D7, Hint="&", LongClick=Ampersand, SwipeUp=Ampersand},
+		new(){Key=D8, Hint="*", LongClick=Asterisk, SwipeUp=Asterisk},
+		new(){Key=D9, Hint="(", LongClick=Paren_L, SwipeUp=Paren_L},
+		new(){Key=D0, Hint=")", LongClick=Paren_R, SwipeUp=Paren_R}
 	);
 
 	Grid MkRow2()=>MkRowCfg(
@@ -195,11 +212,11 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 		new(){Key=i, Label="I",                        SwipeUp=I,   SwipeLeft=SquareBracket_L, SwipeRight=SquareBracket_R},
 		new(){Key=o, Label="O",                        SwipeUp=O,   SwipeLeft=Braces_L, SwipeRight=Braces_R},
 		new(){Key=p, Label="Π",                        SwipeUp=P,   SwipeLeft=Less, SwipeRight=Greater},
-		new(){Key=y, Label="Y", Hint="⇆", SwipeUp=Y, SwipeLeftAction=MkToggleAsciiMode()}
+		new(){Key=y, Label="Y", Hint="⇆", HintBottom="↷", SwipeUp=Y, SwipeLeftAction=MkToggleAsciiMode(), SwipeRightAction=MkSendCtrlKey(y), LongClickAction=MkSendCtrlKey(y)}
 	);
 
 	Grid MkRow3()=>MkRowCfg(
-		new(){Key=a, Label="A",                         SwipeUp=A},
+		new(){Key=a, Label="A", HintBottom="☑",        SwipeUp=A, SwipeRightAction=MkSendCtrlKey(a), LongClickAction=MkSendCtrlKey(a)},
 		new(){Key=s, Label="Σ", Hint="⇪", SwipeUp=S},
 		new(){Key=d, Label="Δ",                         SwipeUp=D},
 		new(){Key=f, Label="F",                         SwipeUp=F},
@@ -212,10 +229,10 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 	);
 
 	Grid MkRow4()=>MkRowCfg(
-		new(){Key=z, Label="Z",                        SwipeUp=Z},
-		new(){Key=x, Label="X",                        SwipeUp=X},
-		new(){Key=c, Label="C",                        SwipeUp=C},
-		new(){Key=v, Label="V",                        SwipeUp=V},
+		new(){Key=z, Label="Z", HintBottom="↶",       SwipeUp=Z, SwipeRightAction=MkSendCtrlKey(z), LongClickAction=MkSendCtrlKey(z)},
+		new(){Key=x, Label="X", HintBottom="✁",       SwipeUp=X, SwipeRightAction=MkSendCtrlKey(x), LongClickAction=MkSendCtrlKey(x)},
+		new(){Key=c, Label="C", HintBottom="❐",       SwipeUp=C, SwipeRightAction=MkSendCtrlKey(c), LongClickAction=MkSendCtrlKey(c)},
+		new(){Key=v, Label="V", HintBottom="▣",       SwipeUp=V, SwipeRightAction=MkSendCtrlKey(v), LongClickAction=MkSendCtrlKey(v)},
 		new(){Key=b, Label="B",                        SwipeUp=B},
 		new(){Key=n, Label="N",                        SwipeUp=N},
 		new(){Key=m, Label="M", Hint="$m,",            SwipeUp=M},
@@ -258,16 +275,16 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 	#region 數字鍵盤佈局（TswGNum）
 	// Row1: 同主鍵盤數字行
 	Grid MkNumRow1()=>MkRowCfg(
-		new(){Key=D1, LongClick=Exclamation, SwipeUp=Exclamation},
-		new(){Key=D2, LongClick=At, SwipeUp=At},
-		new(){Key=D3, LongClick=HashTag, SwipeUp=HashTag},
-		new(){Key=D4, LongClick=Dollar, SwipeUp=Dollar},
-		new(){Key=D5, LongClick=Percent, SwipeUp=Percent},
-		new(){Key=D6, LongClick=Caret, SwipeUp=Caret},
-		new(){Key=D7, LongClick=Ampersand, SwipeUp=Ampersand},
-		new(){Key=D8, LongClick=Asterisk, SwipeUp=Asterisk},
-		new(){Key=D9, LongClick=Paren_L, SwipeUp=Paren_L},
-		new(){Key=D0, LongClick=Paren_R, SwipeUp=Paren_R}
+		new(){Key=D1, Hint="!", LongClick=Exclamation, SwipeUp=Exclamation},
+		new(){Key=D2, Hint="@", LongClick=At, SwipeUp=At},
+		new(){Key=D3, Hint="#", LongClick=HashTag, SwipeUp=HashTag},
+		new(){Key=D4, Hint="$", LongClick=Dollar, SwipeUp=Dollar},
+		new(){Key=D5, Hint="%", LongClick=Percent, SwipeUp=Percent},
+		new(){Key=D6, Hint="^", LongClick=Caret, SwipeUp=Caret},
+		new(){Key=D7, Hint="&", LongClick=Ampersand, SwipeUp=Ampersand},
+		new(){Key=D8, Hint="*", LongClick=Asterisk, SwipeUp=Asterisk},
+		new(){Key=D9, Hint="(", LongClick=Paren_L, SwipeUp=Paren_L},
+		new(){Key=D0, Hint=")", LongClick=Paren_R, SwipeUp=Paren_R}
 	);
 
 	// Row2: Q W [7] [8] [9] Π Y  (7/8/9 雙倍寬)
@@ -280,7 +297,7 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 			KView(new(){Key=D8}), //8
 			KView(new(){Key=D9, SwipeUp=I, LongClick=SquareBracket_L, SwipeLeft=SquareBracket_L, SwipeRight=SquareBracket_R}), //9
 			KView(new(){Key=p, Label="Π", SwipeUp=P, SwipeLeft=Less, SwipeRight=Greater}),
-			KView(new(){Key=y, Label="Y", Hint="⇆", SwipeUp=Y}),
+			KView(new(){Key=y, Label="Y", Hint="⇆", HintBottom="↷", SwipeUp=Y, SwipeRightAction=MkSendCtrlKey(y), LongClickAction=MkSendCtrlKey(y)}),
 		};
 		return MkRowOfControls(Ctrls, ColWidths);
 	}

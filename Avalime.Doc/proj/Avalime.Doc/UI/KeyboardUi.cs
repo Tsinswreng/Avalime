@@ -30,6 +30,27 @@ using Tsinswreng.CsCore;
 	ASCII 模式下所有按鍵標籤顯示為小寫拉丁字母（如 Q→q、Σ→s），`KeyVm` 監聽 `IsAsciiMode` 自動切換。
 ]
 
+#H[快捷鍵][
+	A / Z / X / C / V / Y 鍵支援 Ctrl 組合鍵（長按或右滑）：
+	- A → Ctrl+A（全選） → 底部 hint: ☑
+	- Z → Ctrl+Z（撤銷） → 底部 hint: ↶
+	- X → Ctrl+X（剪切） → 底部 hint: ✁
+	- C → Ctrl+C（複製） → 底部 hint: ❐
+	- V → Ctrl+V（粘貼） → 底部 hint: ▣
+	- Y → Ctrl+Y（重做） → 底部 hint: ↷
+
+	實現方式：`MkSendCtrlKey` 發送 Ctrl_L Down → Key Down → Key Up → Ctrl_L Up 四個按鍵事件。
+	`KeyCfg.LongClickAction` 和 `KeyCfg.SwipeRightAction` 用於綁定這類自訂按鍵序列。
+	Y 鍵保留頂部 `⇆` hint 提示左滑切換 ASCII 模式。
+]
+
+#H[Hint 佈局][
+	每個按鍵有兩個 hint 位置：
+	- `Hint`：右上角。用於數字鍵（提示長按/上滑的符號）和特殊功能鍵（如 ⇆、⇪ 等）
+	- `HintBottom`：左下角。用於 Ctrl 組合鍵功能提示
+	數字鍵 hint 顯示對應的符號字元（1→!, 2→@, 3→#, ...）
+]
+
 """)]
 file class _{
 }
