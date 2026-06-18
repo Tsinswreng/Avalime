@@ -117,3 +117,4 @@ Android 的 [Application] 屬性會在 AndroidManifest.xml 中註冊為 <applica
 你怎麼又不按tsinswreng-csharp-code-doc來做
 候選詞要可點擊 點擊之後該候選詞上屏
 ]
+
