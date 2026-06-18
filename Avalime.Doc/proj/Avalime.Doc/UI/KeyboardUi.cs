@@ -25,7 +25,8 @@ using Tsinswreng.CsCore;
 	`VmCandidatesBar` 和 `VmInput` 都依賴 `ImeState.AfterInput`。
 	`VmCandidate` 支援點擊（`Click`），點擊後發送對應數字鍵選中該候選詞上屏。
 	候選詞列表最多顯示 16 個。
-	Y 鍵左滑切換 `ascii_mode`，通過 `RimeConnectionState.ToggleAsciiMode()` 調用 `set_option`。
+	Y 鍵左滑切換 `ascii_mode`，通過 `RimeConnectionState.ToggleAsciiMode()` 在**後台線程**調用 `set_option`（防止約 350ms 的原生調用阻塞 UI 線程導致 ANR）。
+	`ToggleAsciiMode` 內部使用 `Interlocked` 防止連點並發，直接計算新狀態並通過 `Dispatcher.UIThread.Post` 更新 `IsAsciiMode`。
 	ASCII 模式下所有按鍵標籤顯示為小寫拉丁字母（如 Q→q、Σ→s），`KeyVm` 監聽 `IsAsciiMode` 自動切換。
 ]
 

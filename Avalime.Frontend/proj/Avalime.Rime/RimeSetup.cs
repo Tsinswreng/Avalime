@@ -113,23 +113,33 @@ unsafe public class RimeSetup
 	/// <summary>option 改變時觸發。參數: option_name, is_enabled</summary>
 	public static event Action<string, bool>? OnOptionChanged;
 
+	/// <summary>
+	/// 零分配字節比較，避免逆向 P/Invoke 中觸發 GC 導致 Mono !ji->async 斷言崩潰
+	/// </summary>
+	static bool _bytesEq(byte* p, str s){
+		for(i32 i = 0; i < s.Length; i++){
+			if(p[i] != (byte)s[i]) return false;
+		}
+		return p[s.Length] == 0; // null terminator
+	}
+
 	public static void on_message(
 		void* context_object
 		,RimeSessionId session_id
 		,byte* message_type
 		,byte* message_value
 	){
-		var type = S(message_type);
-		var val = S(message_value);
-		Console.WriteLine(session_id+" "+type+" "+val);
+		// 空指針檢查
+		if(message_type == null || message_value == null) return;
 
-		// 檢測 ascii_mode 切換
-		if(type == "option" && val is not null){
-			if(val == "ascii_mode")
-				OnOptionChanged?.Invoke("ascii_mode", true);
-			else if(val == "!ascii_mode")
-				OnOptionChanged?.Invoke("ascii_mode", false);
-		}
+		// 快速路徑：只處理 "option" 類型
+		if(!_bytesEq(message_type, "option")) return;
+
+		// 零分配檢測 ascii_mode 切換
+		if(_bytesEq(message_value, "ascii_mode"))
+			OnOptionChanged?.Invoke("ascii_mode", true);
+		else if(_bytesEq(message_value, "!ascii_mode"))
+			OnOptionChanged?.Invoke("ascii_mode", false);
 	}
 
 	public RimeNotificationHandler ManagedRimeNotificationHandler = on_message;
