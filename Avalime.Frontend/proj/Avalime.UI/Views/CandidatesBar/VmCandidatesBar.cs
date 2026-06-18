@@ -25,10 +25,14 @@ unsafe public partial class VmCandidatesBar : ViewModelBase
 			var sw = System.Diagnostics.Stopwatch.StartNew();
 			System.Diagnostics.Debug.WriteLine($"[Perf] VmCandidatesBar.AfterInput start: {sw.ElapsedMilliseconds}ms");
 			var rime = RimeConnection.Setup;
-			if(rime is null) return;
+			if(rime is null){
+				CandVms = []; // Rime 未連接時清空候選欄
+				return;
+			}
 			var rimeApi = rime.apiFn;
 			var iterrator = new RimeCandidateListIterator();
 			if(rimeApi.candidate_list_begin(rime.rimeSessionId, &iterrator) != RimeUtil.True){
+				CandVms = []; // 無候選時清空候選欄（如 commit 後）
 				return;
 			}
 			var newList = new ObservableCollection<VmCandidate>();
