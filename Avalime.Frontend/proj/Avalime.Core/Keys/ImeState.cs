@@ -39,6 +39,13 @@ public class ImeState
 			}
 		}
 
+		// 未處理按鍵轉發給 OS
+		if(resp?.UnhandledKeys is not null && resp.UnhandledKeys.Count > 0 && OsKeyProcessor is not null){
+			var swOs = System.Diagnostics.Stopwatch.StartNew();
+			await OsKeyProcessor.OnKeyEventsAsy(resp.UnhandledKeys);
+			System.Diagnostics.Debug.WriteLine($"[Perf] ImeState.Input OsKeyProcessor done: {swOs.ElapsedMilliseconds}ms, unhandled: {resp.UnhandledKeys.Count}");
+		}
+
 		System.Diagnostics.Debug.WriteLine($"[Perf] ImeState.Input total done: {sw.ElapsedMilliseconds}ms");
 		return new();
 	}

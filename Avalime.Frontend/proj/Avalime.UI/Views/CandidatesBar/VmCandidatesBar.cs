@@ -7,6 +7,8 @@ using Avalime.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using Tsinswreng.CsInterop;
 using Rime.Api;
+using static Avalime.Core.Keys.KeyChars;
+using KS = Avalime.Core.Keys.KeyStates;
 
 namespace Avalime.UI.Views.candidatesBar;
 using Ctx = VmCandidatesBar;
@@ -14,18 +16,6 @@ using Ctx = VmCandidatesBar;
 unsafe public partial class VmCandidatesBar : ViewModelBase
 {
 	public static Ctx Mk(){return new Ctx();}
-
-	public static List<Ctx> Samples = [];
-	static VmCandidatesBar(){
-		{
-			var s = Mk();
-			for(var i = 0; i < 100; i++){
-				s.CandVms.Add(VmCandidate.Samples[0]);
-				s.CandVms.Add(VmCandidate.Samples[1]);
-			}
-			Samples.Add(s);
-		}
-	}
 
 	public ImeState ImeState{get;set;} = App.SvcP.GetRequiredService<ImeState>();
 	public RimeConnectionState RimeConnection{get;set;} = App.SvcP.GetRequiredService<RimeConnectionState>();
@@ -45,20 +35,43 @@ unsafe public partial class VmCandidatesBar : ViewModelBase
 			var count = 0;
 			const int maxCandidates = 16;
 			for(;count < maxCandidates && rimeApi.candidate_list_next(&iterrator) == RimeUtil.True;){
-				var ua = ToCand(iterrator.candidate);
+				var ua = ToCand(iterrator.candidate, count);
 				CandVms.Add(ua);
 				count++;
 			}
+			rimeApi.candidate_list_end(&iterrator);
 			System.Diagnostics.Debug.WriteLine($"[Perf] VmCandidatesBar.AfterInput done: {sw.ElapsedMilliseconds}ms, candidates: {count}");
 		};
 	}
 
-	public VmCandidate ToCand(in RimeCandidate cand){
+	public VmCandidate ToCand(in RimeCandidate cand, int index){
 		var ans = VmCandidate.Mk();
 		ans.Text = ToolCStr.ToCsStr(cand.text)??"";
 		ans.Comment = ToolCStr.ToCsStr(cand.comment)??"";
+		ans.Index = index;
+		ans.Click = () => {
+			var key = IndexToKey(index);
+			ImeState.Input([
+				new KeyEvent{KeyChar = key, KeyState = KS.Down},
+				new KeyEvent{KeyChar = key, KeyState = KS.Up}
+			]);
+		};
 		return ans;
 	}
+
+	static IKeyChar IndexToKey(int index) => index switch {
+		0 => D1,
+		1 => D2,
+		2 => D3,
+		3 => D4,
+		4 => D5,
+		5 => D6,
+		6 => D7,
+		7 => D8,
+		8 => D9,
+		9 => D0,
+		_ => D1
+	};
 
 	public ObservableCollection<VmCandidate> CandVms{
 		get => field;

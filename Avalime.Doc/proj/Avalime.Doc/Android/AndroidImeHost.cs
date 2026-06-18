@@ -22,9 +22,11 @@ using Tsinswreng.CsCore;
 ]
 
 #H[文字輸出][
-	`OnCreate` 中訂閱 `ImeState.OnCommit` 事件。
-	收到 commit 文字後，通過 `CurrentInputConnection.CommitText` 將文字輸出到目標 App 的輸入框。
-	若當前沒有 `InputConnection`（輸入法未連接目標），則跳過輸出並記錄日誌。
+	`OnCreate` 中設定 `ImeState.OsKeyProcessor` 為 `AndroidOsKeyProcessor`，
+	並訂閱 `ImeState.OnCommit` 事件。
+	- `OnCommit`：收到 commit 文字後，通過 `CurrentInputConnection.CommitText` 輸出。
+	- `AndroidOsKeyProcessor`：將 Rime 未處理的按鍵轉發給 OS（Backspace→`Delete`、Enter→`Enter`、文字鍵→`CommitText`）。
+	若當前沒有 `InputConnection`，則跳過輸出並記錄日誌。
 ]
 
 """)]

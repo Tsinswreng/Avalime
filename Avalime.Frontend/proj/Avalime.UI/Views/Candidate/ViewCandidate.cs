@@ -1,6 +1,8 @@
 namespace Avalime.UI.Views.Candidate;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input;
+using Avalonia.Media;
 using Avalonia.Styling;
 using Avalime.UI.Infra;
 using Ctx = VmCandidate;
@@ -42,7 +44,18 @@ public class ViewCandidate : AppViewBase<Ctx>
 	}
 
 	void Render(){
-		this.SetContent(Root.Grid);
+		var btn = new Button{
+			Content = Root.Grid,
+			Background = SolidColorBrush.Parse("#1E2A32"),
+			BorderThickness = new Thickness(0.5),
+			BorderBrush = SolidColorBrush.Parse("#253238"),
+			Cursor = new(StandardCursorType.Hand)
+		};
+		btn.Click += (_, _) => {
+			Ctx?.Click?.Invoke();
+		};
+
+		this.SetContent(btn);
 		Root.SetRowDefs([
 			new(1, GUT.Star),
 			new(4, GUT.Star),

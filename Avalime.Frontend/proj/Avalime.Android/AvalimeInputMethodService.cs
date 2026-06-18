@@ -68,6 +68,11 @@ public class AvalimeInputMethodService : InputMethodService
         Debug.WriteLine("[IME] OnCreate");
 
         var imeState = App.SvcP.GetRequiredService<ImeState>();
+
+        // 未處理按鍵轉發給 OS
+        imeState.OsKeyProcessor = new AndroidOsKeyProcessor(() => CurrentInputConnection);
+
+        // Rime commit 文字上屏
         imeState.OnCommit += (sender, text) =>
         {
             var ic = CurrentInputConnection;

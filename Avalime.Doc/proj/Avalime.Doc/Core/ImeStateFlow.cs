@@ -11,9 +11,10 @@ using Tsinswreng.CsCore;
 #H[核心流程][
 	- `Input(IEnumerable<IKeyEvent>)`
 	- `BeforeInput`
-	- `ImeKeyProcessor.OnKeyEventsAsy(...)` → 返回 `RespOnKeyEvent`（含 `Commits` 列表）
+	- `ImeKeyProcessor.OnKeyEventsAsy(...)` → 返回 `RespOnKeyEvent`（含 `Commits`、`UnhandledKeys`）
 	- `AfterInput`
 	- 若有 commit 文字，逐一觸發 `OnCommit`
+	- 若有未處理按鍵，轉發給 `OsKeyProcessor.OnKeyEventsAsy`
 ]
 
 #H[Commit 機制][
@@ -23,10 +24,18 @@ using Tsinswreng.CsCore;
 	每個 commit 文字會單獨觸發一次事件。
 ]
 
+#H[未處理按鍵轉發][
+	當 Rime 引擎不處理某個按鍵（`process_key` 返回 `False`），
+	該按鍵被收集到 `RespOnKeyEvent.UnhandledKeys`。
+	`ImeState` 將這些按鍵轉發給 `OsKeyProcessor`，
+	由平台層輸出到 OS（如 Android 的 `InputConnection.SendKeyEvent` 或 `CommitText`）。
+]
+
 #H[觀察點][
 	- `VmInput` 用 `AfterInput` 讀 preedit
-	- `VmCandidatesBar` 用 `AfterInput` 刷候選詞
+	- `VmCandidatesBar` 用 `AfterInput` 刷候選詞（最多 16 個）
 	- Android `AvalimeInputMethodService` 訂閱 `OnCommit`，通過 `CommitText` 輸出到目標 App
+	- `AndroidOsKeyProcessor` 實現 `I_OsKeyProcessor`，將未處理按鍵轉發給 OS
 ]
 
 """)]

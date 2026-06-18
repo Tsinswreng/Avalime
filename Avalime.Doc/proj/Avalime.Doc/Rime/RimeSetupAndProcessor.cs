@@ -24,6 +24,12 @@ using Tsinswreng.CsCore;
 	若有 commit 文字，收集到 `RespOnKeyEvent.Commits` 中返回給 `ImeState`，然後調用 `free_commit` 釋放。
 ]
 
+#H[未處理按鍵檢測][
+	`process_key` 返回值表示 Rime 是否處理了該按鍵。
+	若返回 `False`，按鍵被收集到 `RespOnKeyEvent.UnhandledKeys`。
+	此方法為同步方法（`Task.FromResult`），不在 async 狀態機中取 stack 變數地址，避免原生崩潰。
+]
+
 """)]
 file class _{
 }

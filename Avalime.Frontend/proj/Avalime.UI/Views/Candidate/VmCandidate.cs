@@ -27,6 +27,14 @@ public class VmCandidate : ViewModelBase
 		}
 	}
 
+	public int Index{
+		get => field;
+		set => SetProperty(ref field, value);
+	}
+
+	/// <summary>點擊此候選詞時觸發（由 VmCandidatesBar 設定）</summary>
+	public Action? Click{get;set;}
+
 	public str Text{
 		get => field;
 		set => SetProperty(ref field, value);

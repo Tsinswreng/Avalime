@@ -20,6 +20,8 @@ using Tsinswreng.CsCore;
 	`VmKeyBoard` 維持佈局狀態。
 	`VmKey` 負責按鍵、長按與滑動動作。
 	`VmCandidatesBar` 和 `VmInput` 都依賴 `ImeState.AfterInput`。
+	`VmCandidate` 支援點擊（`Click`），點擊後發送對應數字鍵選中該候選詞上屏。
+	候選詞列表最多顯示 16 個。
 ]
 
 """)]
