@@ -36,6 +36,7 @@ using Tsinswreng.CsCore;
 	- `VmCandidatesBar` 用 `AfterInput` 刷候選詞（最多 16 個）
 	- Android `AvalimeInputMethodService` 訂閱 `OnCommit`，通過 `CommitText` 輸出到目標 App
 	- `AndroidOsKeyProcessor` 實現 `I_OsKeyProcessor`，將未處理按鍵轉發給 OS
+	- `RimeConnectionState` 維護 `IsAsciiMode` 屬性，通過 `RimeSetup.OnOptionChanged` 靜態事件同步引擎狀態，`ToggleAsciiMode()` 直接調用 `set_option` 切換
 ]
 
 """)]

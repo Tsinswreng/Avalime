@@ -9,6 +9,8 @@ using Avalime.UI.Views.input;
 using Avalime.UI.Views.Key;
 using Avalime.UI.Infra;
 using static Avalime.Core.Keys.KeyChars;
+using Avalime.UI;
+using Microsoft.Extensions.DependencyInjection;
 using KS = Avalime.Core.Keys.KeyStates;
 
 namespace Avalime.UI.Views.KeyBoard;
@@ -96,6 +98,7 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 		public IKeyChar? SwipeUp{get;init;}
 		public IKeyChar? SwipeDown{get;init;}
 		public IKeyChar? SwipeLeft{get;init;}
+		public Func<zero>? SwipeLeftAction{get;init;}
 		public IKeyChar? SwipeRight{get;init;}
 			public bool IsRepeat{get;init;}
 	}
@@ -136,6 +139,7 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 		if(Cfg.SwipeUp is not null) Vm.SwipeUP = MkSendKey(Cfg.SwipeUp);
 		if(Cfg.SwipeDown is not null) Vm.SwipeDown = MkSendKey(Cfg.SwipeDown);
 		if(Cfg.SwipeLeft is not null) Vm.SwipeLeft = MkSendKey(Cfg.SwipeLeft);
+		if(Cfg.SwipeLeftAction is not null) Vm.SwipeLeft = Cfg.SwipeLeftAction;
 		if(Cfg.SwipeRight is not null) Vm.SwipeRight = MkSendKey(Cfg.SwipeRight);
 		if(Cfg.IsRepeat) Vm.IsRepeat = true;
 		return new ViewKey{Ctx = Vm};
@@ -157,6 +161,12 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 			new KeyEvent{KeyChar = K, KeyState = KS.Down},
 			new KeyEvent{KeyChar = K, KeyState = KS.Up}
 		]);
+		return 0;
+	};
+
+	Func<zero> MkToggleAsciiMode() => () => {
+		var rimeCon = App.SvcP.GetRequiredService<RimeConnectionState>();
+		rimeCon.ToggleAsciiMode();
 		return 0;
 	};
 	#endregion
@@ -185,7 +195,7 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 		new(){Key=i, Label="I",                        SwipeUp=I,   SwipeLeft=SquareBracket_L, SwipeRight=SquareBracket_R},
 		new(){Key=o, Label="O",                        SwipeUp=O,   SwipeLeft=Braces_L, SwipeRight=Braces_R},
 		new(){Key=p, Label="Π",                        SwipeUp=P,   SwipeLeft=Less, SwipeRight=Greater},
-		new(){Key=y, Label="Y", Hint="⇆", SwipeUp=Y}
+		new(){Key=y, Label="Y", Hint="⇆", SwipeUp=Y, SwipeLeftAction=MkToggleAsciiMode()}
 	);
 
 	Grid MkRow3()=>MkRowCfg(

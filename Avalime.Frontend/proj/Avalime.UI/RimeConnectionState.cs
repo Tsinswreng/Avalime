@@ -3,6 +3,7 @@ using Avalime.Core.Keys;
 using Avalime.Rime;
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
+using Rime.Api;
 
 namespace Avalime.UI;
 
@@ -24,6 +25,29 @@ public partial class RimeConnectionState : ObservableObject
 	public RimeSetup? Setup{
 		get => field;
 		private set => SetProperty(ref field, value);
+	}
+
+	public bool IsAsciiMode{
+		get => field;
+		private set => SetProperty(ref field, value);
+	}
+
+	public RimeConnectionState(){
+		RimeSetup.OnOptionChanged += (name, enabled) => {
+			if(name == "ascii_mode"){
+				IsAsciiMode = enabled;
+			}
+		};
+	}
+
+	unsafe public void ToggleAsciiMode(){
+		var rime = Setup;
+		if(rime is null) return;
+		ReadOnlySpan<byte> opt = "ascii_mode\0"u8;
+		fixed(byte* p = opt){
+			var current = rime.apiFn.get_option(rime.rimeSessionId, p);
+			rime.apiFn.set_option(rime.rimeSessionId, p, current == 0 ? RimeUtil.True : RimeUtil.False);
+		}
 	}
 
 	public void Connect(){

@@ -44,3 +44,19 @@ E:\_code\CsRime\Avalime\proj\Avalime.UI\Views\KeyBoard\ViewKeyBoard.cs
 键盘长按弄了吗?? 自己看 yaml裏面long click的部分
 
 ]
+
+
+2026_0618_190003[
+ascii_mode 也弄一下。
+Y 鍵 向左滑動是切換ascii模式與非ascii模式
+
+ascii 模式下 鍵盤所有按鍵都顯示爲小寫拉丁字母
+比如 A ∑ 就 顯示成a s
+ascii模式是引擎的概念 不是純前端的概念
+
+]
+
+
+2026_0618_193031[
+我还没打字呢 我就连接rime之后 滑了几次y键 就闪退了 看看甚么原因。还有 你只用把字母改成小写字母 别的甚么都不用动 我看你连方向键 回车 退格 啥的显示都变了 不要这样
+]

@@ -1,7 +1,9 @@
 using System;
 using System.Diagnostics;
 using Avalime.Core.Keys;
+using Avalime.UI;
 using Avalime.ViewModels;
+using Microsoft.Extensions.DependencyInjection;
 using KS = Avalime.Core.Keys.KeyStates;
 
 namespace Avalime.ViewModels.key;
@@ -11,8 +13,25 @@ public partial class KeyVm : ViewModelBase, IKeyViewModel
 {
 	public static Ctx Mk(){return new Ctx();}
 
+	string _normalLabel = "";
+
 	public KeyVm(){
 		Label = Key_Click?.Name??"";
+
+		var rimeCon = App.SvcP.GetRequiredService<RimeConnectionState>();
+		rimeCon.PropertyChanged += (_, e) => {
+			if(e.PropertyName == nameof(rimeCon.IsAsciiMode)){
+				if(rimeCon.IsAsciiMode){
+					_normalLabel = Label; // 保存非 ascii 標籤
+					var name = Key_Click?.Name ?? "";
+					// 只對單個拉丁字母鍵顯示小寫
+					if(name.Length == 1 && char.IsAsciiLetter(name[0]))
+						Label = char.ToLowerInvariant(name[0]).ToString();
+				}else{
+					Label = _normalLabel; // 恢復非 ascii 標籤
+				}
+			}
+		};
 
 		Click = ()=>{
 			var state = ImeState as ImeState;//TODO temp

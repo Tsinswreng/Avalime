@@ -24,6 +24,12 @@ using Tsinswreng.CsCore;
 	若有 commit 文字，收集到 `RespOnKeyEvent.Commits` 中返回給 `ImeState`，然後調用 `free_commit` 釋放。
 ]
 
+#H[Option 通知][
+	`RimeSetup.on_message` 解析 Rime 的 `option` 通知（如 `ascii_mode` / `!ascii_mode`），
+	通過靜態事件 `OnOptionChanged` 通知訂閱者。
+	`RimeConnectionState` 訂閱此事件來維護 `IsAsciiMode` 屬性。
+]
+
 #H[未處理按鍵檢測][
 	`process_key` 返回值表示 Rime 是否處理了該按鍵。
 	若返回 `False`，按鍵被收集到 `RespOnKeyEvent.UnhandledKeys`。

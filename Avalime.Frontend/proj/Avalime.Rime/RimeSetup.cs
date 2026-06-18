@@ -1,5 +1,4 @@
 
-
 using System.Runtime.InteropServices;
 using Rime.Api;
 using static System.Runtime.InteropServices.NativeMemory;
@@ -111,6 +110,8 @@ unsafe public class RimeSetup
 		return ToolCStr.ToCsStr(cStr);
 	}
 
+	/// <summary>option 改變時觸發。參數: option_name, is_enabled</summary>
+	public static event Action<string, bool>? OnOptionChanged;
 
 	public static void on_message(
 		void* context_object
@@ -118,34 +119,25 @@ unsafe public class RimeSetup
 		,byte* message_type
 		,byte* message_value
 	){
-		//var pth = "D:/Program Files/Rime/User_Data/TswG_log";
-		Console.WriteLine
-		(
-			session_id
-			+" "+S(message_type)
-			+" "+S(message_value)
-		);
-		//略
+		var type = S(message_type);
+		var val = S(message_value);
+		Console.WriteLine(session_id+" "+type+" "+val);
+
+		// 檢測 ascii_mode 切換
+		if(type == "option" && val is not null){
+			if(val == "ascii_mode")
+				OnOptionChanged?.Invoke("ascii_mode", true);
+			else if(val == "!ascii_mode")
+				OnOptionChanged?.Invoke("ascii_mode", false);
+		}
 	}
 
 	public RimeNotificationHandler ManagedRimeNotificationHandler = on_message;
-	// IntPtr IntPtrRimeNotificationHandler;
-	// public delegate* unmanaged[Cdecl]<
-	// 	void* // context_object
-	// 	,RimeSessionId // session_id
-	// 	,u8* //message_type // const char*
-	// 	,u8* //message_value // const char*
-	// 	,void
-	// > RimeNotificationHandler;
 
 	protected zero _setupRimeSession(){
 		LogInfo("_setupRimeSession: apiFn.setup");
 		apiFn.setup(traits);
 		ManagedRimeNotificationHandler = on_message;
-		// RimeNotificationHandler = RimeToRimeNotificationHandler(
-		// 	//勿直把具名方法傳入GetFunctionPointerForDelegate。緣若此則其內會先生成臨時委託 後把臨時委託轉成指針。臨時委託ʹ壽ˋ短於傳入ʹ具名方法
-		// 	Marshal.GetFunctionPointerForDelegate(ManagedRimeNotificationHandler)
-		// );
 		LogInfo("_setupRimeSession: set_notification_handlerManaged");
 		apiFn.set_notification_handlerManaged(
 			ManagedRimeNotificationHandler
@@ -169,18 +161,3 @@ unsafe public class RimeSetup
 
 
 }
-
-
-
-// class MyClass:IDisposable{
-// 	bool _Disposed = false;
-// 	public void Dispose() {
-// 		if(_Disposed){
-// 			return;
-// 		}
-// 		//dispose()
-// 	}
-// 	~MyClass(){
-// 		Dispose();
-// 	}
-// }
