@@ -139,6 +139,7 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 		var Vm = KeyVm.Mk();
 		Vm.Key_Click = Cfg.Key;
 		Vm.Click = MkSendKey(Cfg.Key);
+		Vm.FontSize = UiCfg.Inst.KeyFontSize;
 		if(Cfg.Label is not null) Vm.Label = Cfg.Label;
 		if(Cfg.Hint is not null) Vm.Hint = Cfg.Hint;
 		if(Cfg.HintBottom is not null) Vm.BottomHint = Cfg.HintBottom;
@@ -173,6 +174,7 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 	ViewKey MkActionKey(str Label, Action OnClick, str? Hint = null){
 		var Vm = KeyVm.Mk();
 		Vm.Label = Label;
+		Vm.FontSize = UiCfg.Inst.ActionKeyFontSize;
 		if(Hint is not null) Vm.Hint = Hint;
 		Vm.Click = () => { OnClick(); return 0; };
 		Vm.ImeState = Ctx!.ImeState;
@@ -232,6 +234,11 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 
 	Func<zero> MkToggleShiftLock() => () => {
 		Ctx!.IsShiftLocked = !Ctx.IsShiftLocked;
+		return 0;
+	};
+
+	Func<zero> MkHideKeyboard() => () => {
+		App.SvcP.GetRequiredService<IKeyboardHost>().HideKeyboard();
 		return 0;
 	};
 
@@ -324,7 +331,7 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 			KView(new(){Key=Space, Label="", SwipeLeft=Left, SwipeRight=Right}),
 			KView(new(){Key=Right, Label="→", Hint="⇥"}),
 			KView(new(){Key=Dollar, Label="$", Hint="⇪", SwipeUpAction=MkToggleShiftLock()}),
-			KView(new(){Key=Backspace, Label="⌫", LongClick=Backspace, IsRepeat=true}),
+			KView(new(){Key=Backspace, Label="⌫", LongClick=Backspace, SwipeUpAction=MkHideKeyboard(), IsRepeat=true}),
 		};
 		return MkRowOfControls(Ctrls, ColWidths);
 	}
@@ -414,7 +421,7 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 			KView(new(){Key=D0}), //0
 			KView(new(){Key=Space, Label="", SwipeLeft=Left, SwipeRight=Right}),
 			KView(new(){Key=Period, Label=".", Hint=">", SwipeUp=Greater}),
-			KView(new(){Key=Backspace, Label="⌫", LongClick=Backspace, IsRepeat=true}),
+			KView(new(){Key=Backspace, Label="⌫", LongClick=Backspace, SwipeUpAction=MkHideKeyboard(), IsRepeat=true}),
 		};
 		return MkRowOfControls(Ctrls, ColWidths);
 	}
@@ -431,7 +438,7 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 			KView(new(){Key=Up, Label="↑"}),
 			KView(new(){Key=Down, Label="↓"}),
 			KView(new(){Key=Grave, Label="`", Hint="~",            SwipeUp=Tilde}),
-			MkActionKey("返回", () => Ctx!.IsNumLayout = false), //返回主鍵盤
+			MkActionKey("qwe", () => Ctx!.IsNumLayout = false), //返回主鍵盤
 		};
 		return MkRowOfControls(Ctrls);
 	}

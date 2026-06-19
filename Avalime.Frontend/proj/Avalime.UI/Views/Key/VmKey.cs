@@ -99,4 +99,9 @@ public partial class KeyVm : ViewModelBase, IKeyViewModel
 		get => field;
 		set => SetProperty(ref field, value);
 	} = UiCfg.Inst.KeyBgColor;
+
+	public double FontSize{
+		get => field;
+		set => SetProperty(ref field, value);
+	} = UiCfg.Inst.KeyFontSize;
 }

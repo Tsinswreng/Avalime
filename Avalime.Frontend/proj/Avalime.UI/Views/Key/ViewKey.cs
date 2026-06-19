@@ -60,11 +60,10 @@ public class ViewKey : AppViewBase<Ctx>
 			.Set(MinWidthProperty, 0.0)
 			.Set(HorizontalAlignmentProperty, HAlign.Center)
 			.Set(VerticalAlignmentProperty, VAlign.Center)
-			.Set(FontSizeProperty, UiCfg.Inst.KeyFontSize)
 			.Set(ForegroundProperty, TswG.KeyText)
 		).A(
 			Sty.Is<Control>(x=>x.Class(Cls.HintLabel))
-			.Set(FontSizeProperty, 10.0)
+			.Set(FontSizeProperty, UiCfg.Inst.HintFontSize)
 			.Set(ForegroundProperty, TswG.HintText)
 			.Set(HorizontalAlignmentProperty, HAlign.Center)
 		);
@@ -177,6 +176,7 @@ public class ViewKey : AppViewBase<Ctx>
 			var label = new TextBlock();
 			label.Classes.Add(Cls.Label);
 			Ctx.Bind(label, x=>x.Text, x=>x.Label);
+			Ctx.Bind(label, TextBlock.FontSizeProperty, x=>x.FontSize);
 
 			var hint = new TextBlock();
 			hint.Classes.Add(Cls.HintLabel);
