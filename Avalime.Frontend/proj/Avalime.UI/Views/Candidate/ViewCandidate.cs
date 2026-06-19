@@ -70,7 +70,7 @@ public class ViewCandidate : AppViewBase<Ctx>
 		.A(new TextBlock(), o=>{
 			o.Classes.Add(Cls.Comment);
 			if(keyboardFont is not null) o.FontFamily = keyboardFont;
-			o.VerticalAlignment = VAlign.Center;
+			o.VerticalAlignment = VAlign.Top;
 			o.HorizontalAlignment = HAlign.Center;
 			o.TextAlignment = TxtAlign.Center;
 			o.Margin = new(0);
@@ -83,7 +83,6 @@ public class ViewCandidate : AppViewBase<Ctx>
 			row.VerticalAlignment = VAlign.Stretch;
 			row.HorizontalAlignment = HAlign.Stretch;
 			row.Margin = new Thickness(0);
-			row.Padding = new Thickness(0);
 			row.A(new TextBlock(), o=>{
 				o.Classes.Add(Cls.Text);
 				if(keyboardFont is not null) o.FontFamily = keyboardFont;

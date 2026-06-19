@@ -17,13 +17,14 @@ public class ViewIme : AppViewBase<VmIme>
 	}
 
 	void Render(){
+		var preeditHeight = UiCfg.Inst.PreeditHeight;
 		var topBarHeight = UiCfg.Inst.TopBarHeight;
 		var root = new Grid{
-			RowDefinitions = new($"{topBarHeight},{topBarHeight},*")
+			RowDefinitions = new($"{preeditHeight},{topBarHeight},*")
 		};
 
 		var preedit = new ViewPreedit();
-		preedit.Height = topBarHeight;
+		preedit.Height = preeditHeight;
 		Grid.SetRow(preedit, 0);
 
 		var barHost = new Grid{

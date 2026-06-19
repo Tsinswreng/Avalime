@@ -17,11 +17,12 @@ public partial class UiCfg
 	public double KeyFontSize => BaseFontSize * 0.9;
 	public double CandidateFontSize => BaseFontSize * 0.9;
 	public double CandidateCommentFontSize => BaseFontSize * 0.38;
-	public double CandidateCommentHeight => BaseFontSize * 0.68;
+	public double CandidateCommentHeight => BaseFontSize * 0.66;
 	public double CandidateTextHeight => TopBarHeight - CandidateCommentHeight;
+	public double PreeditHeight => BaseFontSize * 1.12;
 	public double ActionKeyFontSize => BaseFontSize * 0.72;
 	public double HintFontSize => BaseFontSize * 0.46;
-	public double TopBarHeight => BaseFontSize * 1.55;
+	public double TopBarHeight => BaseFontSize * 1.66;
 	public double TopBarFontSize => BaseFontSize * 0.72;
 	public FontFamily? KeyboardFontFamily => GetKeyboardFontFamily();
 	public IBrush MainColor { get; set; } = SolidColorBrush.Parse("#4DB6AC");

@@ -18,7 +18,7 @@ public class ViewInput : AppViewBase<Ctx>
 		var keyboardFont = UiCfg.Inst.KeyboardFontFamily;
 		this.SetContent(Root.Grid);
 		Root.Grid.Background = Brushes.Black;
-		Root.Grid.Height = UiCfg.Inst.TopBarHeight;
+		Root.Grid.Height = UiCfg.Inst.PreeditHeight;
 		Root
 		.A(new WrapPanel(), wp=>{
 			wp.Background = Brushes.Black;
@@ -27,7 +27,7 @@ public class ViewInput : AppViewBase<Ctx>
 				if(keyboardFont is not null) o.FontFamily = keyboardFont;
 				o.Foreground = Brushes.White;
 				o.FontSize = UiCfg.Inst.TopBarFontSize;
-				o.Margin = new(8, 0);
+				o.Margin = new(4, 0, 0, 0);
 				o.VerticalAlignment = VAlign.Center;
 				Ctx.Bind(o, x=>x.Text, x=>x.Text, Mode: BindingMode.TwoWay);
 			});
