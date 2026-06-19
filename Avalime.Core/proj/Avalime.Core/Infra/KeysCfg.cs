@@ -12,9 +12,13 @@ public class KeysCfg{
 		public static ICfgNode<str> DllPath = Mk(_R, [nameof(DllPath)], "");
 
 		public static class RimeTraits{
-			public static ICfgNode _R = Mk(Librime._R, [nameof(RimeTraits)]);
+			public static ICfgNode _R = Mk(null, [nameof(RimeTraits)]);
 			public static ICfgNode<str> user_data_dir = Mk(_R, [nameof(user_data_dir)], "");
 			public static ICfgNode<str> app_name = Mk(_R, [nameof(app_name)], "rime.avalime");
 		}
+	}
+	public class Keyboard{
+		public static ICfgNode _R = Mk(null, [nameof(Keyboard)]);
+		public static ICfgNode<str?> Font = Mk(_R, [nameof(Font)], (str?)null);
 	}
 }
