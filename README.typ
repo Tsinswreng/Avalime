@@ -44,7 +44,7 @@ cd Avalime.Frontend/proj/Avalime.Android
 dotnet build -c Release
 
 # 安裝到已連接的設備
-adb install -r bin/Release/net10.0-android/com.CompanyName.Avalime-Signed.apk
+adb install -r bin/Release/net10.0-android/Tsinswreng.Avalime-Signed.apk
 
 # 或一步到位
 dotnet run -c Release

@@ -30,8 +30,14 @@ public class Application : AvaloniaAndroidApplication<App>
 			?? throw new InvalidOperationException("Cannot get ExternalFilesDir");
 		EnsureDir(externalDir);
 
-		var roCfgPath = Path.Combine(internalDir, "Avalime.Ro.jsonc");
-		EnsureAssetFile(ctx.Assets!, "Avalime.Ro.jsonc", roCfgPath, overwrite: true);
+		var roCfgPath = Path.Combine(externalDir, "Avalime.Ro.jsonc");
+		var internalRoSeedPath = Path.Combine(internalDir, "Avalime.Ro.jsonc");
+		var internalRwSeedPath = Path.Combine(internalDir, "Avalime.Rw.jsonc");
+		EnsureAssetFile(ctx.Assets!, "Avalime.Ro.jsonc", internalRoSeedPath, overwrite: true);
+		EnsureAssetFile(ctx.Assets!, "Avalime.Rw.jsonc", internalRwSeedPath, overwrite: true);
+		if(ShouldRefreshFromSeed(roCfgPath)){
+			CopyFileToPath(internalRoSeedPath, roCfgPath, overwrite: true);
+		}
 
 		var dualSrcCfg = AppCfg.Inst;
 		var roCfg = new JsonFileCfgAccessor();
@@ -42,9 +48,8 @@ public class Application : AvaloniaAndroidApplication<App>
 		rwCfgPath = Path.IsPathRooted(rwCfgPath)
 			? rwCfgPath
 			: Path.Combine(externalDir, rwCfgPath);
-		ToolFile.EnsureFile(rwCfgPath);
-		if(!File.Exists(rwCfgPath)){
-			EnsureAssetFile(ctx.Assets!, "Avalime.Rw.jsonc", rwCfgPath, overwrite: false);
+		if(ShouldRefreshFromSeed(rwCfgPath)){
+			CopyFileToPath(internalRwSeedPath, rwCfgPath, overwrite: true);
 		}
 
 		var rwCfg = new JsonFileCfgAccessor();
@@ -63,7 +68,6 @@ public class Application : AvaloniaAndroidApplication<App>
 		foreach (var so in passthroughSoFiles)
 		{
 			var dst = System.IO.Path.Combine(internalDir, so);
-			ToolFile.EnsureFile(dst);
 			// 優先：內部目錄已有就不複製（開發者用 run-as cp 放進去的）
 			if (System.IO.File.Exists(dst))
 			{
@@ -125,7 +129,7 @@ public class Application : AvaloniaAndroidApplication<App>
 
 	static void EnsureAssetFile(AssetManager assets, string assetPath, string outputPath, bool overwrite)
 	{
-		ToolFile.EnsureFile(outputPath);
+		EnsureParentDir(outputPath);
 		if(File.Exists(outputPath) && !overwrite){
 			return;
 		}
@@ -149,6 +153,36 @@ public class Application : AvaloniaAndroidApplication<App>
 		using var input = assets.Open(assetPath);
 		using var output = System.IO.File.Create(outputPath);
 		input.CopyTo(output);
+	}
+
+	static void CopyFileToPath(string srcPath, string dstPath, bool overwrite)
+	{
+		EnsureParentDir(dstPath);
+		if(File.Exists(dstPath) && !overwrite){
+			return;
+		}
+		File.Copy(srcPath, dstPath, overwrite: true);
+	}
+
+	static bool ShouldRefreshFromSeed(string path)
+	{
+		if(!File.Exists(path)){
+			return true;
+		}
+		var fi = new FileInfo(path);
+		return fi.Length == 0;
+	}
+
+	static void EnsureParentDir(string filePath)
+	{
+		if(string.IsNullOrWhiteSpace(filePath)){
+			return;
+		}
+		var dir = Path.GetDirectoryName(filePath);
+		if(string.IsNullOrWhiteSpace(dir)){
+			return;
+		}
+		EnsureDir(dir);
 	}
 
 	protected override AppBuilder CustomizeAppBuilder(AppBuilder builder)
