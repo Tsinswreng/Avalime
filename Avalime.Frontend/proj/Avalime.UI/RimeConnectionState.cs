@@ -34,6 +34,11 @@ public partial class RimeConnectionState : ObservableObject
 		private set => SetProperty(ref field, value);
 	}
 
+	public bool IsConnecting{
+		get => field;
+		private set => SetProperty(ref field, value);
+	}
+
 	public RimeConnectionState(){
 		RimeSetup.OnOptionChanged += (name, enabled) => {
 			if(name == "ascii_mode"){
@@ -77,34 +82,51 @@ public partial class RimeConnectionState : ObservableObject
 		});
 	}
 
-	public void Connect(){
+	public async Task<nil> ConnectAsy(CT ct = default){
 		LogInfo("Connect() begin");
 		if(IsConnected){
 			LogInfo("Connect() skipped: already connected");
-			StatusText = "Rime 已連接";
-			return;
+			await Dispatcher.UIThread.InvokeAsync(() => {
+				StatusText = "Rime 已連接";
+			});
+			return NIL;
 		}
-		StatusText = "正在連接 Rime";
-		LogInfo("Creating RimeSetup");
 		try{
-			var setup = RimeSetup.Inst;
+			await Dispatcher.UIThread.InvokeAsync(() => {
+				IsConnecting = true;
+				StatusText = "正在連接 Rime";
+			});
+			LogInfo("Creating RimeSetup");
+			ct.ThrowIfCancellationRequested();
+			var setup = await Task.Run(() => RimeSetup.Inst, ct);
 			if(setup is null){
 				SetError("Rime 初始化失敗：RimeSetup.Inst 為 null");
-				return;
+				return NIL;
 			}
 			LogInfo("RimeSetup created");
-			var imeState = App.SvcP.GetRequiredService<ImeState>();
-			LogInfo("Resolving ImeState done");
-			imeState.ImeKeyProcessor = new RimeKeyProcessor(setup);
-			LogInfo("ImeKeyProcessor switched to RimeKeyProcessor");
-			Setup = setup;
-			IsConnected = true;
-			StatusText = "Rime 已連接";
+			await Dispatcher.UIThread.InvokeAsync(() => {
+				var imeState = App.SvcP.GetRequiredService<ImeState>();
+				LogInfo("Resolving ImeState done");
+				imeState.ImeKeyProcessor = new RimeKeyProcessor(setup);
+				LogInfo("ImeKeyProcessor switched to RimeKeyProcessor");
+				Setup = setup;
+				IsConnected = true;
+				StatusText = "Rime 已連接";
+			});
 			LogInfo("Connect() success");
+		}catch(OperationCanceledException){
+			await Dispatcher.UIThread.InvokeAsync(() => {
+				StatusText = IsConnected ? "Rime 已連接" : "已取消連接 Rime";
+			});
 		}catch(Exception ex){
 			LogError("Connect exception: " + ex);
 			SetError("Rime 連接失敗: " + ex.Message);
+		}finally{
+			await Dispatcher.UIThread.InvokeAsync(() => {
+				IsConnecting = false;
+			});
 		}
+		return NIL;
 	}
 
 	public void SetError(str message){

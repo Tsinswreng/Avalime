@@ -25,9 +25,9 @@ public class VmTopBar : ViewModelBase
 		};
 	}
 
-	public void ConnectRime(){
+	public async Task<nil> ConnectRimeAsy(CT ct = default){
 		try{
-			RimeConnection.Connect();
+			await RimeConnection.ConnectAsy(ct);
 			StatusText = RimeConnection.StatusText;
 		}
 		catch(Exception ex){
@@ -36,5 +36,6 @@ public class VmTopBar : ViewModelBase
 			StatusText = RimeConnection.StatusText;
 			Dispatcher.UIThread.Post(() => HandleErr(ex));
 		}
+		return NIL;
 	}
 }

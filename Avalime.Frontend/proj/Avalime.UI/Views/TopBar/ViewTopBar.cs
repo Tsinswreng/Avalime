@@ -3,6 +3,7 @@ using Avalime.UI.Views.candidatesBar;
 using Avalonia.Controls;
 using Avalonia.Layout;
 using Avalime.UI.Infra;
+using Avalime.UI.Infra.Ctrls;
 
 namespace Avalime.UI.Views.topBar;
 
@@ -23,11 +24,11 @@ public class ViewTopBar : AppViewBase<VmTopBar>
 		Grid.SetColumn(candidates, 0);
 		Grid.SetRowSpan(candidates, 2);
 
-		var btn = new Button{
-			Content = "連接 Rime",
+		var btn = new OpBtn{
 			HorizontalAlignment = HorizontalAlignment.Right
 		};
-		btn.Click += (_, _) => Ctx?.ConnectRime();
+		btn.BtnContent = "連接 Rime";
+		btn.FnExeAsy = ct => Ctx?.ConnectRimeAsy(ct);
 		Grid.SetColumn(btn, 1);
 
 		var status = new TextBlock{
