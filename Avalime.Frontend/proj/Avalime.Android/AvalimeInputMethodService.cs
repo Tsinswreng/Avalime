@@ -10,6 +10,7 @@ using Avalime.Core.Keys;
 using Avalime.UI;
 using Avalime.UI.Views;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Handler = Android.OS.Handler;
 using Looper = Android.OS.Looper;
 
@@ -28,6 +29,7 @@ public class AvalimeInputMethodService : InputMethodService
         : base(javaReference, transfer) { }
 
     AvaloniaView? _inputView;
+    bool _shouldRecreateInputView;
 
     int GetHalfScreenHeight()
     {
@@ -50,7 +52,7 @@ public class AvalimeInputMethodService : InputMethodService
     {
         Debug.WriteLine("[IME] OnCreateInputView");
 
-        if (_inputView != null)
+        if (_inputView != null && !_shouldRecreateInputView)
             return _inputView;
 
         _inputView = new AvaloniaView(this)
@@ -60,14 +62,30 @@ public class AvalimeInputMethodService : InputMethodService
         _inputView.LayoutParameters = new ViewGroup.LayoutParams(
             ViewGroup.LayoutParams.MatchParent,
             GetHalfScreenHeight());
+        _shouldRecreateInputView = false;
 
         return _inputView;
+    }
+
+    public void HideKeyboardAndRecreateInputViewOnNextShow()
+    {
+        _shouldRecreateInputView = true;
+        RequestHideSelf(0);
     }
 
     public override void OnCreate()
     {
         base.OnCreate();
         Debug.WriteLine("[IME] OnCreate");
+
+        var services = new ServiceCollection();
+        services.AddSingleton<IImeKeyProcessor, AndroidStubImeKeyProcessor>();
+        services.AddSingleton<I_OsKeyProcessor, AndroidStubOsKeyProcessor>();
+        services.AddSingleton<IKeyboardHost>(_ => new AndroidKeyboardHost(() => this));
+        services.AddSingleton<ImeState>();
+        services.AddSingleton<RimeConnectionState>();
+        var provider = services.BuildServiceProvider(new ServiceProviderOptions{ValidateOnBuild = false, ValidateScopes = false});
+        App.SetSvcProvider(provider);
 
         var imeState = App.SvcP.GetRequiredService<ImeState>();
 
@@ -97,6 +115,11 @@ public class AvalimeInputMethodService : InputMethodService
     public override void OnStartInputView(EditorInfo? info, bool restarting)
     {
         base.OnStartInputView(info, restarting);
+        if (_shouldRecreateInputView)
+        {
+            var inputView = OnCreateInputView();
+            SetInputView(inputView);
+        }
         Debug.WriteLine("[IME] OnStartInputView");
     }
 
@@ -105,4 +128,18 @@ public class AvalimeInputMethodService : InputMethodService
         base.OnFinishInputView(finishingInput);
         Debug.WriteLine("[IME] OnFinishInputView");
     }
+}
+
+class AndroidStubOsKeyProcessor : I_OsKeyProcessor
+{
+    public event ErrHandler? OnErr;
+    public Task<RespOnKeyEvent> OnKeyEventsAsy(IEnumerable<IKeyEvent> keyEvents)
+        => Task.FromResult(new RespOnKeyEvent());
+}
+
+class AndroidStubImeKeyProcessor : IImeKeyProcessor
+{
+    public event ErrHandler? OnErr;
+    public Task<RespOnKeyEvent> OnKeyEventsAsy(IEnumerable<IKeyEvent> keyEvents)
+        => Task.FromResult(new RespOnKeyEvent());
 }

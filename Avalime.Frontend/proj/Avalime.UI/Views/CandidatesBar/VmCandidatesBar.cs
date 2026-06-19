@@ -4,6 +4,7 @@ using Avalime.Core.Keys;
 using Avalime.Rime;
 using Avalime.UI.Views.Candidate;
 using Avalime.ViewModels;
+using Avalonia.Media;
 using Avalonia.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using Tsinswreng.CsInterop;
@@ -62,7 +63,8 @@ unsafe public partial class VmCandidatesBar : ViewModelBase
 		ans.Text = ToolCStr.ToCsStr(cand.text)??"";
 		ans.Comment = ToolCStr.ToCsStr(cand.comment)??"";
 		ans.Index = index;
-		ans.Background = isHighlighted ? UiCfg.Inst.MainColor : UiCfg.Inst.CandidateBgColor;
+		ans.Background = UiCfg.Inst.CandidateBgColor;
+		ans.Foreground = isHighlighted ? UiCfg.Inst.MainColor : Brushes.White;
 		ans.Click = () => {
 			var key = IndexToKey(index);
 			ImeState.InputSafely([

@@ -50,4 +50,9 @@ public class VmCandidate : ViewModelBase
 		get => field;
 		set => SetProperty(ref field, value);
 	} = UiCfg.Inst.CandidateBgColor;
+
+	public IBrush Foreground{
+		get => field;
+		set => SetProperty(ref field, value);
+	} = Brushes.White;
 }

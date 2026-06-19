@@ -15,6 +15,7 @@ public static class AppServices
 			var svc = new ServiceCollection();
 			svc.AddSingleton<IImeKeyProcessor, StubImeKeyProcessor>();
 			svc.AddSingleton<I_OsKeyProcessor, StubOsKeyProcessor>();
+			svc.AddSingleton<IKeyboardHost, StubKeyboardHost>();
 			svc.AddSingleton<ImeState>();
 			svc.AddSingleton<RimeConnectionState>();
 			_svcP = svc.BuildServiceProvider(new ServiceProviderOptions{ValidateOnBuild = false, ValidateScopes = false});
@@ -42,4 +43,9 @@ class StubImeKeyProcessor : IImeKeyProcessor
 	public event ErrHandler? OnErr;
 	public Task<RespOnKeyEvent> OnKeyEventsAsy(IEnumerable<IKeyEvent> keyEvents)
 		=> Task.FromResult(new RespOnKeyEvent());
+}
+
+class StubKeyboardHost : IKeyboardHost
+{
+	public void HideKeyboard(){}
 }

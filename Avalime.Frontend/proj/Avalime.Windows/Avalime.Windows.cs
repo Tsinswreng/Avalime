@@ -17,6 +17,7 @@ sealed class Program{
 			I_OsKeyProcessor
 			, WindowsKeyProcessor
 		>();
+		services.AddSingleton<IKeyboardHost, StubKeyboardHost>();
 
 		// IImeKeyProcessor NOT registered — Connect button switches it to RimeKeyProcessor
 		// (same flow as Android, avoids auto-init before .so is ready)

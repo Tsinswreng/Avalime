@@ -1,0 +1,21 @@
+using Android.OS;
+
+namespace Avalime.Android;
+
+public class AndroidKeyboardHost : Avalime.UI.IKeyboardHost
+{
+	readonly Func<AvalimeInputMethodService?> _getIme;
+
+	public AndroidKeyboardHost(Func<AvalimeInputMethodService?> getIme){
+		_getIme = getIme;
+	}
+
+	public void HideKeyboard(){
+		var ime = _getIme();
+		if(ime is null){
+			return;
+		}
+		var handler = new Handler(Looper.MainLooper!);
+		handler.Post(ime.HideKeyboardAndRecreateInputViewOnNextShow);
+	}
+}
