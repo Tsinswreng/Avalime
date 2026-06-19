@@ -38,7 +38,7 @@ public partial class KeyVm : ViewModelBase, IKeyViewModel
 			try{
 				var sw = Stopwatch.StartNew();
 				Debug.WriteLine($"[Perf] KeyVm.Click→Input start: {sw.ElapsedMilliseconds}ms");
-				state?.Input([
+				state?.InputSafely([
 					new KeyEvent{
 						KeyChar = Key_Click,
 						KeyState = KS.Down
@@ -47,7 +47,7 @@ public partial class KeyVm : ViewModelBase, IKeyViewModel
 						KeyChar = Key_Click,
 						KeyState = KS.Up
 					}
-				]);
+				], e => HandleErr(e));
 				Debug.WriteLine($"[Perf] KeyVm.Click→Input done: {sw.ElapsedMilliseconds}ms");
 			}
 			catch(Exception e){

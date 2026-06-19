@@ -10,11 +10,21 @@ using Tsinswreng.CsCore;
 
 #H[核心流程][
 	- `Input(IEnumerable<IKeyEvent>)`
+	- `InputSafely(IEnumerable<IKeyEvent>, Action<Exception>?)`
 	- `BeforeInput`
 	- `ImeKeyProcessor.OnKeyEventsAsy(...)` → 返回 `RespOnKeyEvent`（含 `Commits`、`UnhandledKeys`）
 	- `AfterInput`
 	- 若有 commit 文字，逐一觸發 `OnCommit`
 	- 若有未處理按鍵，轉發給 `OsKeyProcessor.OnKeyEventsAsy`
+]
+
+#H[異常與線程][
+	`InputSafely(...)` 用於 UI 端的按鍵入口。
+	它把 `Input(...)` 放到後台 `Task` 執行，避免按鍵直接阻塞 UI 線程，
+	並在同一入口統一捕獲異常、寫日誌、回調錯誤處理器。
+
+	因此 `AfterInput`、`OnCommit` 的訂閱方不能假定自己一定運行在 UI 線程，
+	凡是要改綁定屬性或調平台 UI API，都要自行切回 UI / 主線程。
 ]
 
 #H[Commit 機制][

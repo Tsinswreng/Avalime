@@ -163,7 +163,7 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 
 	Func<zero> MkSendKey(IKeyChar K) => () => {
 		var state = Ctx!.ImeState;
-		state.Input([
+		state.InputSafely([
 			new KeyEvent{KeyChar = K, KeyState = KS.Down},
 			new KeyEvent{KeyChar = K, KeyState = KS.Up}
 		]);
@@ -178,7 +178,7 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 
 	Func<zero> MkSendCtrlKey(IKeyChar K) => () => {
 		var state = Ctx!.ImeState;
-		state.Input([
+		state.InputSafely([
 			new KeyEvent{KeyChar = Ctrl_L, KeyState = KS.Down},
 			new KeyEvent{KeyChar = K, KeyState = KS.Down},
 			new KeyEvent{KeyChar = K, KeyState = KS.Up},

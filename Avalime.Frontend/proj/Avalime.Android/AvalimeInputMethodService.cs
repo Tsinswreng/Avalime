@@ -10,6 +10,8 @@ using Avalime.Core.Keys;
 using Avalime.UI;
 using Avalime.UI.Views;
 using Microsoft.Extensions.DependencyInjection;
+using Handler = Android.OS.Handler;
+using Looper = Android.OS.Looper;
 
 namespace Avalime.Android;
 
@@ -75,16 +77,20 @@ public class AvalimeInputMethodService : InputMethodService
         // Rime commit 文字上屏
         imeState.OnCommit += (sender, text) =>
         {
-            var ic = CurrentInputConnection;
-            if (ic is not null)
+            var mainHandler = new Handler(Looper.MainLooper!);
+            mainHandler.Post(() =>
             {
-                ic.CommitText(text, 1);
-                Debug.WriteLine($"[IME] CommitText: {text}");
-            }
-            else
-            {
-                Debug.WriteLine("[IME] CommitText skipped: no InputConnection");
-            }
+                var ic = CurrentInputConnection;
+                if (ic is not null)
+                {
+                    ic.CommitText(text, 1);
+                    Debug.WriteLine($"[IME] CommitText: {text}");
+                }
+                else
+                {
+                    Debug.WriteLine("[IME] CommitText skipped: no InputConnection");
+                }
+            });
         };
     }
 

@@ -17,6 +17,16 @@ public class ImeState
 		this.OsKeyProcessor = osKeyProcessor;
 	}
 
+	public void InputSafely(IEnumerable<IKeyEvent> keyEvents, Action<Exception>? onError = null){
+		_ = Task.Run(async () => {
+			try{
+				await Input(keyEvents);
+			}catch(Exception ex){
+				System.Diagnostics.Debug.WriteLine("[ImeState] InputSafely error: " + ex);
+				onError?.Invoke(ex);
+			}
+		});
+	}
 
 	public async Task<RespInput> Input(IEnumerable<IKeyEvent> keyEvents){
 		var sw = System.Diagnostics.Stopwatch.StartNew();

@@ -1,6 +1,7 @@
 using Avalime.Core.Keys;
 using Avalime.Rime;
 using Avalime.ViewModels;
+using Avalonia.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using Rime.Api;
 using Tsinswreng.CsInterop;
@@ -25,7 +26,10 @@ public class VmInput : ViewModelBase
 			var sw = System.Diagnostics.Stopwatch.StartNew();
 			System.Diagnostics.Debug.WriteLine($"[Perf] VmInput.AfterInput start: {sw.ElapsedMilliseconds}ms");
 			var rime = RimeConnection.Setup;
-			if(rime is null){ Text = ""; return; }
+			if(rime is null){
+				Dispatcher.UIThread.Post(() => Text = "");
+				return;
+			}
 			var rimeApi = rime.apiFn;
 			var ctx = new RimeContext();
 			ctx.data_size = RimeUtil.DataSize<RimeContext>();
@@ -34,7 +38,7 @@ public class VmInput : ViewModelBase
 			}
 			str preedit = ToolCStr.ToCsStr(ctx.composition.preedit);
 			rimeApi.free_context(&ctx);
-			Text = preedit;
+			Dispatcher.UIThread.Post(() => Text = preedit);
 			System.Diagnostics.Debug.WriteLine($"[Perf] VmInput.AfterInput done: {sw.ElapsedMilliseconds}ms, preedit: {preedit}");
 		};
 	}

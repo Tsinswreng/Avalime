@@ -4,6 +4,7 @@ using Avalime.Core.Keys;
 using Avalime.Rime;
 using Avalime.UI.Views.Candidate;
 using Avalime.ViewModels;
+using Avalonia.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using Tsinswreng.CsInterop;
 using Rime.Api;
@@ -26,13 +27,13 @@ unsafe public partial class VmCandidatesBar : ViewModelBase
 			System.Diagnostics.Debug.WriteLine($"[Perf] VmCandidatesBar.AfterInput start: {sw.ElapsedMilliseconds}ms");
 			var rime = RimeConnection.Setup;
 			if(rime is null){
-				CandVms = []; // Rime 未連接時清空候選欄
+				Dispatcher.UIThread.Post(() => CandVms = []); // Rime 未連接時清空候選欄
 				return;
 			}
 			var rimeApi = rime.apiFn;
 			var iterrator = new RimeCandidateListIterator();
 			if(rimeApi.candidate_list_begin(rime.rimeSessionId, &iterrator) != RimeUtil.True){
-				CandVms = []; // 無候選時清空候選欄（如 commit 後）
+				Dispatcher.UIThread.Post(() => CandVms = []); // 無候選時清空候選欄（如 commit 後）
 				return;
 			}
 			var newList = new ObservableCollection<VmCandidate>();
@@ -44,7 +45,7 @@ unsafe public partial class VmCandidatesBar : ViewModelBase
 				count++;
 			}
 			rimeApi.candidate_list_end(&iterrator);
-			CandVms = newList; // 一次性替換，只觸發一次 PropertyChanged
+			Dispatcher.UIThread.Post(() => CandVms = newList); // 一次性替換，只觸發一次 PropertyChanged
 			System.Diagnostics.Debug.WriteLine($"[Perf] VmCandidatesBar.AfterInput done: {sw.ElapsedMilliseconds}ms, candidates: {count}");
 		};
 	}
@@ -56,10 +57,10 @@ unsafe public partial class VmCandidatesBar : ViewModelBase
 		ans.Index = index;
 		ans.Click = () => {
 			var key = IndexToKey(index);
-			ImeState.Input([
+			ImeState.InputSafely([
 				new KeyEvent{KeyChar = key, KeyState = KS.Down},
 				new KeyEvent{KeyChar = key, KeyState = KS.Up}
-			]);
+			], ex => HandleErr(ex));
 		};
 		return ans;
 	}

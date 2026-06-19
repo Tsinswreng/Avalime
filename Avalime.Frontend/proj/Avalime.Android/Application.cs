@@ -5,6 +5,7 @@ using Avalonia;
 using Avalonia.Android;
 using System.Diagnostics;
 using System.IO;
+using AssetManager = Android.Content.Res.AssetManager;
 namespace Avalime.Android;
 
 [Application]
@@ -51,16 +52,15 @@ public class Application : AvaloniaAndroidApplication<App>
 			}
 		}
 
-		var packagedRime = System.IO.Path.Combine(ctx.ApplicationInfo!.NativeLibraryDir!, LocalRimeSoName);
 		var localRime = System.IO.Path.Combine(internalDir, LocalRimeSoName);
 		try
 		{
-			System.IO.File.Copy(packagedRime, localRime, overwrite: true);
-			System.Diagnostics.Debug.WriteLine("[Avalime] copied packaged " + packagedRime + " -> " + localRime);
+			ExtractAssetFile(ctx.Assets!, "rime/librime.bin", localRime);
+			System.Diagnostics.Debug.WriteLine("[Avalime] extracted asset rime/librime.bin -> " + localRime);
 		}
 		catch (System.Exception ex)
 		{
-			System.Diagnostics.Debug.WriteLine("[Avalime] copy packaged rime failed: " + ex.Message);
+			System.Diagnostics.Debug.WriteLine("[Avalime] extract asset rime failed: " + ex.Message);
 		}
 
 		// preload libc++_shared.so, required by librime.so
@@ -79,6 +79,13 @@ public class Application : AvaloniaAndroidApplication<App>
 		}
 
 		return internalDir;
+	}
+
+	static void ExtractAssetFile(AssetManager assets, string assetPath, string outputPath)
+	{
+		using var input = assets.Open(assetPath);
+		using var output = System.IO.File.Create(outputPath);
+		input.CopyTo(output);
 	}
 
 	protected override AppBuilder CustomizeAppBuilder(AppBuilder builder)

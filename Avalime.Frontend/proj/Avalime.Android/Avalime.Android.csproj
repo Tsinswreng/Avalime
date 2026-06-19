@@ -5,7 +5,7 @@
 		<SupportedOSPlatformVersion>23</SupportedOSPlatformVersion>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
-		<ApplicationId>com.CompanyName.Avalime</ApplicationId>
+		<ApplicationId>Tsinswreng.Avalime</ApplicationId>
 		<ApplicationVersion>1</ApplicationVersion>
 		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
 		<AndroidPackageFormat>apk</AndroidPackageFormat>
@@ -30,6 +30,12 @@
 
 	<ItemGroup>
 		<AndroidResource Include="Resources\xml\ime_method.xml" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<AndroidAsset Include="Assets\rime\librime.bin">
+			<Link>Assets\rime\librime.bin</Link>
+		</AndroidAsset>
 	</ItemGroup>
 
 </Project>
