@@ -28,13 +28,15 @@ public class ViewCandidatesBar : AppViewBase<Ctx>
 
 	ItemsControl MkItems(){
 		var R = new ItemsControl();
+		R.VerticalAlignment = VAlign.Stretch;
 		R.SetItemTemplate<VmCandidate>((vm, ns)=>{
 			var v = new ViewCandidate();
 			v.CBind<VmCandidate>(DataContextProperty, x=>x);
 			return v;
 		}).SetItemsPanel(()=>new StackPanel{
 			Orientation = Orientation.Horizontal,
-			Spacing = 2.0
+			Spacing = 2.0,
+			VerticalAlignment = VAlign.Stretch,
 		});
 		Ctx.Bind(R, ItemsControl.ItemsSourceProperty, x=>x.CandVms);
 		return R;

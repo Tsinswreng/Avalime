@@ -15,7 +15,7 @@ public class ViewToolBar : AppViewBase<VmToolBar>
 
 	void Render(){
 		var root = new Grid{
-			ColumnDefinitions = new("Auto,Auto,*"),
+			ColumnDefinitions = new("*,*,*,*,*,*,*,*,*,*"),
 			Background = Brushes.Black,
 			Height = UiCfg.Inst.TopBarHeight,
 		};
@@ -55,8 +55,7 @@ public class ViewToolBar : AppViewBase<VmToolBar>
 			BorderBrush = SolidColorBrush.Parse("#253238"),
 			BorderThickness = new(0.5),
 			CornerRadius = new(0),
-			Padding = new(6, 0),
-			MinWidth = UiCfg.Inst.TopBarHeight,
+			Padding = new(0),
 			HorizontalAlignment = HAlign.Stretch,
 			VerticalAlignment = VAlign.Stretch,
 		};
