@@ -135,6 +135,7 @@ public class RimeKeyCharConverter{
 		,{KS.Braces_R, 125}
 		,{KS.SquareBracket_R, 93}
 		,{KS.BackSlash, 0x5C}
+		,{KS.Pipe, 0x7C}
 		,{KS.CapsLock, 65509}
 		,{KS.Colon, 0x3A}
 		,{KS.Semicolon, 0x3B}
@@ -143,7 +144,7 @@ public class RimeKeyCharConverter{
 		,{KS.Enter, 65293}
 
 		,{KS.Shift_L, 65505}
-		,{KS.Less, 0x2C}
+		,{KS.Less, 0x3C}
 		,{KS.Comma, 0x2C}
 		,{KS.Greater, 0x3E}
 		,{KS.Period, 0x2E}

@@ -338,7 +338,7 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 			KView(new(){Key=Up, Label="↑"}),
 			KView(new(){Key=Down, Label="↓"}),
 			KView(new(){Key=Slash, Label="/", Hint="?",             SwipeUp=Question}),
-			KView(new(){Key=BackSlash, Label="\\", Hint="|"}),
+			KView(new(){Key=BackSlash, Label="\\", Hint="|",         SwipeUp=Pipe}),
 			KView(new(){Key=Grave, Label="`", Hint="~",             SwipeUp=Tilde}),
 			MkActionKey("123", () => Ctx!.IsNumLayout = true), //切換數字鍵盤
 		};
@@ -425,7 +425,7 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 			KView(new(){Key=Minus, Label="-", Hint="_",             SwipeUp=Underscore}),
 			KView(new(){Key=Equal, Label="=", Hint="+",            SwipeUp=Plus}),
 			KView(new(){Key=Slash, Label="/", Hint="?",            SwipeUp=Question}),
-			KView(new(){Key=BackSlash, Label="\\", Hint="|"}),
+			KView(new(){Key=BackSlash, Label="\\", Hint="|",        SwipeUp=Pipe}),
 			KView(new(){Key=Left, Label="←", Hint="⇤"}),
 			KView(new(){Key=Right, Label="→", Hint="⇥"}),
 			KView(new(){Key=Up, Label="↑"}),

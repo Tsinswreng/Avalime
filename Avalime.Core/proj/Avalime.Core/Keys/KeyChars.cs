@@ -73,6 +73,7 @@ public static class KeyChars{
 	public static IK Braces_R{get;} = K("}");
 	public static IK SquareBracket_R{get;} = K("]");
 	public static IK BackSlash{get;} = K("\\");
+	public static IK Pipe{get;} = K("|");
 	#endregion qwer
 
 	#region asdf
