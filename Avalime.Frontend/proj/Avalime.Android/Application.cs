@@ -10,11 +10,13 @@ namespace Avalime.Android;
 [Application]
 public class Application : AvaloniaAndroidApplication<App>
 {
+	const string LocalRimeSoName = "librime.so";
+
 	public Application(nint javaReference, JniHandleOwnership transfer)
 		: base(javaReference, transfer)
 	{
 		var soDir = SetupSoFiles(global::Android.App.Application.Context);
-		Avalime.Rime.RimeSetup.dllPath = System.IO.Path.Combine(soDir, "librime.so");
+		Avalime.Rime.RimeSetup.dllPath = System.IO.Path.Combine(soDir, LocalRimeSoName);
 		Avalime.Rime.RimeSetup.userDataDir = "/sdcard/rime";
 	}
 
@@ -22,9 +24,9 @@ public class Application : AvaloniaAndroidApplication<App>
 	{
 		var internalDir = ctx.FilesDir!.AbsolutePath!;
 		var externalDir = "/sdcard/rime";
-		string[] soFiles = ["libc++_shared.so", "libCsRimeLua.so", "librime.so"];
+		string[] passthroughSoFiles = ["libc++_shared.so", "libCsRimeLua.so"];
 
-		foreach (var so in soFiles)
+		foreach (var so in passthroughSoFiles)
 		{
 			var dst = System.IO.Path.Combine(internalDir, so);
 			// 優先：內部目錄已有就不複製（開發者用 run-as cp 放進去的）
@@ -47,6 +49,18 @@ public class Application : AvaloniaAndroidApplication<App>
 			{
 				System.Diagnostics.Debug.WriteLine("[Avalime] copy skipped for " + so + ": " + ex.Message);
 			}
+		}
+
+		var packagedRime = System.IO.Path.Combine(ctx.ApplicationInfo!.NativeLibraryDir!, LocalRimeSoName);
+		var localRime = System.IO.Path.Combine(internalDir, LocalRimeSoName);
+		try
+		{
+			System.IO.File.Copy(packagedRime, localRime, overwrite: true);
+			System.Diagnostics.Debug.WriteLine("[Avalime] copied packaged " + packagedRime + " -> " + localRime);
+		}
+		catch (System.Exception ex)
+		{
+			System.Diagnostics.Debug.WriteLine("[Avalime] copy packaged rime failed: " + ex.Message);
 		}
 
 		// preload libc++_shared.so, required by librime.so

@@ -31,4 +31,5 @@
 	<ItemGroup>
 		<AndroidResource Include="Resources\xml\ime_method.xml" />
 	</ItemGroup>
+
 </Project>
