@@ -60,7 +60,7 @@ public class ViewKey : AppViewBase<Ctx>
 			.Set(MinWidthProperty, 0.0)
 			.Set(HorizontalAlignmentProperty, HAlign.Center)
 			.Set(VerticalAlignmentProperty, VAlign.Center)
-			.Set(FontSizeProperty, 24.0)
+			.Set(FontSizeProperty, UiCfg.Inst.KeyFontSize)
 			.Set(ForegroundProperty, TswG.KeyText)
 		).A(
 			Sty.Is<Control>(x=>x.Class(Cls.HintLabel))

@@ -36,11 +36,18 @@ unsafe public partial class VmCandidatesBar : ViewModelBase
 				Dispatcher.UIThread.Post(() => CandVms = []); // 無候選時清空候選欄（如 commit 後）
 				return;
 			}
+			var highlightedIndex = -1;
+			var ctx = new RimeContext();
+			ctx.data_size = RimeUtil.DataSize<RimeContext>();
+			if(rimeApi.get_context(rime.rimeSessionId, &ctx) == RimeUtil.True){
+				highlightedIndex = ctx.menu.highlighted_candidate_index;
+				rimeApi.free_context(&ctx);
+			}
 			var newList = new ObservableCollection<VmCandidate>();
 			var count = 0;
 			const int maxCandidates = 16;
 			for(;count < maxCandidates && rimeApi.candidate_list_next(&iterrator) == RimeUtil.True;){
-				var ua = ToCand(iterrator.candidate, count);
+				var ua = ToCand(iterrator.candidate, count, count == highlightedIndex);
 				newList.Add(ua);
 				count++;
 			}
@@ -50,11 +57,12 @@ unsafe public partial class VmCandidatesBar : ViewModelBase
 		};
 	}
 
-	public VmCandidate ToCand(in RimeCandidate cand, int index){
+	public VmCandidate ToCand(in RimeCandidate cand, int index, bool isHighlighted){
 		var ans = VmCandidate.Mk();
 		ans.Text = ToolCStr.ToCsStr(cand.text)??"";
 		ans.Comment = ToolCStr.ToCsStr(cand.comment)??"";
 		ans.Index = index;
+		ans.Background = isHighlighted ? UiCfg.Inst.MainColor : UiCfg.Inst.CandidateBgColor;
 		ans.Click = () => {
 			var key = IndexToKey(index);
 			ImeState.InputSafely([

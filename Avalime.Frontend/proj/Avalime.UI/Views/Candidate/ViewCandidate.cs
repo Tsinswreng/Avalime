@@ -39,17 +39,18 @@ public class ViewCandidate : AppViewBase<Ctx>
 			.Set(CornerRadiusProperty, new CornerRadius(0))
 		).A(
 			Sty.Is<Control>(x=>x.Class(Cls.Text))
-			.Set(FontSizeProperty, 20.0)
+			.Set(FontSizeProperty, UiCfg.Inst.CandidateFontSize)
 		);
 	}
 
 	void Render(){
 		var border = new Border{
 			Child = Root.Grid,
-			Background = SolidColorBrush.Parse("#1E2A32"),
+			Background = UiCfg.Inst.CandidateBgColor,
 			BorderThickness = new Thickness(0.5),
 			BorderBrush = SolidColorBrush.Parse("#253238"),
 		};
+		Ctx.Bind(border, Border.BackgroundProperty, x=>x.Background);
 		border.PointerPressed += (_, _) => {
 			Ctx?.Click?.Invoke();
 		};

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Avalime.ViewModels;
+using Avalonia.Media;
 
 namespace Avalime.UI.Views.Candidate;
 using Ctx = VmCandidate;
@@ -44,4 +45,9 @@ public class VmCandidate : ViewModelBase
 		get => field;
 		set => SetProperty(ref field, value);
 	}
+
+	public IBrush Background{
+		get => field;
+		set => SetProperty(ref field, value);
+	} = UiCfg.Inst.CandidateBgColor;
 }
