@@ -44,6 +44,7 @@ public class ViewCandidate : AppViewBase<Ctx>
 	}
 
 	void Render(){
+		var keyboardFont = UiCfg.Inst.KeyboardFontFamily;
 		var border = new Border{
 			Child = Root.Grid,
 			Background = UiCfg.Inst.CandidateBgColor,
@@ -65,11 +66,13 @@ public class ViewCandidate : AppViewBase<Ctx>
 		Root
 		.A(new TextBlock(), o=>{
 			o.Classes.Add(Cls.Comment);
+			if(keyboardFont is not null) o.FontFamily = keyboardFont;
 			Ctx.Bind(o, x=>x.Text, x=>x.Comment);
 			Ctx.Bind(o, x=>x.Foreground, x=>x.Foreground);
 		})
 		.A(new TextBlock(), o=>{
 			o.Classes.Add(Cls.Text);
+			if(keyboardFont is not null) o.FontFamily = keyboardFont;
 			Ctx.Bind(o, x=>x.Text, x=>x.Text);
 			Ctx.Bind(o, x=>x.Foreground, x=>x.Foreground);
 		})

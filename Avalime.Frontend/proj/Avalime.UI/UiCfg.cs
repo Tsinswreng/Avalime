@@ -1,6 +1,9 @@
 using Avalime.Core.Infra;
 using Avalonia;
 using Avalonia.Media;
+using Avalonia.Media.Fonts;
+using System.Diagnostics;
+using System.Text;
 using Tsinswreng.CsCfg;
 
 namespace Avalime.UI;
@@ -19,67 +22,175 @@ public partial class UiCfg
 	public IBrush MainColor { get; set; } = SolidColorBrush.Parse("#4DB6AC");
 	public IBrush KeyBgColor { get; set; } = SolidColorBrush.Parse("#000000");
 	public IBrush CandidateBgColor { get; set; } = SolidColorBrush.Parse("#1E2A32");
+	static readonly Uri KeyboardFontCollectionKey = new("fonts:keyboard");
+
+	string? _cachedFontPath;
+	string? _cachedFontFamilyName;
+	FontFamily? _cachedKeyboardFontFamily;
 
 	FontFamily? GetKeyboardFontFamily(){
 		var fontPath = KeysCfg.Keyboard.Font.Path.GetFrom(AppCfg.Inst);
 		if(string.IsNullOrWhiteSpace(fontPath) || !File.Exists(fontPath)){
+			_cachedFontPath = fontPath;
+			_cachedFontFamilyName = null;
+			_cachedKeyboardFontFamily = null;
 			return null;
 		}
 		try{
-			var familyName = KeysCfg.Keyboard.Font.Family.GetFrom(AppCfg.Inst);
-			if(string.IsNullOrWhiteSpace(familyName)){
-				familyName = GetFontFamilyNameFromFile(fontPath);
+			var configuredFamily = KeysCfg.Keyboard.Font.Family.GetFrom(AppCfg.Inst);
+			var familyName = string.IsNullOrWhiteSpace(configuredFamily)
+				? TryReadFontFamilyName(fontPath)
+				: configuredFamily;
+			if(
+				string.Equals(_cachedFontPath, fontPath, StringComparison.Ordinal)
+				&& string.Equals(_cachedFontFamilyName, familyName, StringComparison.Ordinal)
+			){
+				return _cachedKeyboardFontFamily;
 			}
 			if(string.IsNullOrWhiteSpace(familyName)){
+				_cachedFontPath = fontPath;
+				_cachedFontFamilyName = null;
+				_cachedKeyboardFontFamily = null;
 				return null;
 			}
-			var fontFamily = new FontFamily(new Uri(fontPath, UriKind.Absolute), familyName);
+			RegisterKeyboardFontCollection(fontPath);
+			var fontFamily = FontFamily.Parse($"{KeyboardFontCollectionKey}#{familyName}");
 			var typeface = new Typeface(fontFamily);
-			if(FontManager.Current.TryGetGlyphTypeface(typeface, out _)){
-				return fontFamily;
+			if(!FontManager.Current.TryGetGlyphTypeface(typeface, out _)){
+				_cachedFontPath = fontPath;
+				_cachedFontFamilyName = familyName;
+				_cachedKeyboardFontFamily = null;
+				return null;
 			}
-		}catch{
+			_cachedFontPath = fontPath;
+			_cachedFontFamilyName = familyName;
+			_cachedKeyboardFontFamily = fontFamily;
+			return fontFamily;
+		}catch(Exception ex){
+			Debug.WriteLine("[KeyboardFont] " + ex);
 		}
+		_cachedFontPath = fontPath;
+		_cachedFontFamilyName = null;
+		_cachedKeyboardFontFamily = null;
 		return null;
 	}
 
-	static string? GetFontFamilyNameFromFile(string fontPath){
+	static void RegisterKeyboardFontCollection(string fontPath){
+		var source = new Uri(fontPath, UriKind.Absolute);
+		FontManager.Current.AddFontCollection(new EmbeddedFontCollection(KeyboardFontCollectionKey, source));
+	}
+
+	static string? TryReadFontFamilyName(string fontPath){
 		try{
-			var resolverProp = typeof(AvaloniaLocator).GetProperty("Current", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
-				?? typeof(AvaloniaLocator).GetProperty("CurrentMutable", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
-			var resolver = resolverProp?.GetValue(null);
-			if(resolver is null){
+			using var fs = File.OpenRead(fontPath);
+			using var br = new BinaryReader(fs, Encoding.BigEndianUnicode, leaveOpen: false);
+			var scalerType = ReadU32BE(br);
+			if(scalerType == 0x74746366){
 				return null;
 			}
-			var getService = resolver.GetType().GetMethod("GetService", [typeof(Type)]);
-			var fontManagerType = Type.GetType("Avalonia.Platform.IFontManagerImpl, Avalonia.Base");
-			if(getService is null || fontManagerType is null){
+			var numTables = ReadU16BE(br);
+			br.BaseStream.Seek(6, SeekOrigin.Current);
+			u32 nameOffset = 0;
+			u32 nameLength = 0;
+			for(var i = 0; i < numTables; i++){
+				var tag = ReadU32BE(br);
+				_ = ReadU32BE(br);
+				var offset = ReadU32BE(br);
+				var length = ReadU32BE(br);
+				if(tag == 0x6E616D65){
+					nameOffset = offset;
+					nameLength = length;
+				}
+			}
+			if(nameOffset == 0 || nameLength == 0){
 				return null;
 			}
-			var fontManagerImpl = getService.Invoke(resolver, [fontManagerType]);
-			if(fontManagerImpl is null){
+			br.BaseStream.Seek(nameOffset, SeekOrigin.Begin);
+			var format = ReadU16BE(br);
+			var count = ReadU16BE(br);
+			var stringOffset = ReadU16BE(br);
+			if(format > 1){
 				return null;
 			}
-			var tryCreateGlyphTypeface = fontManagerType.GetMethod(
-				"TryCreateGlyphTypeface",
-				[
-					typeof(Stream),
-					typeof(FontSimulations),
-					fontManagerType.Assembly.GetType("Avalonia.Media.IPlatformTypeface")!.MakeByRefType()
-				]
-			);
-			if(tryCreateGlyphTypeface is null){
-				return null;
+			var storageStart = nameOffset + stringOffset;
+			string? family = null;
+			string? anyUnicode = null;
+			string? anyEnglish = null;
+			for(var i = 0; i < count; i++){
+				var platformId = ReadU16BE(br);
+				var encodingId = ReadU16BE(br);
+				var languageId = ReadU16BE(br);
+				var nameId = ReadU16BE(br);
+				var length = ReadU16BE(br);
+				var offset = ReadU16BE(br);
+				if(nameId is not 1 and not 16){
+					continue;
+				}
+				var pos = br.BaseStream.Position;
+				br.BaseStream.Seek(storageStart + offset, SeekOrigin.Begin);
+				var bytes = br.ReadBytes(length);
+				br.BaseStream.Seek(pos, SeekOrigin.Begin);
+				var text = DecodeNameRecord(platformId, encodingId, bytes);
+				if(string.IsNullOrWhiteSpace(text)){
+					continue;
+				}
+				text = text.Trim();
+				if(nameId == 1){
+					family ??= text;
+					if(platformId == 3){
+						anyUnicode ??= text;
+						if(languageId is 0x0409 or 0){
+							anyEnglish ??= text;
+						}
+					}
+				}
 			}
-			using var stream = File.OpenRead(fontPath);
-			object?[] args = [stream, FontSimulations.None, null];
-			var ok = tryCreateGlyphTypeface.Invoke(fontManagerImpl, args) as bool?;
-			if(ok == true && args[2] is not null){
-				var familyNameProp = args[2]!.GetType().GetProperty("FamilyName");
-				return familyNameProp?.GetValue(args[2]) as string;
-			}
-		}catch{
+			return anyEnglish ?? anyUnicode ?? family;
+		}catch(Exception ex){
+			Debug.WriteLine("[KeyboardFont] " + ex);
+			return null;
 		}
-		return null;
+	}
+
+	static string? DecodeNameRecord(u16 platformId, u16 encodingId, byte[] bytes){
+		if(bytes.Length == 0){
+			return null;
+		}
+		try{
+			if(platformId == 0 || platformId == 3){
+				return Encoding.BigEndianUnicode.GetString(bytes);
+			}
+			if(platformId == 1){
+				return Encoding.UTF8.GetString(bytes);
+			}
+			if(platformId == 2 && encodingId == 1){
+				return Encoding.BigEndianUnicode.GetString(bytes);
+			}
+			return Encoding.UTF8.GetString(bytes);
+		}catch{
+			return null;
+		}
+	}
+
+	static u16 ReadU16BE(BinaryReader br){
+		var bytes = br.ReadBytes(2);
+		if(bytes.Length < 2){
+			throw new EndOfStreamException();
+		}
+		if(BitConverter.IsLittleEndian){
+			Array.Reverse(bytes);
+		}
+		return BitConverter.ToUInt16(bytes, 0);
+	}
+
+	static u32 ReadU32BE(BinaryReader br){
+		var bytes = br.ReadBytes(4);
+		if(bytes.Length < 4){
+			throw new EndOfStreamException();
+		}
+		if(BitConverter.IsLittleEndian){
+			Array.Reverse(bytes);
+		}
+		return BitConverter.ToUInt32(bytes, 0);
 	}
 }

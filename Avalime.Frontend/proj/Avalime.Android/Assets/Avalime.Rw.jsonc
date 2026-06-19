@@ -8,10 +8,14 @@
 		}
 	},
 	"Keyboard": {
-		"Font": "/sdcard/Android/data/Tsinswreng.Avalime/files/UserData/fonts/zzmc.ttf"
+		"Font": {
+			"Path": "/sdcard/Android/data/Tsinswreng.Avalime/files/UserData/fonts/zzmc.ttf",
+			"Family": "孤鹜 筑紫明朝"
+		}
 	}
 }
 /*
+
 mkdir -p /sdcard/Android/data/Tsinswreng.Avalime/files/UserData/
 cp -r /sdcard/rime/* /sdcard/Android/data/Tsinswreng.Avalime/files/UserData/
 */

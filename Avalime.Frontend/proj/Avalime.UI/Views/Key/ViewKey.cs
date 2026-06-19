@@ -160,6 +160,7 @@ public class ViewKey : AppViewBase<Ctx>
 	#endregion
 
 	void Render(){
+		var keyboardFont = UiCfg.Inst.KeyboardFontFamily;
 		var border = new Border();
 		_border = border;
 		border.Classes.Add(Cls.KeyBorder);
@@ -175,11 +176,13 @@ public class ViewKey : AppViewBase<Ctx>
 			//單格疊放：Hint疊在頂部、Label居中、BottomHint在底部、互不搶空間
 			var label = new TextBlock();
 			label.Classes.Add(Cls.Label);
+			if(keyboardFont is not null) label.FontFamily = keyboardFont;
 			Ctx.Bind(label, x=>x.Text, x=>x.Label);
 			Ctx.Bind(label, TextBlock.FontSizeProperty, x=>x.FontSize);
 
 			var hint = new TextBlock();
 			hint.Classes.Add(Cls.HintLabel);
+			if(keyboardFont is not null) hint.FontFamily = keyboardFont;
 			hint.VerticalAlignment = VAlign.Top;
 			hint.HorizontalAlignment = HAlign.Right;
 			hint.Margin = new(0, 1, 3, 0);
@@ -187,6 +190,7 @@ public class ViewKey : AppViewBase<Ctx>
 
 			var hintBottom = new TextBlock();
 			hintBottom.Classes.Add(Cls.HintLabel);
+			if(keyboardFont is not null) hintBottom.FontFamily = keyboardFont;
 			hintBottom.VerticalAlignment = VAlign.Bottom;
 			hintBottom.HorizontalAlignment = HAlign.Left;
 			hintBottom.Margin = new(2, 0, 0, 2);
