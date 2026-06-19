@@ -25,18 +25,14 @@ public class Application : AvaloniaAndroidApplication<App>
 
 	static void InitCfg(global::Android.Content.Context ctx)
 	{
-		var internalDir = ctx.FilesDir!.AbsolutePath!;
 		var externalDir = ctx.GetExternalFilesDir(null)?.AbsolutePath
 			?? throw new InvalidOperationException("Cannot get ExternalFilesDir");
 		EnsureDir(externalDir);
 
 		var roCfgPath = Path.Combine(externalDir, "Avalime.Ro.jsonc");
-		var internalRoSeedPath = Path.Combine(internalDir, "Avalime.Ro.jsonc");
-		var internalRwSeedPath = Path.Combine(internalDir, "Avalime.Rw.jsonc");
-		EnsureAssetFile(ctx.Assets!, "Avalime.Ro.jsonc", internalRoSeedPath, overwrite: true);
-		EnsureAssetFile(ctx.Assets!, "Avalime.Rw.jsonc", internalRwSeedPath, overwrite: true);
-		if(ShouldRefreshFromSeed(roCfgPath)){
-			CopyFileToPath(internalRoSeedPath, roCfgPath, overwrite: true);
+		var dfltRwCfgPath = Path.Combine(externalDir, "Avalime.Rw.jsonc");
+		if(!File.Exists(roCfgPath)){
+			EnsureAssetFile(ctx.Assets!, "Avalime.Ro.jsonc", roCfgPath, overwrite: false);
 		}
 
 		var dualSrcCfg = AppCfg.Inst;
@@ -44,12 +40,12 @@ public class Application : AvaloniaAndroidApplication<App>
 		dualSrcCfg.RoCfg = roCfg;
 		roCfg.FromFile(roCfgPath);
 
-		var rwCfgPath = KeysCfg.RwCfgPath.GetFrom(dualSrcCfg) ?? "Avalime.Rw.jsonc";
-		rwCfgPath = Path.IsPathRooted(rwCfgPath)
-			? rwCfgPath
-			: Path.Combine(externalDir, rwCfgPath);
-		if(ShouldRefreshFromSeed(rwCfgPath)){
-			CopyFileToPath(internalRwSeedPath, rwCfgPath, overwrite: true);
+		var rwCfgPath = KeysCfg.RwCfgPath.GetFrom(dualSrcCfg) ?? dfltRwCfgPath;
+		if(!Path.IsPathRooted(rwCfgPath)){
+			rwCfgPath = Path.Combine(externalDir, rwCfgPath);
+		}
+		if(!File.Exists(rwCfgPath)){
+			EnsureAssetFile(ctx.Assets!, "Avalime.Rw.jsonc", rwCfgPath, overwrite: false);
 		}
 
 		var rwCfg = new JsonFileCfgAccessor();
@@ -117,8 +113,11 @@ public class Application : AvaloniaAndroidApplication<App>
 			}
 		}
 
-		var userDataDir = KeysCfg.Librime.RimeTraits.user_data_dir.GetFrom(AppCfg.Inst)
-			?? Path.Combine(externalDir, "UserData");
+		var userDataDir = KeysCfg.Librime.RimeTraits.user_data_dir.GetFrom(AppCfg.Inst);
+		if(string.IsNullOrWhiteSpace(userDataDir)){
+			userDataDir = Path.Combine(externalDir, "UserData");
+		}
+
 		EnsureDir(userDataDir);
 		AppCfg.Inst.Set(KeysCfg.Librime.DllPath, localRime);
 		AppCfg.Inst.Set(KeysCfg.Librime.RimeTraits.user_data_dir, userDataDir);
@@ -153,24 +152,6 @@ public class Application : AvaloniaAndroidApplication<App>
 		using var input = assets.Open(assetPath);
 		using var output = System.IO.File.Create(outputPath);
 		input.CopyTo(output);
-	}
-
-	static void CopyFileToPath(string srcPath, string dstPath, bool overwrite)
-	{
-		EnsureParentDir(dstPath);
-		if(File.Exists(dstPath) && !overwrite){
-			return;
-		}
-		File.Copy(srcPath, dstPath, overwrite: true);
-	}
-
-	static bool ShouldRefreshFromSeed(string path)
-	{
-		if(!File.Exists(path)){
-			return true;
-		}
-		var fi = new FileInfo(path);
-		return fi.Length == 0;
 	}
 
 	static void EnsureParentDir(string filePath)

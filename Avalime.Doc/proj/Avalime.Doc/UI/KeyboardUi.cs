@@ -75,6 +75,8 @@ using Tsinswreng.CsCore;
 #H[UiCfg][
 	`Avalime.UI.UiCfg` 統一保存 UI 主色配置。
 	當前 `MainColor` 與按鍵按下態背景色保持一致；`$` 鍵的 Shift 鎖定高亮也引用這個值。
+	鍵盤整體字體會讀 `KeysCfg.Keyboard.Font`。
+	若配置值爲空、字體名不合法，或 Avalonia 無法匹配到對應字形，則回退到宿主原本默認字體。
 ]
 
 """)]

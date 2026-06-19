@@ -6,8 +6,10 @@
 			"user_data_dir": "/sdcard/Android/data/Tsinswreng.Avalime/files/UserData",
 			"app_name": "Tsinswreng.Avalime"
 		}
+	},
+	"Keyboard": {
+		"Font": "/sdcard/Android/data/Tsinswreng.Avalime/files/UserData/fonts/zzmc.ttf"
 	}
-	
 }
 /*
 mkdir -p /sdcard/Android/data/Tsinswreng.Avalime/files/UserData/

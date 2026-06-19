@@ -4,6 +4,7 @@ using Avalime.Core.Keys;
 using Avalime.ViewModels.KeyBoard;
 using Avalime.ViewModels.key;
 using Avalonia.Controls;
+using Avalonia.Controls.Documents;
 using Avalonia.Media;
 using Avalime.UI.Views.input;
 using Avalime.UI.Views.Key;
@@ -30,6 +31,10 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 
 	void Render(){
 		this.SetContent(Root.Grid);
+		var keyboardFont = UiCfg.Inst.KeyboardFontFamily;
+		if(keyboardFont is not null){
+			TextElement.SetFontFamily(Root.Grid, keyboardFont);
+		}
 		Root.SetRowDefs([
 			new(1, GUT.Star),   //輸入區
 			new(2.5, GUT.Star), //候選欄
