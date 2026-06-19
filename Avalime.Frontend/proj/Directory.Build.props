@@ -8,4 +8,9 @@
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<PublishAot>true</PublishAot>
 	</PropertyGroup>
+<ItemGroup>
+		<Compile Include="../TypeAlias.cs" />
+		<ProjectReference Include="../../../Avalime.Core/proj/Avalime.Core.csproj"/>
+		<ProjectReference Include="../../../Avalime.Core/proj/Avalime.Rime.csproj"/>
+	</ItemGroup>
 </Project>
