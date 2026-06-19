@@ -187,6 +187,13 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 
 	IEnumerable<IKeyEvent> MkKeyPressEvents(IKeyChar K){
 		if(Ctx!.IsShiftLocked && K != Shift_L && K != Shift_R){
+			var shiftedKey = ToShiftLockedKey(K);
+			if(shiftedKey is not null){
+				return [
+					new KeyEvent{KeyChar = shiftedKey, KeyState = KS.Down},
+					new KeyEvent{KeyChar = shiftedKey, KeyState = KS.Up}
+				];
+			}
 			return [
 				new KeyEvent{KeyChar = Shift_L, KeyState = KS.Down, KeyBoardState = KeyBoardState.Mk(Shift_L)},
 				new KeyEvent{KeyChar = K, KeyState = KS.Down, KeyBoardState = KeyBoardState.Mk(Shift_L, K)},
@@ -199,6 +206,23 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 			new KeyEvent{KeyChar = K, KeyState = KS.Up}
 		];
 	}
+
+	IKeyChar? ToShiftLockedKey(IKeyChar key){
+		if(ShiftLockedKeyMap.TryGetValue(key, out var shifted)){
+			return shifted;
+		}
+		return null;
+	}
+
+	static readonly IReadOnlyDictionary<IKeyChar, IKeyChar> ShiftLockedKeyMap = new Dictionary<IKeyChar, IKeyChar>{
+		{a, A}, {b, B}, {c, C}, {d, D}, {e, E}, {f, F}, {g, G}, {h, H}, {i, I}, {j, J}, {k, K}, {l, L}, {m, M},
+		{n, N}, {o, O}, {p, P}, {q, Q}, {r, R}, {s, S}, {t, T}, {u, U}, {v, V}, {w, W}, {x, X}, {y, Y}, {z, Z},
+		{D1, Exclamation}, {D2, At}, {D3, HashTag}, {D4, Dollar}, {D5, Percent}, {D6, Caret}, {D7, Ampersand}, {D8, Asterisk}, {D9, Paren_L}, {D0, Paren_R},
+		{Minus, Underscore}, {Equal, Plus},
+		{SquareBracket_L, Braces_L}, {SquareBracket_R, Braces_R},
+		{Semicolon, Colon}, {Apostrophe, Quote},
+		{Comma, Less}, {Period, Greater}, {Slash, Question}, {BackSlash, BackSlash}, {Grave, Tilde},
+	};
 
 	Func<zero> MkToggleAsciiMode() => () => {
 		var rimeCon = App.SvcP.GetRequiredService<RimeConnectionState>();
