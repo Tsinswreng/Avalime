@@ -19,6 +19,11 @@ public class KeysCfg{
 	}
 	public class Keyboard{
 		public static ICfgNode _R = Mk(null, [nameof(Keyboard)]);
-		public static ICfgNode<str?> Font = Mk(_R, [nameof(Font)], (str?)null);
+		public class Font{
+			public static ICfgNode _R = Mk(Keyboard._R, [nameof(Font)]);
+			public static ICfgNode<str?> Path = Mk(_R, [nameof(Path)], (str?)null);
+			public static ICfgNode<str?> Family = Mk(_R, [nameof(Family)], (str?)null);
+		}
+
 	}
 }
