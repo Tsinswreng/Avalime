@@ -8,3 +8,7 @@
 		}
 	}
 }
+/*
+mkdir -p /sdcard/Android/data/Tsinswreng.Avalime/files/UserData/
+cp -r /sdcard/rime/* /sdcard/Android/data/Tsinswreng.Avalime/files/UserData/
+*/

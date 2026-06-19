@@ -5,7 +5,7 @@ using Avalonia.Android;
 namespace Avalime.Android;
 
 [Activity(
-	Label = "Avalime.Android",
+	Label = "Avalime",
 	Theme = "@style/MyTheme.NoActionBar",
 	Icon = "@drawable/icon",
 	MainLauncher = true,
