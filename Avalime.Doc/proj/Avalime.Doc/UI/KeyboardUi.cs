@@ -63,12 +63,18 @@ using Tsinswreng.CsCore;
 	`Shift` 鎖定採用持續鎖定式：
 	- 上滑一次後，後續普通按鍵都會帶 `Shift` 修飾
 	- 再上滑一次取消鎖定
+	- 鎖定開啟時，`$` 鍵背景色切換為 `UiCfg.MainColor`
 
 	M 鍵保留單擊 `m`；
 	滑動時發送固定字串後再補一次 `Space` 上屏：
 	- 下滑：`$m,` + `Space`
 	- 左滑：`$m,j` + `Space`
 	- 右滑：`$m,i` + `Space`
+]
+
+#H[UiCfg][
+	`Avalime.UI.UiCfg` 統一保存 UI 主色配置。
+	當前 `MainColor` 與按鍵按下態背景色保持一致；`$` 鍵的 Shift 鎖定高亮也引用這個值。
 ]
 
 """)]

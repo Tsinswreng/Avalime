@@ -133,5 +133,11 @@ hint也改成shift的標誌、按鍵標籤改成`$`
 
 2026_0619_185816[
 `$` 鍵上滑鎖定shift未生效。沒有任何變化/效果。 你把他修好。另外、
+參考 E:\_code\CsNgaq\Ngaq.Frontend\proj\Ngaq.Ui\UiCfg.cs
+你也弄個UiCfg。
 
+其中的MainColor 定義成 和 按鍵被按下時的背景色 一樣。
+然後 把 按鍵被按下時的背景色 改成從MainColor引用
+
+當shift鎖定開啓時、把`$`鍵 的背景色改成MainColor。
 ]

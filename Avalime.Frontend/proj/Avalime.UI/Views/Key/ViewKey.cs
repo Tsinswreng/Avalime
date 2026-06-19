@@ -29,11 +29,9 @@ public class ViewKey : AppViewBase<Ctx>
 	/// TswG 暗色配色
 	/// 分隔線顏色 = 鍵盤底色、模擬TswG的gap效果、相鄰兩鍵0.5+0.5=1px線即背景色
 	static class TswG{
-		public static readonly SolidColorBrush KeyBg = Brush("#000000");
 		public static readonly SolidColorBrush KeyText = Brush("#E0E0E0");
 		public static readonly SolidColorBrush GapLine = Brush("#253238"); //邊框線=鍵盤底色(keyboard_back_color)
 		public static readonly SolidColorBrush HintText = Brush("#BDBDBD");
-		public static readonly SolidColorBrush PressedBg = Brush("#4DB6AC");
 		public static readonly CornerRadius Round = new(0);
 		public static readonly Thickness KeyMargin = new(0);
 		public static readonly Thickness BorderThick = new(0.5);
@@ -53,7 +51,7 @@ public class ViewKey : AppViewBase<Ctx>
 			Sty.Is<Border>(x=>x.Class(Cls.KeyBorder))
 			.Set(MarginProperty, TswG.KeyMargin)
 			.Set(PaddingProperty, new Thickness(0))
-			.Set(BackgroundProperty, TswG.KeyBg)
+			.Set(BackgroundProperty, UiCfg.Inst.KeyBgColor)
 			.Set(BorderBrushProperty, TswG.GapLine)       //邊框=鍵盤底色、模擬gap
 			.Set(BorderThicknessProperty, TswG.BorderThick)
 		).A(
@@ -82,7 +80,7 @@ public class ViewKey : AppViewBase<Ctx>
 	void OnPointerPressed(object? s, PointerPressedEventArgs e){
 		_pressPoint = e.GetPosition(_border);
 		_longPressFired = false;
-		_border.Background = TswG.PressedBg; //按下視覺反饋
+		_border.Background = UiCfg.Inst.MainColor; //按下視覺反饋
 		Console.WriteLine($"[Key] Pressed, hasLongPress={Ctx?.LongPress is not null}, isRepeat={Ctx?.IsRepeat}");
 		StartLongPressTimer();
 	}
@@ -98,7 +96,7 @@ public class ViewKey : AppViewBase<Ctx>
 	void OnPointerReleased(object? s, PointerReleasedEventArgs e){
 		var swPerf = Stopwatch.StartNew();
 		StopLongPressTimer();
-		_border.Background = TswG.KeyBg; //復原背景
+		RestoreBg();
 
 		if(_longPressFired){
 			Console.WriteLine("[Key] Released after long press, skipping Click");
@@ -125,7 +123,11 @@ public class ViewKey : AppViewBase<Ctx>
 
 	void OnPointerCaptureLost(object? s, PointerCaptureLostEventArgs e){
 		StopLongPressTimer();
-		_border.Background = TswG.KeyBg;
+		RestoreBg();
+	}
+
+	void RestoreBg(){
+		_border.Background = Ctx?.Background ?? UiCfg.Inst.KeyBgColor;
 	}
 
 	void StartLongPressTimer(){
@@ -168,6 +170,7 @@ public class ViewKey : AppViewBase<Ctx>
 		border.PointerMoved += OnPointerMoved;
 		border.PointerReleased += OnPointerReleased;
 		border.PointerCaptureLost += OnPointerCaptureLost;
+		Ctx.Bind(border, Border.BackgroundProperty, x=>x.Background);
 
 		border.SetChild(new Grid(), grid=>{
 			//單格疊放：Hint疊在頂部、Label居中、BottomHint在底部、互不搶空間

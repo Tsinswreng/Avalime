@@ -11,6 +11,7 @@ using Avalime.UI.Infra;
 using static Avalime.Core.Keys.KeyChars;
 using Avalime.UI;
 using Microsoft.Extensions.DependencyInjection;
+using System.ComponentModel;
 using KS = Avalime.Core.Keys.KeyStates;
 
 namespace Avalime.UI.Views.KeyBoard;
@@ -137,6 +138,7 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 	ViewKey KView(KeyCfg Cfg){
 		var Vm = KeyVm.Mk();
 		Vm.Key_Click = Cfg.Key;
+		Vm.Click = MkSendKey(Cfg.Key);
 		if(Cfg.Label is not null) Vm.Label = Cfg.Label;
 		if(Cfg.Hint is not null) Vm.Hint = Cfg.Hint;
 		if(Cfg.HintBottom is not null) Vm.BottomHint = Cfg.HintBottom;
@@ -152,6 +154,18 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 		if(Cfg.SwipeRight is not null) Vm.SwipeRight = MkSendKey(Cfg.SwipeRight);
 		if(Cfg.SwipeRightAction is not null) Vm.SwipeRight = Cfg.SwipeRightAction;
 		if(Cfg.IsRepeat) Vm.IsRepeat = true;
+		if(Cfg.Key == Dollar && Cfg.Label == "$"){
+			void SyncBg(){
+				Vm.Background = Ctx!.IsShiftLocked ? UiCfg.Inst.MainColor : UiCfg.Inst.KeyBgColor;
+			}
+			SyncBg();
+			Ctx.PropertyChanged += OnKbPropertyChanged;
+			void OnKbPropertyChanged(object? sender, PropertyChangedEventArgs e){
+				if(e.PropertyName == nameof(Ctx.IsShiftLocked)){
+					SyncBg();
+				}
+			}
+		}
 		return new ViewKey{Ctx = Vm};
 	}
 

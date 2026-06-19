@@ -3,6 +3,7 @@ using System.Diagnostics;
 using Avalime.Core.Keys;
 using Avalime.UI;
 using Avalime.ViewModels;
+using Avalonia.Media;
 using Microsoft.Extensions.DependencyInjection;
 using KS = Avalime.Core.Keys.KeyStates;
 
@@ -93,4 +94,9 @@ public partial class KeyVm : ViewModelBase, IKeyViewModel
 		get => field;
 		set => SetProperty(ref field, value);
 	} = "";
+
+	public IBrush Background{
+		get => field;
+		set => SetProperty(ref field, value);
+	} = UiCfg.Inst.KeyBgColor;
 }
