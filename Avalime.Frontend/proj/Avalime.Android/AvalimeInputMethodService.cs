@@ -82,6 +82,7 @@ public class AvalimeInputMethodService : InputMethodService
         services.AddSingleton<IImeKeyProcessor, AndroidStubImeKeyProcessor>();
         services.AddSingleton<I_OsKeyProcessor, AndroidStubOsKeyProcessor>();
         services.AddSingleton<IKeyboardHost>(_ => new AndroidKeyboardHost(() => this));
+        services.AddSingleton<IClipboardService, AndroidClipboardService>();
         services.AddSingleton<ImeState>();
         services.AddSingleton<RimeConnectionState>();
         var provider = services.BuildServiceProvider(new ServiceProviderOptions{ValidateOnBuild = false, ValidateScopes = false});
@@ -121,6 +122,19 @@ public class AvalimeInputMethodService : InputMethodService
             SetInputView(inputView);
         }
         Debug.WriteLine("[IME] OnStartInputView");
+    }
+
+    public void CommitText(str text)
+    {
+        var mainHandler = new Handler(Looper.MainLooper!);
+        mainHandler.Post(() =>
+        {
+            var ic = CurrentInputConnection;
+            if (ic is not null)
+            {
+                ic.CommitText(text, 1);
+            }
+        });
     }
 
     public override void OnFinishInputView(bool finishingInput)

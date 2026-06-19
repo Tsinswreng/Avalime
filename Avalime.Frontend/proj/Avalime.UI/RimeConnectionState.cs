@@ -34,6 +34,11 @@ public partial class RimeConnectionState : ObservableObject
 		private set => SetProperty(ref field, value);
 	}
 
+	public bool IsSimplification{
+		get => field;
+		private set => SetProperty(ref field, value);
+	}
+
 	public bool IsConnecting{
 		get => field;
 		private set => SetProperty(ref field, value);
@@ -45,6 +50,11 @@ public partial class RimeConnectionState : ObservableObject
 				// 一律 Post 到 UI 線程：on_message 可能從 後台/P/Invoke 回調 觸發
 				Dispatcher.UIThread.Post(() => {
 					IsAsciiMode = enabled;
+				});
+			}
+			if(name == "simplification"){
+				Dispatcher.UIThread.Post(() => {
+					IsSimplification = enabled;
 				});
 			}
 		};
@@ -113,6 +123,7 @@ public partial class RimeConnectionState : ObservableObject
 				IsConnected = true;
 				StatusText = "Rime 已連接";
 			});
+			RefreshOptions();
 			LogInfo("Connect() success");
 		}catch(OperationCanceledException){
 			await Dispatcher.UIThread.InvokeAsync(() => {
@@ -127,6 +138,51 @@ public partial class RimeConnectionState : ObservableObject
 			});
 		}
 		return NIL;
+	}
+
+	unsafe void RefreshOptions(){
+		var rime = Setup;
+		if(rime is null){
+			return;
+		}
+		ReadOnlySpan<byte> asciiMode = "ascii_mode\0"u8;
+		ReadOnlySpan<byte> simplification = "simplification\0"u8;
+		fixed(byte* pAscii = asciiMode)
+		fixed(byte* pSimplification = simplification){
+			var isAscii = rime.apiFn.get_option(rime.rimeSessionId, pAscii) != RimeUtil.False;
+			var isSimplified = rime.apiFn.get_option(rime.rimeSessionId, pSimplification) != RimeUtil.False;
+			Dispatcher.UIThread.Post(() => {
+				IsAsciiMode = isAscii;
+				IsSimplification = isSimplified;
+			});
+		}
+	}
+
+	int _toggleSimplificationBusy = 0;
+
+	unsafe public void ToggleSimplification(){
+		var rime = Setup;
+		if(rime is null) return;
+		if(Interlocked.CompareExchange(ref _toggleSimplificationBusy, 1, 0) != 0) return;
+
+		Task.Run(() => {
+			try{
+				ReadOnlySpan<byte> opt = "simplification\0"u8;
+				fixed(byte* p = opt){
+					var current = rime.apiFn.get_option(rime.rimeSessionId, p);
+					var newValue = current == 0 ? RimeUtil.True : RimeUtil.False;
+					rime.apiFn.set_option(rime.rimeSessionId, p, newValue);
+					var enabled = newValue != RimeUtil.False;
+					Dispatcher.UIThread.Post(() => {
+						IsSimplification = enabled;
+					});
+				}
+			}catch(Exception ex){
+				LogError("ToggleSimplification error: " + ex);
+			}finally{
+				Interlocked.Exchange(ref _toggleSimplificationBusy, 0);
+			}
+		});
 	}
 
 	public void SetError(str message){

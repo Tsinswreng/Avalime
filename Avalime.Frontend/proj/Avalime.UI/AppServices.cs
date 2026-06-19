@@ -16,6 +16,7 @@ public static class AppServices
 			svc.AddSingleton<IImeKeyProcessor, StubImeKeyProcessor>();
 			svc.AddSingleton<I_OsKeyProcessor, StubOsKeyProcessor>();
 			svc.AddSingleton<IKeyboardHost, StubKeyboardHost>();
+			svc.AddSingleton<IClipboardService, StubClipboardService>();
 			svc.AddSingleton<ImeState>();
 			svc.AddSingleton<RimeConnectionState>();
 			_svcP = svc.BuildServiceProvider(new ServiceProviderOptions{ValidateOnBuild = false, ValidateScopes = false});
@@ -48,4 +49,11 @@ class StubImeKeyProcessor : IImeKeyProcessor
 class StubKeyboardHost : IKeyboardHost
 {
 	public void HideKeyboard(){}
+	public void CommitText(str text){}
+}
+
+class StubClipboardService : IClipboardService
+{
+	public Task<IReadOnlyList<str>> GetItemsAsy(CT ct = default)
+		=> Task.FromResult<IReadOnlyList<str>>([]);
 }

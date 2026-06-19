@@ -4,16 +4,24 @@ using Tsinswreng.CsCore;
 
 [Doc($$"""
 #H[用途][
-	UI 端分成主視圖、候選欄、輸入欄、頂欄和按鍵組件。
-	`MainView` 直接掛 `ViewKeyBoard`。
+	UI 端分成 `ViewIme`、候選欄、工具欄、預編輯欄、剪貼板頁和純鍵盤。
+	`MainView` 直接掛 `ViewIme`。
 ]
 
 #H[鍵盤結構][
-	`ViewKeyBoard` 是主鍵盤視圖。
-	它同時組裝：
-	- `ViewInput`
-	- `ViewTopBar`
-	- 主鍵盤 / 數字鍵盤切換區
+	`ViewIme` 是輸入法總視圖。
+	它組裝：
+	- `ViewPreedit`
+	- `ViewToolBar`
+	- `ViewCandidatesBar`
+	- `ViewClipboard`
+	- `ViewKeyBoard`
+
+	`ViewKeyBoard` 現在只負責純鍵盤按鍵區。
+	`VmIme` 是總控狀態：
+	- 自動異步連接 Rime
+	- 根據 `RimeStatus.is_composing` 決定顯示工具欄還是候選欄
+	- 控制是否進入剪貼板頁
 ]
 
 #H[交互][
@@ -23,13 +31,21 @@ using Tsinswreng.CsCore;
 	退格鍵（`Backspace`）設了 `IsRepeat=true`，長按可連續刪除。
 	`KeyCfg.SwipeLeftAction` 支援自訂滑動動作（不限於發送按鍵），用於 Y 鍵左滑切換 ASCII 模式等場景。
 	`VmCandidatesBar` 和 `VmInput` 都依賴 `ImeState.AfterInput`。
+	`VmIme` 也依賴 `ImeState.AfterInput`，並通過 `get_status` 讀 `is_composing`。
 	`VmCandidate` 支援點擊（`Click`），點擊後發送對應數字鍵選中該候選詞上屏。
 	候選詞列表最多顯示 16 個。
 	所有 UI 發起的按鍵現在都走 `ImeState.InputSafely(...)`，避免原生處理阻塞 UI。
-	由於 `AfterInput` 可能在後台線程觸發，`VmCandidatesBar` / `VmInput` 更新綁定屬性時都需要切回 `Dispatcher.UIThread`。
+	由於 `AfterInput` 可能在後台線程觸發，`VmIme` / `VmCandidatesBar` / `VmInput` 更新綁定屬性時都需要切回 `Dispatcher.UIThread`。
 	Y 鍵左滑切換 `ascii_mode`，通過 `RimeConnectionState.ToggleAsciiMode()` 在**後台線程**調用 `set_option`（防止約 350ms 的原生調用阻塞 UI 線程導致 ANR）。
 	`ToggleAsciiMode` 內部使用 `Interlocked` 防止連點並發，直接計算新狀態並通過 `Dispatcher.UIThread.Post` 更新 `IsAsciiMode`。
 	ASCII 模式下所有按鍵標籤顯示為小寫拉丁字母（如 Q→q、Σ→s），`KeyVm` 監聽 `IsAsciiMode` 自動切換。
+	工具欄第一個按鈕切換 `simplification` option：
+	- `false` 時顯示 `漢`
+	- `true` 時顯示 `汉`
+
+	工具欄第二個按鈕切換剪貼板頁。
+	目前先接平台當前 clipboard 內容，不含歷史。
+	點擊條目後通過宿主接口 `IKeyboardHost.CommitText(...)` 直接上屏，然後退出剪貼板頁。
 ]
 
 #H[快捷鍵][

@@ -3,6 +3,7 @@ using Avalime.UI.Views.Candidate;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using Avalonia.Layout;
+using Avalonia.Media;
 using Avalime.UI.Infra;
 
 namespace Avalime.UI.Views.candidatesBar;
@@ -18,6 +19,7 @@ public class ViewCandidatesBar : AppViewBase<Ctx>
 	GridStack Root = new(IsRow: true);
 
 	void Render(){
+		Root.Grid.Background = Brushes.Black;
 		this.SetContent(Root.Grid);
 		var Items = MkItems();
 		Root.A(Items);

@@ -79,6 +79,7 @@ public class ViewKey : AppViewBase<Ctx>
 	void OnPointerPressed(object? s, PointerPressedEventArgs e){
 		_pressPoint = e.GetPosition(_border);
 		_longPressFired = false;
+		e.Pointer.Capture(_border);
 		_border.Background = UiCfg.Inst.MainColor; //按下視覺反饋
 		Console.WriteLine($"[Key] Pressed, hasLongPress={Ctx?.LongPress is not null}, isRepeat={Ctx?.IsRepeat}");
 		StartLongPressTimer();
@@ -94,6 +95,9 @@ public class ViewKey : AppViewBase<Ctx>
 
 	void OnPointerReleased(object? s, PointerReleasedEventArgs e){
 		var swPerf = Stopwatch.StartNew();
+		if(e.Pointer.Captured == _border){
+			e.Pointer.Capture(null);
+		}
 		StopLongPressTimer();
 		RestoreBg();
 

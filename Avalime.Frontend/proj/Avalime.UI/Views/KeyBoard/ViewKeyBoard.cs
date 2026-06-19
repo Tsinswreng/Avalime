@@ -1,4 +1,4 @@
-//鍵盤主視圖：輸入區 + 候選欄 + 六行按鍵，支援主鍵盤/數字鍵盤切換
+//鍵盤主視圖：純按鍵區，支援主鍵盤/數字鍵盤切換
 using System.Collections.Generic;
 using Avalime.Core.Keys;
 using Avalime.ViewModels.KeyBoard;
@@ -6,7 +6,6 @@ using Avalime.ViewModels.key;
 using Avalonia.Controls;
 using Avalonia.Controls.Documents;
 using Avalonia.Media;
-using Avalime.UI.Views.input;
 using Avalime.UI.Views.Key;
 using Avalime.UI.Infra;
 using static Avalime.Core.Keys.KeyChars;
@@ -35,14 +34,8 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 		if(keyboardFont is not null){
 			TextElement.SetFontFamily(Root.Grid, keyboardFont);
 		}
-		Root.SetRowDefs([
-			new(1, GUT.Star),   //輸入區
-			new(2.5, GUT.Star), //候選欄
-			new(12, GUT.Star),  //按鍵區
-		]);
+		Root.SetRowDefs([new(1, GUT.Star)]);
 		Root
-		.A(new ViewInput())
-		.A(new Avalime.UI.Views.topBar.ViewTopBar())
 		.A(MkKeysArea())
 		;
 	}
