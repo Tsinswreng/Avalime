@@ -5,6 +5,7 @@ using Avalime.UI;
 using Avalonia;
 using Avalonia.Android;
 using Tsinswreng.CsCfg;
+using Tsinswreng.CsTools;
 using System.Diagnostics;
 using System.IO;
 using AssetManager = Android.Content.Res.AssetManager;
@@ -27,7 +28,7 @@ public class Application : AvaloniaAndroidApplication<App>
 		var internalDir = ctx.FilesDir!.AbsolutePath!;
 		var externalDir = ctx.GetExternalFilesDir(null)?.AbsolutePath
 			?? throw new InvalidOperationException("Cannot get ExternalFilesDir");
-		Directory.CreateDirectory(externalDir);
+		EnsureDir(externalDir);
 
 		var roCfgPath = Path.Combine(internalDir, "Avalime.Ro.jsonc");
 		EnsureAssetFile(ctx.Assets!, "Avalime.Ro.jsonc", roCfgPath, overwrite: true);
@@ -41,6 +42,7 @@ public class Application : AvaloniaAndroidApplication<App>
 		rwCfgPath = Path.IsPathRooted(rwCfgPath)
 			? rwCfgPath
 			: Path.Combine(externalDir, rwCfgPath);
+		ToolFile.EnsureFile(rwCfgPath);
 		if(!File.Exists(rwCfgPath)){
 			EnsureAssetFile(ctx.Assets!, "Avalime.Rw.jsonc", rwCfgPath, overwrite: false);
 		}
@@ -55,11 +57,13 @@ public class Application : AvaloniaAndroidApplication<App>
 		var internalDir = ctx.FilesDir!.AbsolutePath!;
 		var externalDir = ctx.GetExternalFilesDir(null)?.AbsolutePath
 			?? throw new InvalidOperationException("Cannot get ExternalFilesDir");
+		EnsureDir(externalDir);
 		string[] passthroughSoFiles = ["libc++_shared.so", "libCsRimeLua.so"];
 
 		foreach (var so in passthroughSoFiles)
 		{
 			var dst = System.IO.Path.Combine(internalDir, so);
+			ToolFile.EnsureFile(dst);
 			// 優先：內部目錄已有就不複製（開發者用 run-as cp 放進去的）
 			if (System.IO.File.Exists(dst))
 			{
@@ -83,6 +87,7 @@ public class Application : AvaloniaAndroidApplication<App>
 		}
 
 		var localRime = System.IO.Path.Combine(internalDir, LocalRimeSoName);
+		ToolFile.EnsureFile(localRime);
 		try
 		{
 			ExtractAssetFile(ctx.Assets!, "rime/librime.bin", localRime);
@@ -108,8 +113,11 @@ public class Application : AvaloniaAndroidApplication<App>
 			}
 		}
 
+		var userDataDir = KeysCfg.Librime.RimeTraits.user_data_dir.GetFrom(AppCfg.Inst)
+			?? Path.Combine(externalDir, "UserData");
+		EnsureDir(userDataDir);
 		AppCfg.Inst.Set(KeysCfg.Librime.DllPath, localRime);
-		AppCfg.Inst.Set(KeysCfg.Librime.RimeTraits.user_data_dir, externalDir);
+		AppCfg.Inst.Set(KeysCfg.Librime.RimeTraits.user_data_dir, userDataDir);
 		AppCfg.Inst.Set(KeysCfg.Librime.RimeTraits.app_name, ctx.PackageName ?? "rime.avalime");
 
 		return internalDir;
@@ -117,14 +125,23 @@ public class Application : AvaloniaAndroidApplication<App>
 
 	static void EnsureAssetFile(AssetManager assets, string assetPath, string outputPath, bool overwrite)
 	{
-		var dir = Path.GetDirectoryName(outputPath);
-		if(!string.IsNullOrWhiteSpace(dir)){
-			Directory.CreateDirectory(dir);
-		}
+		ToolFile.EnsureFile(outputPath);
 		if(File.Exists(outputPath) && !overwrite){
 			return;
 		}
 		ExtractAssetFile(assets, assetPath, outputPath);
+	}
+
+	static void EnsureDir(string dirPath)
+	{
+		if(string.IsNullOrWhiteSpace(dirPath)){
+			return;
+		}
+		var keepFile = Path.Combine(dirPath, ".keep");
+		ToolFile.EnsureFile(keepFile);
+		if(File.Exists(keepFile)){
+			File.Delete(keepFile);
+		}
 	}
 
 	static void ExtractAssetFile(AssetManager assets, string assetPath, string outputPath)

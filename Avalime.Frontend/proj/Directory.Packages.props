@@ -20,6 +20,7 @@
 		<PackageVersion Include="System.Reactive" Version="6.0.1" />
 		<PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="9.0.2" />
 		<PackageVersion Include="Tsinswreng.CsInterop" Version="0.1.0.25463" />
+		<PackageVersion Include="Tsinswreng.CsTools" Version="0.0.1-alpha" />
 	</ItemGroup>
 	<ItemGroup>
 		<PackageVersion Include="Tsinswreng.CsCore" Version="0.0.1-alpha" />
