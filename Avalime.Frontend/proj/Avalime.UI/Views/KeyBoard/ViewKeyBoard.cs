@@ -178,14 +178,18 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 
 	Func<zero> MkSendCtrlKey(IKeyChar K) => () => {
 		var state = Ctx!.ImeState;
-		state.InputSafely([
-			new KeyEvent{KeyChar = Ctrl_L, KeyState = KS.Down},
-			new KeyEvent{KeyChar = K, KeyState = KS.Down},
-			new KeyEvent{KeyChar = K, KeyState = KS.Up},
-			new KeyEvent{KeyChar = Ctrl_L, KeyState = KS.Up},
-		]);
+		state.InputSafely(MkCtrlComboKeyEvents(K));
 		return 0;
 	};
+
+	IEnumerable<IKeyEvent> MkCtrlComboKeyEvents(IKeyChar K){
+		return [
+			new KeyEvent{KeyChar = Ctrl_L, KeyState = KS.Down, KeyBoardState = KeyBoardState.Mk(Ctrl_L)},
+			new KeyEvent{KeyChar = K, KeyState = KS.Down, KeyBoardState = KeyBoardState.Mk(Ctrl_L, K)},
+			new KeyEvent{KeyChar = K, KeyState = KS.Up, KeyBoardState = KeyBoardState.Mk(Ctrl_L)},
+			new KeyEvent{KeyChar = Ctrl_L, KeyState = KS.Up, KeyBoardState = KeyBoardState.Mk()},
+		];
+	}
 	#endregion
 
 	#region 主鍵盤佈局（TswG default）

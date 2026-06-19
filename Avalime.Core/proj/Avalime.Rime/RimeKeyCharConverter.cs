@@ -14,8 +14,30 @@ public class RimeKeyCharConverter{
 		}else{
 			mask = RimeModifier.kReleaseMask;
 		}
+		mask |= GetModifierMask(keyEvent.KeyBoardState);
 		var keyCode = (i32)Lower_KeyCode[keyEvent.KeyChar];//TODO handle err
 		return (keyCode, mask);
+	}
+
+	static i32 GetModifierMask(IKeyBoardState? keyBoardState){
+		if(keyBoardState is null){
+			return RimeModifier.zero;
+		}
+
+		i32 mask = RimeModifier.zero;
+		if(keyBoardState.IsKeyDown(KS.Ctrl_L) || keyBoardState.IsKeyDown(KS.Ctrl_R)){
+			mask |= RimeModifier.kControlMask;
+		}
+		if(keyBoardState.IsKeyDown(KS.Shift_L) || keyBoardState.IsKeyDown(KS.Shift_R)){
+			mask |= RimeModifier.kShiftMask;
+		}
+		if(keyBoardState.IsKeyDown(KS.Alt_L) || keyBoardState.IsKeyDown(KS.Alt_R)){
+			mask |= RimeModifier.kAltMask;
+		}
+		if(keyBoardState.IsKeyDown(KS.Meta_L)){
+			mask |= RimeModifier.kSuperMask;
+		}
+		return mask;
 	}
 
 

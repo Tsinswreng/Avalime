@@ -42,6 +42,7 @@ using Tsinswreng.CsCore;
 	- Y → Ctrl+Y（重做） → 底部 hint: ↷
 
 	實現方式：`MkSendCtrlKey` 發送 Ctrl_L Down → Key Down → Key Up → Ctrl_L Up 四個按鍵事件。
+	這四個事件會攜帶 `KeyBoardState`，把「當前 Ctrl 正按下」這個上下文沿輸入鏈傳下去。
 	`KeyCfg.LongClickAction` 和 `KeyCfg.SwipeRightAction` 用於綁定這類自訂按鍵序列。
 	Y 鍵保留頂部 `⇆` hint 提示左滑切換 ASCII 模式。
 ]
