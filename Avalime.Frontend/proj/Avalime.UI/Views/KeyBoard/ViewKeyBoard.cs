@@ -99,10 +99,12 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 		public Func<zero>? LongClickAction{get;init;}
 		public IKeyChar? SwipeUp{get;init;}
 		public IKeyChar? SwipeDown{get;init;}
+		public Func<zero>? SwipeDownAction{get;init;}
 		public IKeyChar? SwipeLeft{get;init;}
 		public Func<zero>? SwipeLeftAction{get;init;}
 		public IKeyChar? SwipeRight{get;init;}
 		public Func<zero>? SwipeRightAction{get;init;}
+		public Func<zero>? SwipeUpAction{get;init;}
 			public bool IsRepeat{get;init;}
 	}
 
@@ -142,7 +144,9 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 		if(Cfg.LongClick is not null) Vm.LongPress = MkSendKey(Cfg.LongClick);
 		if(Cfg.LongClickAction is not null) Vm.LongPress = Cfg.LongClickAction;
 		if(Cfg.SwipeUp is not null) Vm.SwipeUP = MkSendKey(Cfg.SwipeUp);
+		if(Cfg.SwipeUpAction is not null) Vm.SwipeUP = Cfg.SwipeUpAction;
 		if(Cfg.SwipeDown is not null) Vm.SwipeDown = MkSendKey(Cfg.SwipeDown);
+		if(Cfg.SwipeDownAction is not null) Vm.SwipeDown = Cfg.SwipeDownAction;
 		if(Cfg.SwipeLeft is not null) Vm.SwipeLeft = MkSendKey(Cfg.SwipeLeft);
 		if(Cfg.SwipeLeftAction is not null) Vm.SwipeLeft = Cfg.SwipeLeftAction;
 		if(Cfg.SwipeRight is not null) Vm.SwipeRight = MkSendKey(Cfg.SwipeRight);
@@ -163,16 +167,33 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 
 	Func<zero> MkSendKey(IKeyChar K) => () => {
 		var state = Ctx!.ImeState;
-		state.InputSafely([
-			new KeyEvent{KeyChar = K, KeyState = KS.Down},
-			new KeyEvent{KeyChar = K, KeyState = KS.Up}
-		]);
+		state.InputSafely(MkKeyPressEvents(K));
 		return 0;
 	};
+
+	IEnumerable<IKeyEvent> MkKeyPressEvents(IKeyChar K){
+		if(Ctx!.IsShiftLocked && K != Shift_L && K != Shift_R){
+			return [
+				new KeyEvent{KeyChar = Shift_L, KeyState = KS.Down, KeyBoardState = KeyBoardState.Mk(Shift_L)},
+				new KeyEvent{KeyChar = K, KeyState = KS.Down, KeyBoardState = KeyBoardState.Mk(Shift_L, K)},
+				new KeyEvent{KeyChar = K, KeyState = KS.Up, KeyBoardState = KeyBoardState.Mk(Shift_L)},
+				new KeyEvent{KeyChar = Shift_L, KeyState = KS.Up, KeyBoardState = KeyBoardState.Mk()},
+			];
+		}
+		return [
+			new KeyEvent{KeyChar = K, KeyState = KS.Down},
+			new KeyEvent{KeyChar = K, KeyState = KS.Up}
+		];
+	}
 
 	Func<zero> MkToggleAsciiMode() => () => {
 		var rimeCon = App.SvcP.GetRequiredService<RimeConnectionState>();
 		rimeCon.ToggleAsciiMode();
+		return 0;
+	};
+
+	Func<zero> MkToggleShiftLock() => () => {
+		Ctx!.IsShiftLocked = !Ctx.IsShiftLocked;
 		return 0;
 	};
 
@@ -190,6 +211,17 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 			new KeyEvent{KeyChar = Ctrl_L, KeyState = KS.Up, KeyBoardState = KeyBoardState.Mk()},
 		];
 	}
+
+	Func<zero> MkSendTextAndSpace(params IKeyChar[] keys) => () => {
+		var state = Ctx!.ImeState;
+		var keyEvents = new List<IKeyEvent>();
+		foreach(var key in keys){
+			keyEvents.AddRange(MkKeyPressEvents(key));
+		}
+		keyEvents.AddRange(MkKeyPressEvents(Space));
+		state.InputSafely(keyEvents);
+		return 0;
+	};
 	#endregion
 
 	#region 主鍵盤佈局（TswG default）
@@ -239,7 +271,7 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 		new(){Key=v, Label="V", HintBottom="▣",       SwipeUp=V, SwipeRightAction=MkSendCtrlKey(v), LongClickAction=MkSendCtrlKey(v)},
 		new(){Key=b, Label="B",                        SwipeUp=B},
 		new(){Key=n, Label="N",                        SwipeUp=N},
-		new(){Key=m, Label="M", Hint="$m,",            SwipeUp=M},
+		new(){Key=m, Label="M", Hint="$m,",            SwipeUp=M, SwipeDownAction=MkSendTextAndSpace(Dollar, m, Comma), SwipeLeftAction=MkSendTextAndSpace(Dollar, m, Comma, j), SwipeRightAction=MkSendTextAndSpace(Dollar, m, Comma, i)},
 		new(){Key=Comma, Label=",", Hint="<",          SwipeUp=Less,  LongClick=Less,  SwipeLeft=Less},
 		new(){Key=Period, Label=".", Hint=">",         SwipeUp=Greater, LongClick=Greater, SwipeRight=Greater},
 		new(){Key=Apostrophe, Label="'", Hint="\"",    SwipeUp=Quote}
@@ -250,10 +282,10 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 		var Ctrls = new List<Control>{
 			KView(new(){Key=Enter, Label="↵"}),
 			KView(new(){Key=Tab, Label="␉"}),
-			KView(new(){Key=Left, Label="←"}),
+			KView(new(){Key=Left, Label="←", Hint="⇤"}),
 			KView(new(){Key=Space, Label="", SwipeLeft=Left, SwipeRight=Right}),
-			KView(new(){Key=Right, Label="→"}),
-			KView(new(){Key=Shift_L, Label="⇪", LongClick=Dollar, SwipeUp=Dollar}),
+			KView(new(){Key=Right, Label="→", Hint="⇥"}),
+			KView(new(){Key=Dollar, Label="$", Hint="⇪", SwipeUpAction=MkToggleShiftLock()}),
 			KView(new(){Key=Backspace, Label="⌫", LongClick=Backspace, IsRepeat=true}),
 		};
 		return MkRowOfControls(Ctrls, ColWidths);
@@ -263,8 +295,8 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 		var Ctrls = new List<Control>{
 			KView(new(){Key=Minus, Label="-", Hint="_",              SwipeUp=Underscore}),
 			KView(new(){Key=Equal, Label="=", Hint="+",             SwipeUp=Plus}),
-			KView(new(){Key=SquareBracket_L, Label="[",             SwipeUp=Braces_L, LongClick=Braces_L}),
-			KView(new(){Key=SquareBracket_R, Label="]",             SwipeUp=Braces_R, LongClick=Braces_R}),
+			KView(new(){Key=SquareBracket_L, Label="[", Hint="{",   SwipeUp=Braces_L, LongClick=Braces_L}),
+			KView(new(){Key=SquareBracket_R, Label="]", Hint="}",   SwipeUp=Braces_R, LongClick=Braces_R}),
 			KView(new(){Key=Up, Label="↑"}),
 			KView(new(){Key=Down, Label="↓"}),
 			KView(new(){Key=Slash, Label="/", Hint="?",             SwipeUp=Question}),
@@ -356,8 +388,8 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 			KView(new(){Key=Equal, Label="=", Hint="+",            SwipeUp=Plus}),
 			KView(new(){Key=Slash, Label="/", Hint="?",            SwipeUp=Question}),
 			KView(new(){Key=BackSlash, Label="\\", Hint="|"}),
-			KView(new(){Key=Left, Label="←"}),
-			KView(new(){Key=Right, Label="→"}),
+			KView(new(){Key=Left, Label="←", Hint="⇤"}),
+			KView(new(){Key=Right, Label="→", Hint="⇥"}),
 			KView(new(){Key=Up, Label="↑"}),
 			KView(new(){Key=Down, Label="↓"}),
 			KView(new(){Key=Grave, Label="`", Hint="~",            SwipeUp=Tilde}),
