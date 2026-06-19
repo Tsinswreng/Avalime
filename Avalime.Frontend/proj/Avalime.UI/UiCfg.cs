@@ -16,6 +16,8 @@ public partial class UiCfg
 	public double BaseFontSize { get; set; } = 30.0;
 	public double KeyFontSize => BaseFontSize * 0.9;
 	public double CandidateFontSize => BaseFontSize * 0.9;
+	public double CandidateCommentFontSize => BaseFontSize * 0.42;
+	public double CandidateCommentHeight => BaseFontSize * 0.52;
 	public double ActionKeyFontSize => BaseFontSize * 0.72;
 	public double HintFontSize => BaseFontSize * 0.46;
 	public double TopBarHeight => BaseFontSize * 1.55;

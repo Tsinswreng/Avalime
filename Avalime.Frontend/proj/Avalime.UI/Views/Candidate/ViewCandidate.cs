@@ -40,6 +40,9 @@ public class ViewCandidate : AppViewBase<Ctx>
 		).A(
 			Sty.Is<Control>(x=>x.Class(Cls.Text))
 			.Set(FontSizeProperty, UiCfg.Inst.CandidateFontSize)
+		).A(
+			Sty.Is<Control>(x=>x.Class(Cls.Comment))
+			.Set(FontSizeProperty, UiCfg.Inst.CandidateCommentFontSize)
 		);
 	}
 
@@ -58,8 +61,7 @@ public class ViewCandidate : AppViewBase<Ctx>
 
 		this.SetContent(border);
 		Root.SetRowDefs([
-			new(1, GUT.Star),
-			new(4, GUT.Star),
+			new(UiCfg.Inst.CandidateCommentHeight, GUT.Pixel),
 			new(1, GUT.Star),
 		]);
 
@@ -67,12 +69,21 @@ public class ViewCandidate : AppViewBase<Ctx>
 		.A(new TextBlock(), o=>{
 			o.Classes.Add(Cls.Comment);
 			if(keyboardFont is not null) o.FontFamily = keyboardFont;
+			o.VerticalAlignment = VAlign.Top;
+			o.HorizontalAlignment = HAlign.Center;
+			o.TextAlignment = TxtAlign.Center;
+			o.Height = UiCfg.Inst.CandidateCommentHeight;
+			o.Margin = new(0, 1, 0, 0);
 			Ctx.Bind(o, x=>x.Text, x=>x.Comment);
 			Ctx.Bind(o, x=>x.Foreground, x=>x.Foreground);
 		})
 		.A(new TextBlock(), o=>{
 			o.Classes.Add(Cls.Text);
 			if(keyboardFont is not null) o.FontFamily = keyboardFont;
+			o.VerticalAlignment = VAlign.Bottom;
+			o.HorizontalAlignment = HAlign.Center;
+			o.TextAlignment = TxtAlign.Center;
+			o.Margin = new(0, 0, 0, 2);
 			Ctx.Bind(o, x=>x.Text, x=>x.Text);
 			Ctx.Bind(o, x=>x.Foreground, x=>x.Foreground);
 		})
