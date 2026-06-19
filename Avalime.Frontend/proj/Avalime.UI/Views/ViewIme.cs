@@ -17,16 +17,22 @@ public class ViewIme : AppViewBase<VmIme>
 	}
 
 	void Render(){
+		var topBarHeight = UiCfg.Inst.TopBarHeight;
 		var root = new Grid{
-			RowDefinitions = new("Auto,Auto,*")
+			RowDefinitions = new($"{topBarHeight},{topBarHeight},*")
 		};
 
 		var preedit = new ViewPreedit();
+		preedit.Height = topBarHeight;
 		Grid.SetRow(preedit, 0);
 
-		var barHost = new Grid();
+		var barHost = new Grid{
+			Height = topBarHeight
+		};
 		var toolbar = new ViewToolBar(new VmToolBar(Ctx!));
 		var candidates = new ViewCandidatesBar();
+		toolbar.Height = topBarHeight;
+		candidates.Height = topBarHeight;
 		barHost.Children.Add(toolbar);
 		barHost.Children.Add(candidates);
 		Grid.SetRow(barHost, 1);

@@ -18,13 +18,17 @@ public class ViewInput : AppViewBase<Ctx>
 		var keyboardFont = UiCfg.Inst.KeyboardFontFamily;
 		this.SetContent(Root.Grid);
 		Root.Grid.Background = Brushes.Black;
+		Root.Grid.Height = UiCfg.Inst.TopBarHeight;
 		Root
 		.A(new WrapPanel(), wp=>{
 			wp.Background = Brushes.Black;
+			wp.VerticalAlignment = VAlign.Center;
 			wp.A(new TextBlock(), o=>{
 				if(keyboardFont is not null) o.FontFamily = keyboardFont;
 				o.Foreground = Brushes.White;
-				o.Margin = new(8, 4);
+				o.FontSize = UiCfg.Inst.TopBarFontSize;
+				o.Margin = new(8, 0);
+				o.VerticalAlignment = VAlign.Center;
 				Ctx.Bind(o, x=>x.Text, x=>x.Text, Mode: BindingMode.TwoWay);
 			});
 		})

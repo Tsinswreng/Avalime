@@ -18,6 +18,8 @@ public partial class UiCfg
 	public double CandidateFontSize => BaseFontSize * 0.9;
 	public double ActionKeyFontSize => BaseFontSize * 0.72;
 	public double HintFontSize => BaseFontSize * 0.46;
+	public double TopBarHeight => BaseFontSize * 1.1;
+	public double TopBarFontSize => BaseFontSize * 0.72;
 	public FontFamily? KeyboardFontFamily => GetKeyboardFontFamily();
 	public IBrush MainColor { get; set; } = SolidColorBrush.Parse("#4DB6AC");
 	public IBrush KeyBgColor { get; set; } = SolidColorBrush.Parse("#000000");

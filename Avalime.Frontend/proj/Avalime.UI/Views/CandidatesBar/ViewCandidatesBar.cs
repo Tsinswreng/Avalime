@@ -20,6 +20,7 @@ public class ViewCandidatesBar : AppViewBase<Ctx>
 
 	void Render(){
 		Root.Grid.Background = Brushes.Black;
+		Root.Grid.Height = UiCfg.Inst.TopBarHeight;
 		this.SetContent(Root.Grid);
 		var Items = MkItems();
 		Root.A(Items);

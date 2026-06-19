@@ -4,6 +4,7 @@ using Avalime.ViewModels;
 using Avalonia.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using Rime.Api;
+using Tsinswreng.CsInterop;
 
 namespace Avalime.UI.ViewModels;
 
@@ -24,8 +25,13 @@ public class VmIme : ViewModelBase
 		set => SetProperty(ref field, value);
 	}
 
+	public bool HasPreedit{
+		get => field;
+		set => SetProperty(ref field, value);
+	}
+
 	public bool ShowToolbar => !IsComposing || IsClipboardVisible;
-	public bool ShowCandidates => IsComposing && !IsClipboardVisible;
+	public bool ShowCandidates => (IsComposing || HasPreedit) && !IsClipboardVisible;
 	public bool ShowPreedit => !IsClipboardVisible;
 	public bool ShowKeyboard => !IsClipboardVisible;
 	public bool ShowClipboard => IsClipboardVisible;
@@ -34,6 +40,7 @@ public class VmIme : ViewModelBase
 		PropertyChanged += (_, e) => {
 			if(
 				e.PropertyName is nameof(IsComposing)
+				or nameof(HasPreedit)
 				or nameof(IsClipboardVisible)
 			){
 				OnPropertyChanged(nameof(ShowToolbar));
@@ -51,7 +58,10 @@ public class VmIme : ViewModelBase
 	unsafe void RefreshCompositionState(){
 		var rime = RimeConnection.Setup;
 		if(rime is null){
-			Dispatcher.UIThread.Post(() => IsComposing = false);
+			Dispatcher.UIThread.Post(() => {
+				IsComposing = false;
+				HasPreedit = false;
+			});
 			return;
 		}
 		var status = new RimeStatus{
@@ -62,7 +72,21 @@ public class VmIme : ViewModelBase
 		if(gotStatus){
 			rime.apiFn.free_status(&status);
 		}
-		Dispatcher.UIThread.Post(() => IsComposing = composing);
+
+		var ctx = new RimeContext{
+			data_size = RimeUtil.DataSize<RimeContext>()
+		};
+		var gotContext = rime.apiFn.get_context(rime.rimeSessionId, &ctx) == RimeUtil.True;
+		var hasPreedit = false;
+		if(gotContext){
+			hasPreedit = ctx.composition.length > 0 || !string.IsNullOrEmpty(ToolCStr.ToCsStr(ctx.composition.preedit));
+			rime.apiFn.free_context(&ctx);
+		}
+
+		Dispatcher.UIThread.Post(() => {
+			IsComposing = composing;
+			HasPreedit = hasPreedit;
+		});
 	}
 
 	public void ToggleClipboard(){

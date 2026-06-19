@@ -17,7 +17,7 @@ public class ViewToolBar : AppViewBase<VmToolBar>
 		var root = new Grid{
 			ColumnDefinitions = new("Auto,Auto,*"),
 			Background = Brushes.Black,
-			MinHeight = UiCfg.Inst.BaseFontSize * 1.1,
+			Height = UiCfg.Inst.TopBarHeight,
 		};
 
 		var btnHan = MkBtn();
@@ -25,7 +25,7 @@ public class ViewToolBar : AppViewBase<VmToolBar>
 			Foreground = Brushes.White,
 			VerticalAlignment = VAlign.Center,
 			HorizontalAlignment = HAlign.Center,
-			FontSize = UiCfg.Inst.CandidateFontSize,
+			FontSize = UiCfg.Inst.TopBarFontSize,
 		};
 		Ctx!.Bind((TextBlock)btnHan.Child, TextBlock.TextProperty, x => x.HanLabel);
 		btnHan.PointerPressed += (_, e) => {
@@ -36,7 +36,7 @@ public class ViewToolBar : AppViewBase<VmToolBar>
 
 		var btnClipboard = MkBtn();
 		var icon = Avalime.UI.Icons.Icons.Clipboard().ToIcon();
-		icon.Width = icon.Height = UiCfg.Inst.BaseFontSize * 0.85;
+		icon.Width = icon.Height = UiCfg.Inst.TopBarFontSize;
 		btnClipboard.Child = icon;
 		btnClipboard.PointerPressed += (_, e) => {
 			e.Handled = true;
@@ -55,8 +55,8 @@ public class ViewToolBar : AppViewBase<VmToolBar>
 			BorderBrush = SolidColorBrush.Parse("#253238"),
 			BorderThickness = new(0.5),
 			CornerRadius = new(0),
-			Padding = new(8, 2),
-			MinWidth = 72,
+			Padding = new(6, 0),
+			MinWidth = UiCfg.Inst.TopBarHeight,
 			HorizontalAlignment = HAlign.Stretch,
 			VerticalAlignment = VAlign.Stretch,
 		};
