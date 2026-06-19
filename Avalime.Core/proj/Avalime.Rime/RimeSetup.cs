@@ -16,6 +16,8 @@ using System.Diagnostics;
 using static Tsinswreng.CsInterop.Ptr;
 using Tsinswreng.CsInterop;
 using Rime.Api.Types;
+using Avalime.Core.Infra;
+using Tsinswreng.CsCfg;
 namespace Avalime.Rime;
 
 
@@ -25,9 +27,6 @@ unsafe public class RimeSetup
 	static void LogInfo(str message){ Debug.WriteLine("[AvalimeRime] " + message); }
 
 	public static RimeSetup Inst => field??= new RimeSetup();
-	//TODO test
-	public static str dllPath = "D:/ENV/Rime/weasel-0.15.0/rime.dll";
-	public static str userDataDir = "D:/Program Files/Rime/User_Data";
 	public PtrMgr ptrMgr = new PtrMgr();
 
 
@@ -81,6 +80,10 @@ unsafe public class RimeSetup
 	protected zero _setupRimeApi(){
 		//traits = (RimeTraits*)AllocZeroed((nuint)SizeOf<RimeTraits>());
 		//var rimeApi = RimeApiFn.rime_get_api();
+		var dllPath = KeysCfg.Librime.DllPath.GetFrom(AppCfg.Inst) ?? "";
+		if(string.IsNullOrWhiteSpace(dllPath)){
+			throw new InvalidOperationException("Librime.DllPath is empty");
+		}
 		LogInfo("_setupRimeApi: loading " + dllPath);
 		var rime_get_api = RimeDllLoader.loadFn_rime_get_api(dllPath);
 		LogInfo("_setupRimeApi: loadFn_rime_get_api done");
@@ -93,11 +96,17 @@ unsafe public class RimeSetup
 
 	protected zero _setupRimeTraits(){
 		LogInfo("_setupRimeTraits: begin");
+		var userDataDir = KeysCfg.Librime.RimeTraits.user_data_dir.GetFrom(AppCfg.Inst) ?? "";
+		if(string.IsNullOrWhiteSpace(userDataDir)){
+			throw new InvalidOperationException("Librime.RimeTraits.user_data_dir is empty");
+		}
+		var appName = KeysCfg.Librime.RimeTraits.app_name.GetFrom(AppCfg.Inst) ?? "rime.avalime";
 		_traits = New<RimeTraits>();
 		traits->data_size = RimeUtil.DataSize<RimeTraits>();
 		traits->user_data_dir = ptrMgr.Str(userDataDir);
-		traits->app_name = ptrMgr.Str("rime.avalime");
+		traits->app_name = ptrMgr.Str(appName);
 		LogInfo("_setupRimeTraits: userDataDir=" + userDataDir);
+		LogInfo("_setupRimeTraits: appName=" + appName);
 		return 0;
 	}
 

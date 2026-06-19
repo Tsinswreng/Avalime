@@ -97,6 +97,6 @@ E:\_code\CsNgaq\Ngaq.Core\Infra\Cfg\KeysClientCfg.cs
 配置是 Avalime 全平台统一配置结构，Android 只是先接入。
 
 AOT兼容那個就看CsNgaq 。那邊就是AOT兼容的
-
+寫在 E:\_code\CsRime\Avalime\Avalime.Core\proj\Avalime.Core\Infra\KeysCfg.cs 裏
 
 ]

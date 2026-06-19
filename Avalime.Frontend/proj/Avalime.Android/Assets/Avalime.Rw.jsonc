@@ -1,0 +1,10 @@
+{
+	"Librime": {
+		"AutoLinkDll": false,
+		"DllPath": "/data/user/0/Tsinswreng.Avalime/files/librime.so",
+		"RimeTraits": {
+			"user_data_dir": "/sdcard/Android/data/Tsinswreng.Avalime/files",
+			"app_name": "Tsinswreng.Avalime"
+		}
+	}
+}

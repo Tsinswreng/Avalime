@@ -3,6 +3,7 @@
 		<OutputType>Exe</OutputType>
 		<TargetFramework>net10.0-android</TargetFramework>
 		<SupportedOSPlatformVersion>23</SupportedOSPlatformVersion>
+		<AcceptAndroidSDKLicenses>true</AcceptAndroidSDKLicenses>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<ApplicationId>Tsinswreng.Avalime</ApplicationId>
@@ -30,12 +31,6 @@
 
 	<ItemGroup>
 		<AndroidResource Include="Resources\xml\ime_method.xml" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<AndroidAsset Include="Assets\rime\librime.bin">
-			<Link>Assets\rime\librime.bin</Link>
-		</AndroidAsset>
 	</ItemGroup>
 
 </Project>

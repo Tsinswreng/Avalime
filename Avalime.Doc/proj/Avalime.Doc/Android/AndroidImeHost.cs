@@ -44,8 +44,10 @@ using Tsinswreng.CsCore;
 
 	現在做法是：
 	- 將原生庫內容以非 `.so` 文件名（如 `librime.bin`）作為 `AndroidAsset` 打包進 APK
-	- 啟動時解包到 App 私有目錄並還原成 `librime.so`
-	- 再由 `RimeSetup.dllPath` 指向該私有文件路徑，按需載入
+	- `Avalime.Ro.jsonc` 放在 App 私有目錄，只保存 `RwCfgPath`
+	- 若 `/sdcard/Android/.../files/Avalime.Rw.jsonc` 不存在，則從 APK 資產複製一份初始配置
+	- 啟動時解包 `librime.bin` 到 App 私有目錄並還原成 `librime.so`
+	- 再把實際 `DllPath`、`user_data_dir`、`app_name` 寫入雙源配置的可寫層，供 `RimeSetup` 按配置讀取
 ]
 
 """)]

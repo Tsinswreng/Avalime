@@ -1,8 +1,10 @@
 using Android.App;
 using Android.Runtime;
+using Avalime.Core.Infra;
 using Avalime.UI;
 using Avalonia;
 using Avalonia.Android;
+using Tsinswreng.CsCfg;
 using System.Diagnostics;
 using System.IO;
 using AssetManager = Android.Content.Res.AssetManager;
@@ -16,15 +18,43 @@ public class Application : AvaloniaAndroidApplication<App>
 	public Application(nint javaReference, JniHandleOwnership transfer)
 		: base(javaReference, transfer)
 	{
-		var soDir = SetupSoFiles(global::Android.App.Application.Context);
-		Avalime.Rime.RimeSetup.dllPath = System.IO.Path.Combine(soDir, LocalRimeSoName);
-		Avalime.Rime.RimeSetup.userDataDir = "/sdcard/rime";
+		InitCfg(global::Android.App.Application.Context);
+		SetupSoFiles(global::Android.App.Application.Context);
+	}
+
+	static void InitCfg(global::Android.Content.Context ctx)
+	{
+		var internalDir = ctx.FilesDir!.AbsolutePath!;
+		var externalDir = ctx.GetExternalFilesDir(null)?.AbsolutePath
+			?? throw new InvalidOperationException("Cannot get ExternalFilesDir");
+		Directory.CreateDirectory(externalDir);
+
+		var roCfgPath = Path.Combine(internalDir, "Avalime.Ro.jsonc");
+		EnsureAssetFile(ctx.Assets!, "Avalime.Ro.jsonc", roCfgPath, overwrite: true);
+
+		var dualSrcCfg = AppCfg.Inst;
+		var roCfg = new JsonFileCfgAccessor();
+		dualSrcCfg.RoCfg = roCfg;
+		roCfg.FromFile(roCfgPath);
+
+		var rwCfgPath = KeysCfg.RwCfgPath.GetFrom(dualSrcCfg) ?? "Avalime.Rw.jsonc";
+		rwCfgPath = Path.IsPathRooted(rwCfgPath)
+			? rwCfgPath
+			: Path.Combine(externalDir, rwCfgPath);
+		if(!File.Exists(rwCfgPath)){
+			EnsureAssetFile(ctx.Assets!, "Avalime.Rw.jsonc", rwCfgPath, overwrite: false);
+		}
+
+		var rwCfg = new JsonFileCfgAccessor();
+		dualSrcCfg.RwCfg = rwCfg;
+		rwCfg.FromFile(rwCfgPath);
 	}
 
 	static string SetupSoFiles(global::Android.Content.Context ctx)
 	{
 		var internalDir = ctx.FilesDir!.AbsolutePath!;
-		var externalDir = "/sdcard/rime";
+		var externalDir = ctx.GetExternalFilesDir(null)?.AbsolutePath
+			?? throw new InvalidOperationException("Cannot get ExternalFilesDir");
 		string[] passthroughSoFiles = ["libc++_shared.so", "libCsRimeLua.so"];
 
 		foreach (var so in passthroughSoFiles)
@@ -78,7 +108,23 @@ public class Application : AvaloniaAndroidApplication<App>
 			}
 		}
 
+		AppCfg.Inst.Set(KeysCfg.Librime.DllPath, localRime);
+		AppCfg.Inst.Set(KeysCfg.Librime.RimeTraits.user_data_dir, externalDir);
+		AppCfg.Inst.Set(KeysCfg.Librime.RimeTraits.app_name, ctx.PackageName ?? "rime.avalime");
+
 		return internalDir;
+	}
+
+	static void EnsureAssetFile(AssetManager assets, string assetPath, string outputPath, bool overwrite)
+	{
+		var dir = Path.GetDirectoryName(outputPath);
+		if(!string.IsNullOrWhiteSpace(dir)){
+			Directory.CreateDirectory(dir);
+		}
+		if(File.Exists(outputPath) && !overwrite){
+			return;
+		}
+		ExtractAssetFile(assets, assetPath, outputPath);
 	}
 
 	static void ExtractAssetFile(AssetManager assets, string assetPath, string outputPath)

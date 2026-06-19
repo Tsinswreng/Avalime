@@ -9,10 +9,11 @@ using Tsinswreng.CsCore;
 ]
 
 #H[Android 初始化][
-	Android 端在 `Application` 啟動時設置：
-	- `RimeSetup.dllPath`
-	- `RimeSetup.userDataDir`
-	- 之後再由 `RimeSetup.Inst` 完成初始化
+	Android 端在 `Application` 啟動時初始化雙源配置：
+	- `Avalime.Ro.jsonc` 只提供 `RwCfgPath`
+	- `Avalime.Rw.jsonc` 提供 `Librime` 結構
+	- 宿主再把實際 `DllPath`、`RimeTraits.user_data_dir`、`RimeTraits.app_name` 寫入可寫層
+	- 之後由 `RimeSetup.Inst` 從 `AppCfg.Inst` 讀取配置並完成初始化
 ]
 
 #H[按鍵轉換][
