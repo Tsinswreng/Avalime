@@ -15,7 +15,8 @@ public class RespOnKeyEvent:IRespOnKeyEvent{
 
 
 
-public interface I_OnKeyEvents{
+[Doc("輸入法 按鍵事件處理器")]
+public interface IKeyEventProcessor{
 	public Task<IRespOnKeyEvent> OnKeyEvents(
 		IEnumerable<IKeyEvent> keyEvents, CT Ct
 	);

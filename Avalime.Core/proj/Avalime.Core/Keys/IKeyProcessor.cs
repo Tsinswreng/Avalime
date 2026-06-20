@@ -2,7 +2,7 @@ namespace Avalime.Core.Keys;
 
 
 public interface IKeyProcessor
-	:I_OnKeyEvents
+	:IKeyEventProcessor
 	,I_OnErr
 {
 
