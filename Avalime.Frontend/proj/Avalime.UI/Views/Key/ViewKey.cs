@@ -1,5 +1,5 @@
 //ViewKey: 單個鍵盤按鍵視圖、支援點擊/長按/滑動 + Hint提示文字、樣式匹配 TswG 暗色方案
-using System.Diagnostics;
+using Avalime.Core.Infra.Log;
 using Avalime.ViewModels.key;
 using Avalonia;
 using Avalonia.Controls;
@@ -81,7 +81,7 @@ public class ViewKey : AppViewBase<Ctx>
 		_longPressFired = false;
 		e.Pointer.Capture(_border);
 		_border.Background = UiCfg.Inst.MainColor; //按下視覺反饋
-		Console.WriteLine($"[Key] Pressed, hasLongPress={Ctx?.LongPress is not null}, isRepeat={Ctx?.IsRepeat}");
+		AppLogX.Debug($"[Key] Pressed, hasLongPress={Ctx?.LongPress is not null}, isRepeat={Ctx?.IsRepeat}");
 		StartLongPressTimer();
 	}
 
@@ -94,7 +94,7 @@ public class ViewKey : AppViewBase<Ctx>
 	}
 
 	void OnPointerReleased(object? s, PointerReleasedEventArgs e){
-		var swPerf = Stopwatch.StartNew();
+		var swPerf = System.Diagnostics.Stopwatch.StartNew();
 		if(e.Pointer.Captured == _border){
 			e.Pointer.Capture(null);
 		}
@@ -102,7 +102,7 @@ public class ViewKey : AppViewBase<Ctx>
 		RestoreBg();
 
 		if(_longPressFired){
-			Console.WriteLine("[Key] Released after long press, skipping Click");
+			AppLogX.Debug("[Key] Released after long press, skipping Click");
 			return;
 		}
 		var pos = e.GetPosition(_border);
@@ -118,9 +118,9 @@ public class ViewKey : AppViewBase<Ctx>
 				else Ctx?.SwipeUP?.Invoke();
 			}
 		}else{
-			Debug.WriteLine($"[Perf] OnPointerReleased→Click start: {swPerf.ElapsedMilliseconds}ms");
+			AppLogX.Debug($"[Perf] OnPointerReleased→Click start: {swPerf.ElapsedMilliseconds}ms");
 			Ctx?.Click?.Invoke();
-			Debug.WriteLine($"[Perf] OnPointerReleased→Click done: {swPerf.ElapsedMilliseconds}ms");
+			AppLogX.Debug($"[Perf] OnPointerReleased→Click done: {swPerf.ElapsedMilliseconds}ms");
 		}
 	}
 
@@ -138,7 +138,7 @@ public class ViewKey : AppViewBase<Ctx>
 		_longPressTimer.Tick += (_, _) => {
 			_longPressTimer.Stop();
 			_longPressFired = true;
-			Console.WriteLine($"[Key] LongPress fired, isRepeat={Ctx?.IsRepeat}");
+			AppLogX.Debug($"[Key] LongPress fired, isRepeat={Ctx?.IsRepeat}");
 			Ctx?.LongPress?.Invoke();
 			if(Ctx?.IsRepeat == true){
 				StartRepeatTimer();

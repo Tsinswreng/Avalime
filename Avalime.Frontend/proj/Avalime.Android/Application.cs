@@ -7,7 +7,6 @@ using Avalonia;
 using Avalonia.Android;
 using Tsinswreng.CsCfg;
 using Tsinswreng.CsTools;
-using System.Diagnostics;
 using System.IO;
 using AssetManager = Android.Content.Res.AssetManager;
 namespace Avalime.Android;
@@ -69,7 +68,7 @@ public class Application : AvaloniaAndroidApplication<App>
 			// 優先：內部目錄已有就不複製（開發者用 run-as cp 放進去的）
 			if (System.IO.File.Exists(dst))
 			{
-				System.Diagnostics.Debug.WriteLine("[Avalime] already in place: " + dst);
+				AppLogX.Info("[Avalime] already in place: " + dst);
 				continue;
 			}
 			// 嘗試從 /sdcard/rime/ 複製（需要儲存權限，現代 Android 通常失敗）
@@ -79,12 +78,12 @@ public class Application : AvaloniaAndroidApplication<App>
 				if (System.IO.File.Exists(src))
 				{
 					System.IO.File.Copy(src, dst, overwrite: true);
-					System.Diagnostics.Debug.WriteLine("[Avalime] copied " + src + " -> " + dst);
+					AppLogX.Info("[Avalime] copied " + src + " -> " + dst);
 				}
 			}
 			catch (System.Exception ex)
 			{
-				System.Diagnostics.Debug.WriteLine("[Avalime] copy skipped for " + so + ": " + ex.Message);
+				AppLogX.Warn("[Avalime] copy skipped for " + so + ": " + ex.Message);
 			}
 		}
 
@@ -93,11 +92,11 @@ public class Application : AvaloniaAndroidApplication<App>
 		try
 		{
 			ExtractAssetFile(ctx.Assets!, "rime/librime.bin", localRime);
-			System.Diagnostics.Debug.WriteLine("[Avalime] extracted asset rime/librime.bin -> " + localRime);
+			AppLogX.Info("[Avalime] extracted asset rime/librime.bin -> " + localRime);
 		}
 		catch (System.Exception ex)
 		{
-			System.Diagnostics.Debug.WriteLine("[Avalime] extract asset rime failed: " + ex.Message);
+			AppLogX.Error(ex, "[Avalime] extract asset rime failed");
 		}
 
 		// preload libc++_shared.so, required by librime.so
@@ -107,11 +106,11 @@ public class Application : AvaloniaAndroidApplication<App>
 			try
 			{
 				System.Runtime.InteropServices.NativeLibrary.Load(libcpp);
-				System.Diagnostics.Debug.WriteLine("[Avalime] preloaded libc++_shared.so");
+				AppLogX.Info("[Avalime] preloaded libc++_shared.so");
 			}
 			catch (System.Exception ex)
 			{
-				System.Diagnostics.Debug.WriteLine("[Avalime] preload libc++_shared.so failed: " + ex.Message);
+				AppLogX.Error(ex, "[Avalime] preload libc++_shared.so failed");
 			}
 		}
 

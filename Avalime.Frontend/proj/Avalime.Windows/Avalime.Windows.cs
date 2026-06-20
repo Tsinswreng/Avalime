@@ -10,12 +10,13 @@ using Avalonia;
 using Avalonia.Media;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 
 sealed class Program{
 	[STAThread]
 	public static void Main(string[] args){
-		AppLog.Inst.InnerLogger = new FuncLogger((level, message) => Console.WriteLine($"[{level}] {message}"));
+		AppLog.Inst.InnerLogger = NullLogger.Instance;
 		var services = new ServiceCollection();
 		services.AddSingleton<
 			I_OsKeyProcessor

@@ -1,19 +1,24 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Avalime.Core.Infra;
+using Avalime.Core.Infra.Log;
 using Avalime.Core.Keys;
 using Avalime.Rime;
 using Microsoft.Extensions.DependencyInjection;
-using System.Diagnostics;
 using System.Threading;
 using Avalonia.Threading;
 using Rime.Api;
+using Microsoft.Extensions.Logging;
 
 namespace Avalime.UI;
 
 public partial class RimeConnectionState : ObservableObject
 {
-	static void LogInfo(str message){ Debug.WriteLine("[AvalimeRime] " + message); }
-	static void LogError(str message){ Debug.WriteLine("[AvalimeRime] " + message); }
+	static void LogInfo(str message){
+		AppLog.Inst.Log(LogLevel.Information, 0, "[AvalimeRime] " + message, null, static (state, _) => state?.ToString() ?? "");
+	}
+	static void LogError(str message){
+		AppLog.Inst.Log(LogLevel.Error, 0, "[AvalimeRime] " + message, null, static (state, _) => state?.ToString() ?? "");
+	}
 
 	public bool IsConnected{
 		get => field;

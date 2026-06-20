@@ -1,5 +1,5 @@
-using System.Diagnostics;
 using Android.Views.InputMethods;
+using Avalime.Core.Infra.Log;
 using Avalime.Core.Keys;
 
 namespace Avalime.Android;
@@ -23,7 +23,7 @@ public class AndroidOsKeyProcessor : I_OsKeyProcessor
 
 			var name = keyEvent.KeyChar.Name;
 			var metaState = ToAndroidMetaState(keyEvent.KeyBoardState);
-			Debug.WriteLine($"[IME] OsKeyProcessor forwarding: {name}");
+			AppLogX.Debug($"[IME] OsKeyProcessor forwarding: {name}");
 
 			var androidKey = MapToAndroidKey(name);
 			if(androidKey is not null && (metaState != global::Android.Views.MetaKeyStates.None || ShouldSendAsKeyEvent(name))){

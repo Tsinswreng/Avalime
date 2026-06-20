@@ -1,7 +1,7 @@
 using System;
 using System.ComponentModel;
-using System.Diagnostics;
 using Avalime.Core.Infra;
+using Avalime.Core.Infra.Log;
 using Avalime.Core.Keys;
 using Avalime.UI;
 using Avalime.ViewModels;
@@ -43,8 +43,8 @@ public partial class KeyVm : ViewModelBase, IKeyViewModel
 		Click = ()=>{
 			var state = ImeState as ImeState;//TODO temp
 			try{
-				var sw = Stopwatch.StartNew();
-				Debug.WriteLine($"[Perf] KeyVm.Click→Input start: {sw.ElapsedMilliseconds}ms");
+				var sw = System.Diagnostics.Stopwatch.StartNew();
+				AppLogX.Debug($"[Perf] KeyVm.Click→Input start: {sw.ElapsedMilliseconds}ms");
 				state?.InputSafely([
 					new KeyEvent{
 						KeyChar = Key_Click,
@@ -55,7 +55,7 @@ public partial class KeyVm : ViewModelBase, IKeyViewModel
 						KeyState = KS.Up
 					}
 				], e => HandleErr(e));
-				Debug.WriteLine($"[Perf] KeyVm.Click→Input done: {sw.ElapsedMilliseconds}ms");
+				AppLogX.Debug($"[Perf] KeyVm.Click→Input done: {sw.ElapsedMilliseconds}ms");
 			}
 			catch(Exception e){
 				HandleErr(e);

@@ -30,7 +30,8 @@ using Tsinswreng.CsCore;
 	通過靜態事件 `OnOptionChanged` 通知訂閱者。
 	**注意**：此回調為逆向 P/Invoke（原生→託管），必須零分配以避免在回調期間觸發 GC。
 	若在 `process_key` / `set_option` 原生調用中分配託管字符串，Mono 運行時的 `!ji->async` 斷言會觸發 SIGABRT 崩潰。
-	已有教訓：之前使用 `ToolCStr.ToCsStr` + `Console.WriteLine` 在逆向 P/Invoke 中分配字符串，多次滑動 Y 鍵後 Finalizer 線程崩潰。
+	已有教訓：之前在逆向 P/Invoke 中做 `ToolCStr.ToCsStr` 這類託管分配，再配合即時日誌輸出，會增加回調期觸發 GC 的風險；
+	多次滑動 Y 鍵後曾導致 Finalizer 線程崩潰。
 ]
 
 #H[未處理按鍵檢測][

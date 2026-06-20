@@ -1,5 +1,6 @@
 using Avalime.Core.Keys;
 using Avalime.Core.Infra;
+using Avalime.Core.Infra.Log;
 using Avalime.Rime;
 using Avalime.ViewModels;
 using Avalonia.Threading;
@@ -28,7 +29,7 @@ public class VmInput : ViewModelBase
 	unsafe public VmInput(){
 		_afterInputHandler = (sender, args)=>{
 			var sw = System.Diagnostics.Stopwatch.StartNew();
-			System.Diagnostics.Debug.WriteLine($"[Perf] VmInput.AfterInput start: {sw.ElapsedMilliseconds}ms");
+			AppLogX.Debug($"[Perf] VmInput.AfterInput start: {sw.ElapsedMilliseconds}ms");
 			var rime = RimeConnection.Setup;
 			if(rime is null){
 				Dispatcher.UIThread.Post(() => Text = "");
@@ -43,7 +44,7 @@ public class VmInput : ViewModelBase
 			str preedit = ToolCStr.ToCsStr(ctx.composition.preedit);
 			rimeApi.free_context(&ctx);
 			Dispatcher.UIThread.Post(() => Text = preedit);
-			System.Diagnostics.Debug.WriteLine($"[Perf] VmInput.AfterInput done: {sw.ElapsedMilliseconds}ms, preedit: {preedit}");
+			AppLogX.Debug($"[Perf] VmInput.AfterInput done: {sw.ElapsedMilliseconds}ms, preedit: {preedit}");
 		};
 		ImeState.AfterInput += _afterInputHandler;
 	}

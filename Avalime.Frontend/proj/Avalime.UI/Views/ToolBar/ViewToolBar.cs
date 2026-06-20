@@ -44,8 +44,19 @@ public class ViewToolBar : AppViewBase<VmToolBar>
 		};
 		Grid.SetColumn(btnClipboard, 1);
 
+		var btnLog = MkBtn();
+		var logIcon = Avalime.UI.Icons.Icons.ScrollText().ToIcon();
+		logIcon.Width = logIcon.Height = UiCfg.Inst.TopBarFontSize;
+		btnLog.Child = logIcon;
+		btnLog.PointerPressed += (_, e) => {
+			e.Handled = true;
+			Ctx?.ToggleRimeLog();
+		};
+		Grid.SetColumn(btnLog, 2);
+
 		root.Children.Add(btnHan);
 		root.Children.Add(btnClipboard);
+		root.Children.Add(btnLog);
 		this.SetContent(root);
 	}
 

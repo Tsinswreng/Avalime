@@ -20,7 +20,11 @@ using Tsinswreng.CsCore;
 	`OnEvaluateFullscreenMode()` 會關掉全屏提取。
 	`OnConfigureWindow()` 把高度限制成半屏。
 	輸入法服務顯式使用 `MyTheme.Ime`，避免沿用 Activity 的透明窗口配置。
-	上滑退格隱藏鍵盤時只調 `RequestHideSelf(0)`，不再在下次顯示時重建整棵 `AvaloniaView`。
+	隱藏鍵盤時仍只調 `RequestHideSelf(0)`；
+	但因爲 Android 13 上復用同一棵 `AvaloniaView` 在再次顯示後容易出現「可點擊但整體發黑」的黑屏，
+	現在會在 `OnFinishInputView()` 把 `_shouldRecreateInputView` 置爲 `true`，
+	並在下次 `OnStartInputView()` 時通過 `SetInputView(OnCreateInputView())` 重建整個 `AvaloniaView` 宿主。
+	`OnCreateInputView()` 重建前還會先嘗試 `Dispose` 舊 `Content`，避免舊 UI 樹殘留訂閱。
 ]
 
 #H[默認字體][
@@ -41,7 +45,9 @@ using Tsinswreng.CsCore;
 ]
 
 #H[依賴注入與日誌][
-	Android 端在 `InputMethodService.OnCreate()` 組裝 `ServiceCollection`，並寫入全局 `Di.SvcP`。
+	Android 端在 `InputMethodService.OnCreate()` 組裝 `ServiceCollection`，並寫入全局 `Di.SvcProvider`。
+	`Di` 是當前全局 DI 中心；UI / Core 側若拿服務，統一通過 `Di.GetRSvc<T>()`。
+	`ILogger` 也註冊爲 `AppLog.Inst`，方便不便注入的地方與可注入的地方共用同一條日誌出口。
 	`AppLog.Inst.InnerLogger` 在 Android `Application` 啟動時切到 `AndroidLogger`，Release 也可直接進 logcat。
 ]
 

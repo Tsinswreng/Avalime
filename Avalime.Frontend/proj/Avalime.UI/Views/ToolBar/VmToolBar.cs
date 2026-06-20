@@ -34,6 +34,10 @@ public class VmToolBar : ViewModelBase
 		Ime.ToggleClipboard();
 	}
 
+	public void ToggleRimeLog(){
+		Ime.ToggleRimeLog();
+	}
+
 	public void Dispose()
 	{
 		RimeConnection.PropertyChanged -= _rimeConnectionPropertyChangedHandler;

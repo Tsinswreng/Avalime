@@ -1,8 +1,8 @@
 using Avalime.Core.Infra;
+using Avalime.Core.Infra.Log;
 using Avalonia;
 using Avalonia.Media;
 using Avalonia.Media.Fonts;
-using System.Diagnostics;
 using System.Text;
 using Tsinswreng.CsCfg;
 
@@ -73,7 +73,7 @@ public partial class UiCfg
 			_cachedKeyboardFontFamily = fontFamily;
 			return fontFamily;
 		}catch(Exception ex){
-			Debug.WriteLine("[KeyboardFont] " + ex);
+			AppLogX.Error(ex, "[KeyboardFont] GetKeyboardFontFamily failed");
 		}
 		_cachedFontPath = fontPath;
 		_cachedFontFamilyName = null;
@@ -153,7 +153,7 @@ public partial class UiCfg
 			}
 			return anyEnglish ?? anyUnicode ?? family;
 		}catch(Exception ex){
-			Debug.WriteLine("[KeyboardFont] " + ex);
+			AppLogX.Error(ex, "[KeyboardFont] TryReadFontFamilyName failed");
 			return null;
 		}
 	}

@@ -17,14 +17,26 @@ using static Tsinswreng.CsInterop.Ptr;
 using Tsinswreng.CsInterop;
 using Rime.Api.Types;
 using Avalime.Core.Infra;
+using Avalime.Core.Infra.Log;
 using Tsinswreng.CsCfg;
+using Microsoft.Extensions.Logging;
 namespace Avalime.Rime;
 
 
 unsafe public class RimeSetup
 	:IDisposable
 {
-	static void LogInfo(str message){ Debug.WriteLine("[AvalimeRime] " + message); }
+	static void LogInfo(str message){ RaiseLog(LogLevel.Information, message); }
+	static void LogError(str message){ RaiseLog(LogLevel.Error, message); }
+
+	static void RaiseLog(LogLevel level, string message)
+	{
+		AppLog.Inst.Log(level, 0, "[AvalimeRime] " + message, null, static (state, _) => state?.ToString() ?? "");
+		OnLog?.Invoke(null, new RimeLogEventArgs{
+			Level = level,
+			Message = message,
+		});
+	}
 
 	public static RimeSetup Inst => field??= new RimeSetup();
 	public PtrMgr ptrMgr = new PtrMgr();
@@ -121,6 +133,7 @@ unsafe public class RimeSetup
 
 	/// <summary>option 改變時觸發。參數: option_name, is_enabled</summary>
 	public static event Action<string, bool>? OnOptionChanged;
+	public static event EventHandler<RimeLogEventArgs>? OnLog;
 
 	/// <summary>
 	/// 零分配字節比較，避免逆向 P/Invoke 中觸發 GC 導致 Mono !ji->async 斷言崩潰
@@ -141,6 +154,12 @@ unsafe public class RimeSetup
 		// 空指針檢查
 		if(message_type == null || message_value == null) return;
 
+		var messageType = S(message_type);
+		var messageValue = S(message_value);
+		if(!string.IsNullOrWhiteSpace(messageType) || !string.IsNullOrWhiteSpace(messageValue)){
+			RaiseLog(LogLevel.Information, $"notify: {messageType} {messageValue}".Trim());
+		}
+
 		// 快速路徑：只處理 "option" 類型
 		if(!_bytesEq(message_type, "option")) return;
 
@@ -149,6 +168,10 @@ unsafe public class RimeSetup
 			OnOptionChanged?.Invoke("ascii_mode", true);
 		else if(_bytesEq(message_value, "!ascii_mode"))
 			OnOptionChanged?.Invoke("ascii_mode", false);
+		else if(_bytesEq(message_value, "simplification"))
+			OnOptionChanged?.Invoke("simplification", true);
+		else if(_bytesEq(message_value, "!simplification"))
+			OnOptionChanged?.Invoke("simplification", false);
 	}
 
 	public RimeNotificationHandler ManagedRimeNotificationHandler = on_message;

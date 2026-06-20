@@ -4,6 +4,7 @@ using Avalime.UI.Views.candidatesBar;
 using Avalime.UI.Views.clipboard;
 using Avalime.UI.Views.KeyBoard;
 using Avalime.UI.Views.preedit;
+using Avalime.UI.Views.RimeLog;
 using Avalime.UI.Views.toolbar;
 using Avalonia.Controls;
 using System.ComponentModel;
@@ -18,6 +19,7 @@ public class ViewIme : AppViewBase<VmIme>
 	ViewCandidatesBar? _candidates;
 	ViewKeyBoard? _keyboard;
 	ViewClipboard? _clipboard;
+	ViewRimeLog? _rimeLog;
 	PropertyChangedEventHandler? _ctxPropertyChangedHandler;
 
 	public ViewIme(){
@@ -55,8 +57,11 @@ public class ViewIme : AppViewBase<VmIme>
 		_keyboard = keyboard;
 		var clipboard = new ViewClipboard(new VmClipboard(Ctx!));
 		_clipboard = clipboard;
+		var rimeLog = new ViewRimeLog(new VmRimeLog());
+		_rimeLog = rimeLog;
 		bodyHost.Children.Add(keyboard);
 		bodyHost.Children.Add(clipboard);
+		bodyHost.Children.Add(rimeLog);
 		Grid.SetRow(bodyHost, 2);
 
 		void SyncVisible(){
@@ -74,6 +79,9 @@ public class ViewIme : AppViewBase<VmIme>
 
 			clipboard.IsVisible = Ctx.ShowClipboard;
 			clipboard.IsHitTestVisible = Ctx.ShowClipboard;
+
+			rimeLog.IsVisible = Ctx.ShowRimeLog;
+			rimeLog.IsHitTestVisible = Ctx.ShowRimeLog;
 		}
 
 		_ctxPropertyChangedHandler = (_, e) => {
@@ -83,6 +91,7 @@ public class ViewIme : AppViewBase<VmIme>
 				or nameof(Ctx.ShowCandidates)
 				or nameof(Ctx.ShowKeyboard)
 				or nameof(Ctx.ShowClipboard)
+				or nameof(Ctx.ShowRimeLog)
 			){
 				SyncVisible();
 			}
@@ -106,6 +115,7 @@ public class ViewIme : AppViewBase<VmIme>
 		(_candidates as IDisposable)?.Dispose();
 		_keyboard?.Dispose();
 		(_clipboard as IDisposable)?.Dispose();
+		(_rimeLog as IDisposable)?.Dispose();
 		(Ctx as IDisposable)?.Dispose();
 	}
 }

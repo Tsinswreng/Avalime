@@ -46,6 +46,37 @@ using Tsinswreng.CsCore;
 	工具欄第二個按鈕切換剪貼板頁。
 	目前先接平台當前 clipboard 內容，不含歷史。
 	點擊條目後通過宿主接口 `IKeyboardHost.CommitText(...)` 直接上屏，然後退出剪貼板頁。
+	工具欄還有一個日誌按鈕，點擊後在鍵盤區與 `Rime` 日誌頁之間切換；
+	切換範圍只覆蓋 `ViewKeyBoard` 所在的 body 區，預編輯欄、候選欄、工具欄本身不切。
+	當 `RimeConnectionState` 處於 `IsConnecting=true` 或尚未 `IsConnected` 時，也會自動切到日誌頁，方便直接觀察引擎連接輸出。
+]
+
+#H[Rime 日誌頁][
+	`RimeSetup` 現在把引擎通知回調包成 C# 事件 `OnLog` / `OnOptionChanged`。
+	`RimeLogBuffer` 訂閱 `RimeSetup.OnLog`，一邊把內容寫到 `AppLog.Inst`，一邊保存在內存環形列表裡給 UI 顯示。
+	工具欄的日誌按鈕切換的是 `VmIme.IsRimeLogVisible`；
+	其互斥關係和剪貼板頁相同：打開日誌頁時會關閉剪貼板頁，反之亦然。
+]
+
+#H[重建與釋放][
+	Android IME 宿主現在在每次 hide 後，會於下次 show 前重建整棵 `AvaloniaView`。
+	因此 UI 端不能再假定整個鍵盤只會初始化一次；凡是掛在全局狀態上的事件都必須可解除。
+
+	目前釋放鏈是：
+	- `AvalimeInputMethodService.OnCreateInputView()` 重建前先 `Dispose` 舊 `MainView`
+	- `MainView.Dispose()` 轉交給 `ViewIme.Dispose()`
+	- `ViewIme.Dispose()` 再向下釋放 `ViewKeyBoard`、`VmIme` 與各子模塊
+
+	目前已顯式解除的訂閱包括：
+	- `VmIme`：解除 `PropertyChanged` 與 `ImeState.AfterInput`
+	- `VmCandidatesBar`：解除 `ImeState.AfterInput`
+	- `VmInput`：解除 `ImeState.AfterInput`
+	- `VmClipboard` / `VmToolBar` / `VmKey`：解除各自對宿主或全局狀態的訂閱
+	- `ViewKeyBoard`：回收所有 `KeyVm`，並解除對 `VmKeyBoard.PropertyChanged` 的監聽
+
+	這一層文檔的約束是：
+	- 以後若再新增掛在 `ImeState` / `RimeConnectionState` / 其他長生命週期單例上的事件訂閱，必須同步補 `Dispose`
+	- 否則 IME 每次 hide/show 重建 UI 後，舊樹仍會收到事件，最終表現爲越來越卡、甚至崩潰
 ]
 
 #H[快捷鍵][
