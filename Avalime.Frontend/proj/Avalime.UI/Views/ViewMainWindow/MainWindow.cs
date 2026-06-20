@@ -1,7 +1,7 @@
-//主視窗
+using Avalime.UI.Views.ViewMainView;
 using Avalonia.Controls;
 
-namespace Avalime.UI.Views;
+namespace Avalime.UI.Views.ViewMainWindow;
 
 public class MainWindow : Window
 {

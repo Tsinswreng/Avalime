@@ -10,13 +10,13 @@ using Avalonia.Styling;
 using Avalonia.Threading;
 using Avalime.UI.Infra;
 
-namespace Avalime.UI.Views.Key;
+namespace Avalime.UI.Views.ViewKey;
 using Ctx = KeyVm;
 
 public class ViewKey : AppViewBase<Ctx>
 {
 	public ViewKey(){
-		Ctx = new Ctx(Di.GetRSvc<RimeConnectionState>());
+		Ctx = Di.DiOrMk<Ctx>();
 		Style();
 		Render();
 	}

@@ -1,18 +1,17 @@
-//候選欄：水平滾動的候選詞列表
-using Avalime.UI.Views.Candidate;
+using Avalime.UI.Infra;
+using Avalime.UI.Views.ViewCandidate;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using Avalonia.Layout;
 using Avalonia.Media;
-using Avalime.UI.Infra;
 
-namespace Avalime.UI.Views.candidatesBar;
+namespace Avalime.UI.Views.ViewCandidatesBar;
 using Ctx = VmCandidatesBar;
 
 public class ViewCandidatesBar : AppViewBase<Ctx>
 {
-	public ViewCandidatesBar(Ctx Vm){
-		Ctx = Vm;
+	public ViewCandidatesBar(){
+		Ctx = Di.DiOrMk<Ctx>();
 		Render();
 	}
 
@@ -22,23 +21,23 @@ public class ViewCandidatesBar : AppViewBase<Ctx>
 		Root.Grid.Background = Brushes.Black;
 		Root.Grid.Height = UiCfg.Inst.TopBarHeight;
 		this.SetContent(Root.Grid);
-		var Items = MkItems();
-		Root.A(Items);
+		var items = MkItems();
+		Root.A(items);
 	}
 
 	ItemsControl MkItems(){
-		var R = new ItemsControl();
-		R.VerticalAlignment = VAlign.Stretch;
-		R.SetItemTemplate<VmCandidate>((vm, ns)=>{
-			var v = new ViewCandidate();
-			v.CBind<VmCandidate>(DataContextProperty, x=>x);
-			return v;
+		var ans = new ItemsControl();
+		ans.VerticalAlignment = VAlign.Stretch;
+		ans.SetItemTemplate<VmCandidate>((vm, ns)=>{
+			var view = new ViewCandidate();
+			view.CBind<VmCandidate>(DataContextProperty, x=>x);
+			return view;
 		}).SetItemsPanel(()=>new StackPanel{
 			Orientation = Orientation.Horizontal,
 			Spacing = 2.0,
 			VerticalAlignment = VAlign.Stretch,
 		});
-		Ctx.Bind(R, ItemsControl.ItemsSourceProperty, x=>x.CandVms);
-		return R;
+		Ctx.Bind(ans, ItemsControl.ItemsSourceProperty, x=>x.CandVms);
+		return ans;
 	}
 }

@@ -1,21 +1,20 @@
-using Avalime.UI.ViewModels;
 using Avalime.ViewModels;
 using System.ComponentModel;
 
-namespace Avalime.UI.Views.toolbar;
+namespace Avalime.UI.Views.ViewToolBar;
 
 public class VmToolBar : ViewModelBase
 	, IDisposable
 {
-	public VmIme Ime { get; }
+	public ImeUiState UiState { get; }
 	public RimeConnectionState RimeConnection { get; }
 
 	public str HanLabel => RimeConnection.IsSimplification ? "汉" : "漢";
 
 	readonly PropertyChangedEventHandler _rimeConnectionPropertyChangedHandler;
 
-	public VmToolBar(VmIme ime, RimeConnectionState RimeConnection){
-		Ime = ime;
+	public VmToolBar(ImeUiState UiState, RimeConnectionState RimeConnection){
+		this.UiState = UiState;
 		this.RimeConnection = RimeConnection;
 		_rimeConnectionPropertyChangedHandler = (_, e) => {
 			if(e.PropertyName == nameof(RimeConnectionState.IsSimplification)){
@@ -30,11 +29,11 @@ public class VmToolBar : ViewModelBase
 	}
 
 	public void ToggleClipboard(){
-		Ime.ToggleClipboard();
+		UiState.ToggleClipboard();
 	}
 
 	public void ToggleRimeLog(){
-		Ime.ToggleRimeLog();
+		UiState.ToggleRimeLog();
 	}
 
 	public void Dispose()

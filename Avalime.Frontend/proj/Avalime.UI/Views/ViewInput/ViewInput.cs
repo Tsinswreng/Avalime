@@ -1,19 +1,16 @@
-namespace Avalime.UI.Views.input;
 using Avalime.Core.Infra;
-using Avalime.Core.Keys;
+using Avalime.UI.Infra;
 using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Media;
-using Avalime.UI.Infra;
+
+namespace Avalime.UI.Views.ViewInput;
 using Ctx = VmInput;
 
 public class ViewInput : AppViewBase<Ctx>
 {
 	public ViewInput(){
-		Ctx = new Ctx(
-			Di.GetRSvc<ImeState>()
-			, Di.GetRSvc<RimeConnectionState>()
-		);
+		Ctx = Di.DiOrMk<Ctx>();
 		Render();
 	}
 
@@ -36,7 +33,6 @@ public class ViewInput : AppViewBase<Ctx>
 				o.VerticalAlignment = VAlign.Center;
 				Ctx.Bind(o, x=>x.Text, x=>x.Text, Mode: BindingMode.TwoWay);
 			});
-		})
-		;
+		});
 	}
 }

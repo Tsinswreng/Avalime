@@ -7,7 +7,7 @@ using Avalime.ViewModels.key;
 using Avalonia.Controls;
 using Avalonia.Controls.Documents;
 using Avalonia.Media;
-using Avalime.UI.Views.Key;
+using Avalime.UI.Views.ViewKey;
 using Avalime.UI.Infra;
 using static Avalime.Core.Keys.KeyChars;
 using Avalime.UI;
@@ -15,7 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.ComponentModel;
 using KS = Avalime.Core.Keys.KeyStates;
 
-namespace Avalime.UI.Views.KeyBoard;
+namespace Avalime.UI.Views.ViewKeyBoard;
 using Ctx = VmKeyBoard;
 
 public class ViewKeyBoard : AppViewBase<Ctx>
@@ -25,7 +25,7 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 	readonly List<PropertyChangedEventHandler> _ctxHandlers = [];
 
 	public ViewKeyBoard(){
-		Ctx = new Ctx(Di.GetRSvc<ImeState>());
+		Ctx = Di.DiOrMk<Ctx>();
 		Render();
 	}
 
@@ -141,7 +141,7 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 	}
 
 	ViewKey KView(KeyCfg Cfg){
-		var Vm = new KeyVm(Di.GetRSvc<RimeConnectionState>());
+		var Vm = Di.DiOrMk<KeyVm>();
 		_disposables.Add(Vm);
 		Vm.Key_Click = Cfg.Key;
 		Vm.Click = MkSendKey(Cfg.Key);
@@ -179,7 +179,7 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 
 	/// 建立觸發自訂動作的按鍵（非發送按鍵事件）
 	ViewKey MkActionKey(str Label, Action OnClick, str? Hint = null){
-		var Vm = new KeyVm(Di.GetRSvc<RimeConnectionState>());
+		var Vm = Di.DiOrMk<KeyVm>();
 		_disposables.Add(Vm);
 		Vm.Label = Label;
 		Vm.FontSize = UiCfg.Inst.ActionKeyFontSize;

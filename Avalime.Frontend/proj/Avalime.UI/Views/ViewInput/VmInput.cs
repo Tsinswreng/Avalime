@@ -1,12 +1,12 @@
-using Avalime.Core.Keys;
 using Avalime.Core.Infra.Log;
+using Avalime.Core.Keys;
 using Avalime.Rime;
 using Avalime.ViewModels;
 using Avalonia.Threading;
 using Rime.Api;
 using Tsinswreng.CsInterop;
 
-namespace Avalime.UI.Views.input;
+namespace Avalime.UI.Views.ViewInput;
 using Ctx = VmInput;
 
 public class VmInput : ViewModelBase
@@ -17,8 +17,8 @@ public class VmInput : ViewModelBase
 		set => SetProperty(ref field, value);
 	} = "";
 
-	public ImeState ImeState{get;set;}
-	public RimeConnectionState RimeConnection{get;set;}
+	public ImeState ImeState{get;}
+	public RimeConnectionState RimeConnection{get;}
 
 	readonly EventHandler<IEnumerable<IKeyEvent>> _afterInputHandler;
 
@@ -34,8 +34,9 @@ public class VmInput : ViewModelBase
 				return;
 			}
 			var rimeApi = rime.apiFn;
-			var ctx = new RimeContext();
-			ctx.data_size = RimeUtil.DataSize<RimeContext>();
+			var ctx = new RimeContext{
+				data_size = RimeUtil.DataSize<RimeContext>()
+			};
 			if(rimeApi.get_context(rime.rimeSessionId, &ctx) != RimeUtil.True){
 				return;
 			}

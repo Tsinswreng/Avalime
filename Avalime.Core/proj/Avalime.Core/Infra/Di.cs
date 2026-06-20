@@ -19,5 +19,10 @@ public class Di{
 		return SvcProvider.GetRequiredService<T>();
 	}
 
-}
+	public static T DiOrMk<T>()
+		where T:class
+	{
+		return ActivatorUtilities.GetServiceOrCreateInstance<T>(SvcProvider);
+	}
 
+}

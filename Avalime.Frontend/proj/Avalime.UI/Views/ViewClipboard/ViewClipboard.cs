@@ -4,12 +4,13 @@ using Avalonia.Controls.Templates;
 using Avalonia.Layout;
 using Avalonia.Media;
 
-namespace Avalime.UI.Views.clipboard;
+namespace Avalime.UI.Views.ViewClipboard;
+using Ctx = VmClipboard;
 
-public class ViewClipboard : AppViewBase<VmClipboard>
+public class ViewClipboard : AppViewBase<Ctx>
 {
-	public ViewClipboard(VmClipboard vm){
-		Ctx = vm;
+	public ViewClipboard(){
+		Ctx = Di.DiOrMk<Ctx>();
 		Render();
 	}
 
@@ -33,7 +34,7 @@ public class ViewClipboard : AppViewBase<VmClipboard>
 			Orientation = Orientation.Vertical,
 			Spacing = 2,
 		});
-		Ctx!.Bind(items, ItemsControl.ItemsSourceProperty, x => x.Items);
+		Ctx.Bind(items, ItemsControl.ItemsSourceProperty, x => x.Items);
 
 		var sc = new ScrollViewer{
 			Background = Brushes.Black,

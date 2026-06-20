@@ -1,18 +1,19 @@
 using Avalime.UI.Infra;
+using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Templates;
 using Avalonia.Layout;
 using Avalonia.Media;
-using Avalonia;
-using Avalonia.Controls.Primitives;
 
-namespace Avalime.UI.Views.RimeLog;
+namespace Avalime.UI.Views.ViewRimeLog;
+using Ctx = VmRimeLog;
 
-public class ViewRimeLog : AppViewBase<VmRimeLog>
+public class ViewRimeLog : AppViewBase<Ctx>
 {
-	public ViewRimeLog(VmRimeLog vm)
+	public ViewRimeLog()
 	{
-		Ctx = vm;
+		Ctx = Di.DiOrMk<Ctx>();
 		Render();
 	}
 
@@ -31,7 +32,7 @@ public class ViewRimeLog : AppViewBase<VmRimeLog>
 			Orientation = Orientation.Vertical,
 			Spacing = 2,
 		});
-		Ctx!.Bind(items, ItemsControl.ItemsSourceProperty, x => x.Lines);
+		Ctx.Bind(items, ItemsControl.ItemsSourceProperty, x => x.Lines);
 
 		var sc = new ScrollViewer{
 			Background = Brushes.Black,

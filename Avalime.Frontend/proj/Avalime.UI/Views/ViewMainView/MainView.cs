@@ -1,6 +1,7 @@
+using Avalime.UI.Views.ViewIme;
 using Avalonia.Controls;
 
-namespace Avalime.UI.Views;
+namespace Avalime.UI.Views.ViewMainView;
 
 public class MainView : UserControl
 	, IDisposable

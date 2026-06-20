@@ -28,9 +28,12 @@ using Tsinswreng.CsCore;
 	當前 UI 層依賴注入規則是：
 	- **只有 View 層可以直接調全局 `Di.GetRSvc<T>()`**
 	- `Vm` / `RimeConnectionState` / 其他非 View 類型一律使用構造函數注入
+	- **所有 View 都必須提供 `public` 無參構造函數**
+	- View 本身視爲無狀態；不要把 `Vm` 或其他運行時狀態通過 View 構造參數傳入
 
 	也就是說：
 	- `ViewIme` / `ViewKeyBoard` / `ViewInput` 這些 View 可以從全局 `Di` 取依賴，再 `new VmXxx(...)`
+	- 但要用 `view.Ctx = ...` / `DataContext = ...` 的方式把 ViewModel 綁上去，而不是寫成 `new ViewXxx(vm)`
 	- `VmIme` / `VmCandidatesBar` / `VmInput` / `VmClipboard` / `VmToolBar` / `VmKey` / `VmRimeLog` 內部都不應再直接碰 `Di`
 	- `RimeConnectionState` 這類 service 內部若需要 `ImeState` 等依賴，也應在構造函數注入，不可反查全局容器
 

@@ -90,9 +90,18 @@ public class AvalimeInputMethodService : InputMethodService
         services.AddSingleton<I_OsKeyProcessor, AndroidStubOsKeyProcessor>();
         services.AddSingleton<IKeyboardHost>(_ => new AndroidKeyboardHost(() => this));
         services.AddSingleton<IClipboardService, AndroidClipboardService>();
+        services.AddSingleton<ImeUiState>();
         services.AddSingleton<ImeState>();
         services.AddSingleton<RimeConnectionState>();
         services.AddSingleton<RimeLogBuffer>();
+        services.AddTransient<VmIme>();
+        services.AddTransient<VmToolBar>();
+        services.AddTransient<VmCandidatesBar>();
+        services.AddTransient<VmInput>();
+        services.AddTransient<VmClipboard>();
+        services.AddTransient<VmRimeLog>();
+        services.AddTransient<KeyVm>();
+        services.AddTransient<VmKeyBoard>();
         services.AddSingleton<ILogger>(_ => AppLog.Inst);
         var provider = services.BuildServiceProvider(new ServiceProviderOptions{ValidateOnBuild = false, ValidateScopes = false});
         Di.SvcProvider = provider;

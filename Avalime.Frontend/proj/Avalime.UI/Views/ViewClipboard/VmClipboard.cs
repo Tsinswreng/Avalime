@@ -1,14 +1,13 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using Avalime.UI.ViewModels;
 using Avalime.ViewModels;
 
-namespace Avalime.UI.Views.clipboard;
+namespace Avalime.UI.Views.ViewClipboard;
 
 public class VmClipboard : ViewModelBase
 	, IDisposable
 {
-	public VmIme Ime { get; }
+	public ImeUiState UiState { get; }
 	public IClipboardService ClipboardService { get; }
 	public IKeyboardHost KeyboardHost { get; }
 
@@ -17,18 +16,18 @@ public class VmClipboard : ViewModelBase
 		set => SetProperty(ref field, value);
 	} = [];
 
-	readonly PropertyChangedEventHandler _imePropertyChangedHandler;
+	readonly PropertyChangedEventHandler _uiStatePropertyChangedHandler;
 
-	public VmClipboard(VmIme ime, IClipboardService ClipboardService, IKeyboardHost KeyboardHost){
-		Ime = ime;
+	public VmClipboard(ImeUiState UiState, IClipboardService ClipboardService, IKeyboardHost KeyboardHost){
+		this.UiState = UiState;
 		this.ClipboardService = ClipboardService;
 		this.KeyboardHost = KeyboardHost;
-		_imePropertyChangedHandler = async (_, e) => {
-			if(e.PropertyName == nameof(VmIme.ShowClipboard) && ime.ShowClipboard){
+		_uiStatePropertyChangedHandler = async (_, e) => {
+			if(e.PropertyName == nameof(ImeUiState.IsClipboardVisible) && UiState.IsClipboardVisible){
 				await RefreshAsy();
 			}
 		};
-		ime.PropertyChanged += _imePropertyChangedHandler;
+		UiState.PropertyChanged += _uiStatePropertyChangedHandler;
 	}
 
 	public async Task RefreshAsy(CT ct = default){
@@ -39,7 +38,7 @@ public class VmClipboard : ViewModelBase
 				Text = text,
 				Click = () => {
 					KeyboardHost.CommitText(text);
-					Ime.ExitClipboard();
+					UiState.ExitClipboard();
 				}
 			});
 		}
@@ -48,7 +47,7 @@ public class VmClipboard : ViewModelBase
 
 	public void Dispose()
 	{
-		Ime.PropertyChanged -= _imePropertyChangedHandler;
+		UiState.PropertyChanged -= _uiStatePropertyChangedHandler;
 	}
 }
 

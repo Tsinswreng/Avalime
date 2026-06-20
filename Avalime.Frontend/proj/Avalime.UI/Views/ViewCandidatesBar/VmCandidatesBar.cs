@@ -3,46 +3,47 @@ using System.Collections.ObjectModel;
 using Avalime.Core.Infra.Log;
 using Avalime.Core.Keys;
 using Avalime.Rime;
-using Avalime.UI.Views.Candidate;
+using Avalime.UI.Views.ViewCandidate;
 using Avalime.ViewModels;
 using Avalonia.Media;
 using Avalonia.Threading;
-using Tsinswreng.CsInterop;
 using Rime.Api;
+using Tsinswreng.CsInterop;
 using static Avalime.Core.Keys.KeyChars;
 using KS = Avalime.Core.Keys.KeyStates;
 
-namespace Avalime.UI.Views.candidatesBar;
+namespace Avalime.UI.Views.ViewCandidatesBar;
 using Ctx = VmCandidatesBar;
 
 unsafe public partial class VmCandidatesBar : ViewModelBase
 	, IDisposable
 {
-	public ImeState ImeState{get;set;}
-	public RimeConnectionState RimeConnection{get;set;}
+	public ImeState ImeState{get;}
+	public RimeConnectionState RimeConnection{get;}
 
 	readonly EventHandler<IEnumerable<IKeyEvent>> _afterInputHandler;
 
 	public VmCandidatesBar(ImeState ImeState, RimeConnectionState RimeConnection){
 		this.ImeState = ImeState;
 		this.RimeConnection = RimeConnection;
-		_afterInputHandler = (s,e)=>{
+		_afterInputHandler = (s, e)=>{
 			var sw = System.Diagnostics.Stopwatch.StartNew();
 			AppLog.Debug($"[Perf] VmCandidatesBar.AfterInput start: {sw.ElapsedMilliseconds}ms");
 			var rime = RimeConnection.Setup;
 			if(rime is null){
-				Dispatcher.UIThread.Post(() => CandVms = []); // Rime 未連接時清空候選欄
+				Dispatcher.UIThread.Post(() => CandVms = []);
 				return;
 			}
 			var rimeApi = rime.apiFn;
-			var iterrator = new RimeCandidateListIterator();
-			if(rimeApi.candidate_list_begin(rime.rimeSessionId, &iterrator) != RimeUtil.True){
-				Dispatcher.UIThread.Post(() => CandVms = []); // 無候選時清空候選欄（如 commit 後）
+			var iterator = new RimeCandidateListIterator();
+			if(rimeApi.candidate_list_begin(rime.rimeSessionId, &iterator) != RimeUtil.True){
+				Dispatcher.UIThread.Post(() => CandVms = []);
 				return;
 			}
 			var highlightedIndex = -1;
-			var ctx = new RimeContext();
-			ctx.data_size = RimeUtil.DataSize<RimeContext>();
+			var ctx = new RimeContext{
+				data_size = RimeUtil.DataSize<RimeContext>()
+			};
 			if(rimeApi.get_context(rime.rimeSessionId, &ctx) == RimeUtil.True){
 				highlightedIndex = ctx.menu.highlighted_candidate_index;
 				rimeApi.free_context(&ctx);
@@ -50,13 +51,13 @@ unsafe public partial class VmCandidatesBar : ViewModelBase
 			var newList = new ObservableCollection<VmCandidate>();
 			var count = 0;
 			const int maxCandidates = 16;
-			for(;count < maxCandidates && rimeApi.candidate_list_next(&iterrator) == RimeUtil.True;){
-				var ua = ToCand(iterrator.candidate, count, count == highlightedIndex);
-				newList.Add(ua);
+			for(; count < maxCandidates && rimeApi.candidate_list_next(&iterator) == RimeUtil.True;){
+				var vm = ToCand(iterator.candidate, count, count == highlightedIndex);
+				newList.Add(vm);
 				count++;
 			}
-			rimeApi.candidate_list_end(&iterrator);
-			Dispatcher.UIThread.Post(() => CandVms = newList); // 一次性替換，只觸發一次 PropertyChanged
+			rimeApi.candidate_list_end(&iterator);
+			Dispatcher.UIThread.Post(() => CandVms = newList);
 			AppLog.Debug($"[Perf] VmCandidatesBar.AfterInput done: {sw.ElapsedMilliseconds}ms, candidates: {count}");
 		};
 		ImeState.AfterInput += _afterInputHandler;
@@ -64,8 +65,8 @@ unsafe public partial class VmCandidatesBar : ViewModelBase
 
 	public VmCandidate ToCand(in RimeCandidate cand, int index, bool isHighlighted){
 		var ans = VmCandidate.Mk();
-		ans.Text = ToolCStr.ToCsStr(cand.text)??"";
-		ans.Comment = ToolCStr.ToCsStr(cand.comment)??"";
+		ans.Text = ToolCStr.ToCsStr(cand.text) ?? "";
+		ans.Comment = ToolCStr.ToCsStr(cand.comment) ?? "";
 		ans.Index = index;
 		ans.Background = UiCfg.Inst.CandidateBgColor;
 		ans.Foreground = isHighlighted ? UiCfg.Inst.MainColor : Brushes.White;

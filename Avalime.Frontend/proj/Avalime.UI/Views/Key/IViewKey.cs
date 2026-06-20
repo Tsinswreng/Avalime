@@ -1,4 +1,4 @@
-namespace Avalime.UI.Views.Key;
+namespace Avalime.UI.Views.ViewKey;
 using Tsinswreng.CsCore;
 
 [Doc(@$"輸入法觸摸鍵盤上的按鍵

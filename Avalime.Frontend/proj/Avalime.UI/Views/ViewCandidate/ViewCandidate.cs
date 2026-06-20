@@ -1,4 +1,4 @@
-namespace Avalime.UI.Views.Candidate;
+namespace Avalime.UI.Views.ViewCandidate;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
@@ -13,7 +13,7 @@ public class ViewCandidate : AppViewBase<Ctx>
 	bool _isPressedInside;
 
 	public ViewCandidate(){
-		Ctx = Ctx.Samples[0];
+		Ctx = Ctx.Mk();
 		Style();
 		Render();
 	}

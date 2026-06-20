@@ -25,6 +25,7 @@ sealed class Program{
 		services.AddSingleton<IImeKeyProcessor, StubImeKeyProcessor>();
 		services.AddSingleton<IKeyboardHost, StubKeyboardHost>();
 		services.AddSingleton<IClipboardService, StubClipboardService>();
+		services.AddSingleton<ImeUiState>();
 		services.AddSingleton<ILogger>(_ => AppLog.Inst);
 
 		services.AddSingleton<
@@ -32,6 +33,14 @@ sealed class Program{
 		>();
 
 		services.AddSingleton<RimeConnectionState>();
+		services.AddTransient<VmIme>();
+		services.AddTransient<VmToolBar>();
+		services.AddTransient<VmCandidatesBar>();
+		services.AddTransient<VmInput>();
+		services.AddTransient<VmClipboard>();
+		services.AddTransient<VmRimeLog>();
+		services.AddTransient<KeyVm>();
+		services.AddTransient<VmKeyBoard>();
 
 		var provider = services.BuildServiceProvider();
 		BuildAvaloniaApp()

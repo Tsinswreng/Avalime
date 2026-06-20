@@ -6,28 +6,23 @@ using Rime.Api;
 using System.ComponentModel;
 using Tsinswreng.CsInterop;
 
-namespace Avalime.UI.ViewModels;
+namespace Avalime.UI.Views.ViewIme;
 
 public class VmIme : ViewModelBase
 	, IDisposable
 {
 	public ImeState ImeState { get; }
 	public RimeConnectionState RimeConnection { get; }
+	public ImeUiState UiState { get; }
 
 	public bool IsComposing{
 		get => field;
 		set => SetProperty(ref field, value);
 	}
 
-	public bool IsClipboardVisible{
-		get => field;
-		set => SetProperty(ref field, value);
-	}
+	public bool IsClipboardVisible => UiState.IsClipboardVisible;
 
-	public bool IsRimeLogVisible{
-		get => field;
-		set => SetProperty(ref field, value);
-	}
+	public bool IsRimeLogVisible => UiState.IsRimeLogVisible;
 
 	public bool HasPreedit{
 		get => field;
@@ -43,17 +38,14 @@ public class VmIme : ViewModelBase
 
 	readonly PropertyChangedEventHandler _propertyChangedHandler;
 	readonly EventHandler<IEnumerable<IKeyEvent>> _afterInputHandler;
+	readonly PropertyChangedEventHandler _uiStatePropertyChangedHandler;
 
-	public VmIme(ImeState ImeState, RimeConnectionState RimeConnection){
+	public VmIme(ImeState ImeState, RimeConnectionState RimeConnection, ImeUiState UiState){
 		this.ImeState = ImeState;
 		this.RimeConnection = RimeConnection;
+		this.UiState = UiState;
 		_propertyChangedHandler = (_, e) => {
-			if(
-				e.PropertyName is nameof(IsComposing)
-				or nameof(HasPreedit)
-				or nameof(IsClipboardVisible)
-				or nameof(IsRimeLogVisible)
-			){
+			if(e.PropertyName is nameof(IsComposing) or nameof(HasPreedit)){
 				OnPropertyChanged(nameof(ShowToolbar));
 				OnPropertyChanged(nameof(ShowCandidates));
 				OnPropertyChanged(nameof(ShowPreedit));
@@ -63,6 +55,19 @@ public class VmIme : ViewModelBase
 			}
 		};
 		PropertyChanged += _propertyChangedHandler;
+		_uiStatePropertyChangedHandler = (_, e) => {
+			if(e.PropertyName is nameof(ImeUiState.IsClipboardVisible) or nameof(ImeUiState.IsRimeLogVisible)){
+				OnPropertyChanged(nameof(IsClipboardVisible));
+				OnPropertyChanged(nameof(IsRimeLogVisible));
+				OnPropertyChanged(nameof(ShowToolbar));
+				OnPropertyChanged(nameof(ShowCandidates));
+				OnPropertyChanged(nameof(ShowPreedit));
+				OnPropertyChanged(nameof(ShowKeyboard));
+				OnPropertyChanged(nameof(ShowClipboard));
+				OnPropertyChanged(nameof(ShowRimeLog));
+			}
+		};
+		UiState.PropertyChanged += _uiStatePropertyChangedHandler;
 
 		_afterInputHandler = (_, _) => RefreshCompositionState();
 		ImeState.AfterInput += _afterInputHandler;
@@ -81,7 +86,7 @@ public class VmIme : ViewModelBase
 	void SyncRimeLogVisibility()
 	{
 		if(RimeConnection.IsConnecting || !RimeConnection.IsConnected){
-			IsRimeLogVisible = true;
+			UiState.IsRimeLogVisible = true;
 		}
 	}
 
@@ -119,33 +124,10 @@ public class VmIme : ViewModelBase
 		});
 	}
 
-	public void ToggleClipboard(){
-		if(!IsClipboardVisible){
-			IsRimeLogVisible = false;
-		}
-		IsClipboardVisible = !IsClipboardVisible;
-	}
-
-	public void ExitClipboard(){
-		IsClipboardVisible = false;
-	}
-
-	public void ToggleRimeLog()
-	{
-		if(!IsRimeLogVisible){
-			IsClipboardVisible = false;
-		}
-		IsRimeLogVisible = !IsRimeLogVisible;
-	}
-
-	public void ExitRimeLog()
-	{
-		IsRimeLogVisible = false;
-	}
-
 	public void Dispose()
 	{
 		PropertyChanged -= _propertyChangedHandler;
+		UiState.PropertyChanged -= _uiStatePropertyChangedHandler;
 		ImeState.AfterInput -= _afterInputHandler;
 		RimeConnection.PropertyChanged -= OnRimeConnectionPropertyChanged;
 	}

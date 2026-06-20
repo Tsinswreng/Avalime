@@ -1,19 +1,19 @@
+using Avalime.Core.Infra;
 using Avalime.UI.Infra;
-using Avalime.UI.ViewModels;
-using Avalime.UI.Views.candidatesBar;
-using Avalime.UI.Views.clipboard;
-using Avalime.UI.Views.KeyBoard;
-using Avalime.UI.Views.preedit;
-using Avalime.UI.Views.RimeLog;
-using Avalime.UI.Views.toolbar;
+using Avalime.UI.Views.ViewCandidatesBar;
+using Avalime.UI.Views.ViewClipboard;
+using Avalime.UI.Views.ViewKeyBoard;
+using Avalime.UI.Views.ViewPreedit;
+using Avalime.UI.Views.ViewRimeLog;
+using Avalime.UI.Views.ViewToolBar;
 using Avalonia.Controls;
 using System.ComponentModel;
-using Avalime.Core.Infra;
-using Avalime.Core.Keys;
+using Tsinswreng.Avln.Grid;
 
-namespace Avalime.UI.Views;
+namespace Avalime.UI.Views.ViewIme;
+using Ctx = VmIme;
 
-public class ViewIme : AppViewBase<VmIme>
+public class ViewIme : AppViewBase<Ctx>
 	, IDisposable
 {
 	ViewPreedit? _preedit;
@@ -23,62 +23,43 @@ public class ViewIme : AppViewBase<VmIme>
 	ViewClipboard? _clipboard;
 	ViewRimeLog? _rimeLog;
 	PropertyChangedEventHandler? _ctxPropertyChangedHandler;
+	GridStack Root = new(IsRow: true);
 
 	public ViewIme(){
-		Ctx = new VmIme(
-			Di.GetRSvc<ImeState>()
-			, Di.GetRSvc<RimeConnectionState>()
-		);
+		Ctx = Di.DiOrMk<Ctx>();
 		Render();
 	}
 
 	void Render(){
 		var preeditHeight = UiCfg.Inst.PreeditHeight;
 		var topBarHeight = UiCfg.Inst.TopBarHeight;
-		var root = new Grid{
-			RowDefinitions = new($"{preeditHeight},{topBarHeight},*")
-		};
+		this.SetContent(Root.Grid);
+		Root.SetRowDefs([
+			new(preeditHeight, GUT.Pixel),
+			new(topBarHeight, GUT.Pixel),
+			new(1, GUT.Star),
+		]);
 
 		var preedit = new ViewPreedit();
 		_preedit = preedit;
 		preedit.Height = preeditHeight;
-		Grid.SetRow(preedit, 0);
 
-		var barHost = new Grid{
-			Height = topBarHeight
-		};
-		var toolbar = new ViewToolBar(new VmToolBar(Ctx!, Di.GetRSvc<RimeConnectionState>()));
+		var toolbar = new ViewToolBar();
 		_toolbar = toolbar;
-		var candidates = new ViewCandidatesBar(
-			new VmCandidatesBar(
-				Di.GetRSvc<ImeState>()
-				, Di.GetRSvc<RimeConnectionState>()
-			)
-		);
-		_candidates = candidates;
 		toolbar.Height = topBarHeight;
-		candidates.Height = topBarHeight;
-		barHost.Children.Add(toolbar);
-		barHost.Children.Add(candidates);
-		Grid.SetRow(barHost, 1);
 
-		var bodyHost = new Grid();
+		var candidates = new ViewCandidatesBar();
+		_candidates = candidates;
+		candidates.Height = topBarHeight;
+
 		var keyboard = new ViewKeyBoard();
 		_keyboard = keyboard;
-		var clipboard = new ViewClipboard(
-			new VmClipboard(
-				Ctx!
-				, Di.GetRSvc<IClipboardService>()
-				, Di.GetRSvc<IKeyboardHost>()
-			)
-		);
+
+		var clipboard = new ViewClipboard();
 		_clipboard = clipboard;
-		var rimeLog = new ViewRimeLog(new VmRimeLog(Di.GetRSvc<RimeLogBuffer>()));
+
+		var rimeLog = new ViewRimeLog();
 		_rimeLog = rimeLog;
-		bodyHost.Children.Add(keyboard);
-		bodyHost.Children.Add(clipboard);
-		bodyHost.Children.Add(rimeLog);
-		Grid.SetRow(bodyHost, 2);
 
 		void SyncVisible(){
 			preedit.IsVisible = Ctx!.ShowPreedit;
@@ -115,10 +96,23 @@ public class ViewIme : AppViewBase<VmIme>
 		Ctx.PropertyChanged += _ctxPropertyChangedHandler;
 		SyncVisible();
 
-		root.Children.Add(preedit);
-		root.Children.Add(barHost);
-		root.Children.Add(bodyHost);
-		this.SetContent(root);
+		Root
+		.A(preedit, o=>{
+			Grid.SetRow(o, 0);
+		})
+		.A(new Grid{
+			Height = topBarHeight
+		}, o=>{
+			Grid.SetRow(o, 1);
+			o.A(toolbar);
+			o.A(candidates);
+		})
+		.A(new Grid(), o=>{
+			Grid.SetRow(o, 2);
+			o.A(keyboard);
+			o.A(clipboard);
+			o.A(rimeLog);
+		});
 	}
 
 	public void Dispose()
