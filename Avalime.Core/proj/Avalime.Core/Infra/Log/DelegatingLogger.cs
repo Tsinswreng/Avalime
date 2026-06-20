@@ -28,9 +28,11 @@ public interface IDelegatingLogger : ILogger {
 
 public class DelegatingLogger : IDelegatingLogger {
 	public ILogger? InnerLogger { get; set; }
+	public DelegatingLogger() { }
 	public DelegatingLogger(ILogger InnerLogger) {
 		this.InnerLogger = InnerLogger;
 	}
+
 
 	public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter) {
 		InnerLogger?.Log(logLevel, eventId, state, exception, formatter);

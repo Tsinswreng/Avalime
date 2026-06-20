@@ -39,3 +39,10 @@ avalime本身有一個功能、就是「退格鍵上滑隱藏輸入法」
 
 還有、這次我用的是publish + Release模式編譯、不知道原先寫的日誌會不會被吞掉
 ]
+
+
+2026_0620_112213[
+看
+E:\_code\CsRime\Avalime\Avalime.Core\proj\Avalime.Core\Infra\Log\DelegatingLogger.cs
+
+]
