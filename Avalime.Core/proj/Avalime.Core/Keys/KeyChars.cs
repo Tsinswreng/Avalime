@@ -3,6 +3,8 @@ using IK = Avalime.Core.Keys.IKeyChar;
 namespace Avalime.Core.Keys;
 using KS = KeyChars;
 
+
+[Doc(@"按鍵枚舉。區分了大小寫與shift狀態下纔能輸出的符號 保留備用")]
 public static class KeyChars{
 	#region numbers
 	public static IK Tilde{get;} = K("~");

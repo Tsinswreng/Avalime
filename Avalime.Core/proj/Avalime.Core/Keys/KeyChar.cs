@@ -1,5 +1,6 @@
 namespace Avalime.Core.Keys;
 
+[Doc(@$"按鍵字符。區分了大小寫與shift狀態下纔能輸出的符號 保留備用")]
 public class KeyChar:IKeyChar{
 	public str Name{get;set;}="";
 	public KeyChar(){}

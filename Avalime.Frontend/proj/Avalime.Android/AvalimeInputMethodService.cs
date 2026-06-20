@@ -95,7 +95,7 @@ public class AvalimeInputMethodService : InputMethodService
 
         var services = new ServiceCollection();
         services.AddSingleton<IImeKeyProcessor, AndroidStubImeKeyProcessor>();
-        services.AddSingleton<I_OsKeyProcessor, AndroidStubOsKeyProcessor>();
+        services.AddSingleton<IOsKeyProcessor, AndroidStubOsKeyProcessor>();
         services.AddSingleton<IKeyboardHost>(_ => new AndroidKeyboardHost(() => this));
         services.AddSingleton<IClipboardService, AndroidClipboardService>();
         services.AddSingleton<ImeUiState>();
@@ -188,7 +188,7 @@ public class AvalimeInputMethodService : InputMethodService
     }
 }
 
-class AndroidStubOsKeyProcessor : I_OsKeyProcessor
+class AndroidStubOsKeyProcessor : IOsKeyProcessor
 {
     public event ErrHandler? OnErr;
     public Task<RespOnKeyEvent> OnKeyEventsAsy(IEnumerable<IKeyEvent> keyEvents)

@@ -4,7 +4,7 @@ public class KeyBoardState : IKeyBoardState
 {
 	HashSet<IKeyChar> _downKeys = [];
 
-	public IEnumerable<IKeyChar> AllDownKeys{
+	public ISet<IKeyChar> AllDownKeys{
 		get => _downKeys;
 		set => _downKeys = value is HashSet<IKeyChar> hs ? [.. hs] : [.. value];
 	}
@@ -15,7 +15,7 @@ public class KeyBoardState : IKeyBoardState
 
 	public static KeyBoardState Mk(params IKeyChar[] downKeys){
 		return new KeyBoardState{
-			AllDownKeys = downKeys
+			AllDownKeys = new HashSet<IKeyChar>(downKeys)
 		};
 	}
 }

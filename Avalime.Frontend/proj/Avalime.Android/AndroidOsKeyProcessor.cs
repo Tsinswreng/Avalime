@@ -4,7 +4,7 @@ using Avalime.Core.Keys;
 
 namespace Avalime.Android;
 
-public class AndroidOsKeyProcessor : I_OsKeyProcessor
+public class AndroidOsKeyProcessor : IOsKeyProcessor
 {
 	readonly Func<IInputConnection?> _getInputConnection;
 

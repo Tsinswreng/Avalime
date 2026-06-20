@@ -27,7 +27,7 @@ sealed class Program{
 		AppLog.Inst.InnerLogger = NullLogger.Instance;
 		var services = new ServiceCollection();
 		services.AddSingleton<
-			I_OsKeyProcessor
+			IOsKeyProcessor
 			, WindowsKeyProcessor
 		>();
 		services.AddSingleton<IImeKeyProcessor, StubImeKeyProcessor>();

@@ -9,7 +9,7 @@ public interface IImeState{
 	public IDictionary<object, object?> Cfg{get;set;}
 	public object? GetOption();
 	public object SetOption();
-	public I_OsKeyProcessor OsKeyProcessor{get;set;}
+	public IOsKeyProcessor OsKeyProcessor{get;set;}
 	public IImeKeyProcessor ImeKeyProcessor{get;set;}
 
 	/// <summary>

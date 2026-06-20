@@ -6,15 +6,15 @@ public class ImeState
 {
 
 	public IDictionary<object, object?> Cfg{get;set;}= new Dictionary<object, object?>();
-	public I_OsKeyProcessor OsKeyProcessor{get;set;}
+	public IOsKeyProcessor OsKeyProcessor{get;set;}
 	public IImeKeyProcessor ImeKeyProcessor{get;set;}
 
-	public ImeState(I_OsKeyProcessor osKeyProcessor, IImeKeyProcessor imeKeyProcessor) {
+	public ImeState(IOsKeyProcessor osKeyProcessor, IImeKeyProcessor imeKeyProcessor) {
 		this.OsKeyProcessor = osKeyProcessor;
 		this.ImeKeyProcessor = imeKeyProcessor;
 	}
 
-	public ImeState(I_OsKeyProcessor osKeyProcessor) {
+	public ImeState(IOsKeyProcessor osKeyProcessor) {
 		this.OsKeyProcessor = osKeyProcessor;
 	}
 

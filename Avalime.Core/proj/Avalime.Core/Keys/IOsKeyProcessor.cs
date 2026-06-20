@@ -1,7 +1,7 @@
 namespace Avalime.Core.Keys;
 
 
-public interface I_OsKeyProcessor
+public interface IOsKeyProcessor
 	:IKeyProcessor
 {
 

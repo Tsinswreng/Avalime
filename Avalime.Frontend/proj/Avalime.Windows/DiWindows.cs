@@ -9,7 +9,7 @@ public static class DiWindows{
 	extension(ServiceCollection z){
 		public ServiceCollection SetupWindows(){
 	z.AddSingleton<
-		I_OsKeyProcessor
+		IOsKeyProcessor
 		, WindowsKeyProcessor
 	>();
 
