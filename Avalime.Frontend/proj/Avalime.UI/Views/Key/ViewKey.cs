@@ -81,7 +81,7 @@ public class ViewKey : AppViewBase<Ctx>
 		_longPressFired = false;
 		e.Pointer.Capture(_border);
 		_border.Background = UiCfg.Inst.MainColor; //按下視覺反饋
-		AppLogX.Debug($"[Key] Pressed, hasLongPress={Ctx?.LongPress is not null}, isRepeat={Ctx?.IsRepeat}");
+		AppLog.Debug($"[Key] Pressed, hasLongPress={Ctx?.LongPress is not null}, isRepeat={Ctx?.IsRepeat}");
 		StartLongPressTimer();
 	}
 
@@ -102,7 +102,7 @@ public class ViewKey : AppViewBase<Ctx>
 		RestoreBg();
 
 		if(_longPressFired){
-			AppLogX.Debug("[Key] Released after long press, skipping Click");
+			AppLog.Debug("[Key] Released after long press, skipping Click");
 			return;
 		}
 		var pos = e.GetPosition(_border);
@@ -118,9 +118,9 @@ public class ViewKey : AppViewBase<Ctx>
 				else Ctx?.SwipeUP?.Invoke();
 			}
 		}else{
-			AppLogX.Debug($"[Perf] OnPointerReleased→Click start: {swPerf.ElapsedMilliseconds}ms");
+			AppLog.Debug($"[Perf] OnPointerReleased→Click start: {swPerf.ElapsedMilliseconds}ms");
 			Ctx?.Click?.Invoke();
-			AppLogX.Debug($"[Perf] OnPointerReleased→Click done: {swPerf.ElapsedMilliseconds}ms");
+			AppLog.Debug($"[Perf] OnPointerReleased→Click done: {swPerf.ElapsedMilliseconds}ms");
 		}
 	}
 
@@ -138,7 +138,7 @@ public class ViewKey : AppViewBase<Ctx>
 		_longPressTimer.Tick += (_, _) => {
 			_longPressTimer.Stop();
 			_longPressFired = true;
-			AppLogX.Debug($"[Key] LongPress fired, isRepeat={Ctx?.IsRepeat}");
+			AppLog.Debug($"[Key] LongPress fired, isRepeat={Ctx?.IsRepeat}");
 			Ctx?.LongPress?.Invoke();
 			if(Ctx?.IsRepeat == true){
 				StartRepeatTimer();

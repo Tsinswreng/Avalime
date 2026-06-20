@@ -23,7 +23,7 @@ public class AndroidOsKeyProcessor : I_OsKeyProcessor
 
 			var name = keyEvent.KeyChar.Name;
 			var metaState = ToAndroidMetaState(keyEvent.KeyBoardState);
-			AppLogX.Debug($"[IME] OsKeyProcessor forwarding: {name}");
+			AppLog.Debug($"[IME] OsKeyProcessor forwarding: {name}");
 
 			var androidKey = MapToAndroidKey(name);
 			if(androidKey is not null && (metaState != global::Android.Views.MetaKeyStates.None || ShouldSendAsKeyEvent(name))){

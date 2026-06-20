@@ -68,7 +68,7 @@ public class Application : AvaloniaAndroidApplication<App>
 			// 優先：內部目錄已有就不複製（開發者用 run-as cp 放進去的）
 			if (System.IO.File.Exists(dst))
 			{
-				AppLogX.Info("[Avalime] already in place: " + dst);
+				AppLog.Info("[Avalime] already in place: " + dst);
 				continue;
 			}
 			// 嘗試從 /sdcard/rime/ 複製（需要儲存權限，現代 Android 通常失敗）
@@ -78,12 +78,12 @@ public class Application : AvaloniaAndroidApplication<App>
 				if (System.IO.File.Exists(src))
 				{
 					System.IO.File.Copy(src, dst, overwrite: true);
-					AppLogX.Info("[Avalime] copied " + src + " -> " + dst);
+					AppLog.Info("[Avalime] copied " + src + " -> " + dst);
 				}
 			}
 			catch (System.Exception ex)
 			{
-				AppLogX.Warn("[Avalime] copy skipped for " + so + ": " + ex.Message);
+				AppLog.Warn("[Avalime] copy skipped for " + so + ": " + ex.Message);
 			}
 		}
 
@@ -92,11 +92,11 @@ public class Application : AvaloniaAndroidApplication<App>
 		try
 		{
 			ExtractAssetFile(ctx.Assets!, "rime/librime.bin", localRime);
-			AppLogX.Info("[Avalime] extracted asset rime/librime.bin -> " + localRime);
+			AppLog.Info("[Avalime] extracted asset rime/librime.bin -> " + localRime);
 		}
 		catch (System.Exception ex)
 		{
-			AppLogX.Error(ex, "[Avalime] extract asset rime failed");
+			AppLog.Error(ex, "[Avalime] extract asset rime failed");
 		}
 
 		// preload libc++_shared.so, required by librime.so
@@ -106,11 +106,11 @@ public class Application : AvaloniaAndroidApplication<App>
 			try
 			{
 				System.Runtime.InteropServices.NativeLibrary.Load(libcpp);
-				AppLogX.Info("[Avalime] preloaded libc++_shared.so");
+				AppLog.Info("[Avalime] preloaded libc++_shared.so");
 			}
 			catch (System.Exception ex)
 			{
-				AppLogX.Error(ex, "[Avalime] preload libc++_shared.so failed");
+				AppLog.Error(ex, "[Avalime] preload libc++_shared.so failed");
 			}
 		}
 

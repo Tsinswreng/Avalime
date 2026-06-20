@@ -22,7 +22,7 @@ unsafe public class RimeKeyProcessor
 
 	public Task<RespOnKeyEvent> OnKeyEventsAsy(IEnumerable<IKeyEvent> KeyEvents) {
 		var sw = System.Diagnostics.Stopwatch.StartNew();
-		AppLogX.Debug($"[Perf] RimeKeyProcessor start: {sw.ElapsedMilliseconds}ms");
+		AppLog.Debug($"[Perf] RimeKeyProcessor start: {sw.ElapsedMilliseconds}ms");
 		var resp = new RespOnKeyEvent();
 		foreach (var keyEvent in KeyEvents) {
 			var tuple = RimeKeyCharConverter.Inst.Convert(keyEvent);
@@ -33,7 +33,7 @@ unsafe public class RimeKeyProcessor
 				,tuple.Item1
 				,tuple.Item2
 			);
-			AppLogX.Debug($"[Perf] RimeKeyProcessor process_key({keyEvent.KeyChar.Name}, {(keyEvent.KeyState.IsKeyDown?"Down":"Up")}): {swPk.ElapsedMilliseconds}ms, handled={handled}");
+			AppLog.Debug($"[Perf] RimeKeyProcessor process_key({keyEvent.KeyChar.Name}, {(keyEvent.KeyState.IsKeyDown?"Down":"Up")}): {swPk.ElapsedMilliseconds}ms, handled={handled}");
 
 			if(handled == RimeUtil.False){
 				resp.UnhandledKeys.Add(keyEvent);
@@ -50,9 +50,9 @@ unsafe public class RimeKeyProcessor
 				}
 				Rime.free_commit(&commit);
 			}
-			AppLogX.Debug($"[Perf] RimeKeyProcessor get_commit: {swCommit.ElapsedMilliseconds}ms");
+			AppLog.Debug($"[Perf] RimeKeyProcessor get_commit: {swCommit.ElapsedMilliseconds}ms");
 		}
-		AppLogX.Debug($"[Perf] RimeKeyProcessor total: {sw.ElapsedMilliseconds}ms, unhandled: {resp.UnhandledKeys.Count}");
+		AppLog.Debug($"[Perf] RimeKeyProcessor total: {sw.ElapsedMilliseconds}ms, unhandled: {resp.UnhandledKeys.Count}");
 		return Task.FromResult(resp);
 	}
 }

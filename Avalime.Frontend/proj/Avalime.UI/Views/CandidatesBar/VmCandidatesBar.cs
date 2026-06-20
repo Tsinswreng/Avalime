@@ -30,7 +30,7 @@ unsafe public partial class VmCandidatesBar : ViewModelBase
 	public VmCandidatesBar(){
 		_afterInputHandler = (s,e)=>{
 			var sw = System.Diagnostics.Stopwatch.StartNew();
-			AppLogX.Debug($"[Perf] VmCandidatesBar.AfterInput start: {sw.ElapsedMilliseconds}ms");
+			AppLog.Debug($"[Perf] VmCandidatesBar.AfterInput start: {sw.ElapsedMilliseconds}ms");
 			var rime = RimeConnection.Setup;
 			if(rime is null){
 				Dispatcher.UIThread.Post(() => CandVms = []); // Rime 未連接時清空候選欄
@@ -59,7 +59,7 @@ unsafe public partial class VmCandidatesBar : ViewModelBase
 			}
 			rimeApi.candidate_list_end(&iterrator);
 			Dispatcher.UIThread.Post(() => CandVms = newList); // 一次性替換，只觸發一次 PropertyChanged
-			AppLogX.Debug($"[Perf] VmCandidatesBar.AfterInput done: {sw.ElapsedMilliseconds}ms, candidates: {count}");
+			AppLog.Debug($"[Perf] VmCandidatesBar.AfterInput done: {sw.ElapsedMilliseconds}ms, candidates: {count}");
 		};
 		ImeState.AfterInput += _afterInputHandler;
 	}

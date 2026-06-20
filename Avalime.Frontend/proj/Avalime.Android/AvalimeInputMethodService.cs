@@ -51,7 +51,7 @@ public class AvalimeInputMethodService : InputMethodService
 
     public override global::Android.Views.View OnCreateInputView()
     {
-        AppLogX.Info("[IME] OnCreateInputView");
+        AppLog.Info("[IME] OnCreateInputView");
 
         if (_inputView != null && !_shouldRecreateInputView)
             return _inputView;
@@ -75,7 +75,7 @@ public class AvalimeInputMethodService : InputMethodService
 
     public void HideKeyboardAndRecreateInputViewOnNextShow()
     {
-        AppLogX.Info("[IME] HideKeyboard requested");
+        AppLog.Info("[IME] HideKeyboard requested");
         RequestHideSelf(0);
     }
 
@@ -83,7 +83,7 @@ public class AvalimeInputMethodService : InputMethodService
     {
         SetTheme(Resource.Style.MyTheme_Ime);
         base.OnCreate();
-        AppLogX.Info("[IME] OnCreate");
+        AppLog.Info("[IME] OnCreate");
 
         var services = new ServiceCollection();
         services.AddSingleton<IImeKeyProcessor, AndroidStubImeKeyProcessor>();
@@ -112,11 +112,11 @@ public class AvalimeInputMethodService : InputMethodService
                 if (ic is not null)
                 {
                     ic.CommitText(text, 1);
-                    AppLogX.Info($"[IME] CommitText: {text}");
+                    AppLog.Info($"[IME] CommitText: {text}");
                 }
                 else
                 {
-                    AppLogX.Warn("[IME] CommitText skipped: no InputConnection");
+                    AppLog.Warn("[IME] CommitText skipped: no InputConnection");
                 }
             });
         };
@@ -129,19 +129,19 @@ public class AvalimeInputMethodService : InputMethodService
         {
             SetInputView(OnCreateInputView());
         }
-        AppLogX.Info("[IME] OnStartInputView");
+        AppLog.Info("[IME] OnStartInputView");
     }
 
     public override void OnWindowShown()
     {
         base.OnWindowShown();
-        AppLogX.Info($"[IME] OnWindowShown inputViewNull={_inputView is null} shouldRecreate={_shouldRecreateInputView}");
+        AppLog.Info($"[IME] OnWindowShown inputViewNull={_inputView is null} shouldRecreate={_shouldRecreateInputView}");
     }
 
     public override void OnWindowHidden()
     {
         base.OnWindowHidden();
-        AppLogX.Info("[IME] OnWindowHidden");
+        AppLog.Info("[IME] OnWindowHidden");
     }
 
     public void CommitText(str text)
@@ -161,13 +161,13 @@ public class AvalimeInputMethodService : InputMethodService
     {
         base.OnFinishInputView(finishingInput);
         _shouldRecreateInputView = true;
-        AppLogX.Info("[IME] OnFinishInputView");
+        AppLog.Info("[IME] OnFinishInputView");
     }
 
     public override void OnDestroy()
     {
         base.OnDestroy();
-        AppLogX.Info("[IME] OnDestroy");
+        AppLog.Info("[IME] OnDestroy");
     }
 }
 

@@ -44,7 +44,7 @@ public partial class KeyVm : ViewModelBase, IKeyViewModel
 			var state = ImeState as ImeState;//TODO temp
 			try{
 				var sw = System.Diagnostics.Stopwatch.StartNew();
-				AppLogX.Debug($"[Perf] KeyVm.Click→Input start: {sw.ElapsedMilliseconds}ms");
+				AppLog.Debug($"[Perf] KeyVm.Click→Input start: {sw.ElapsedMilliseconds}ms");
 				state?.InputSafely([
 					new KeyEvent{
 						KeyChar = Key_Click,
@@ -55,7 +55,7 @@ public partial class KeyVm : ViewModelBase, IKeyViewModel
 						KeyState = KS.Up
 					}
 				], e => HandleErr(e));
-				AppLogX.Debug($"[Perf] KeyVm.Click→Input done: {sw.ElapsedMilliseconds}ms");
+				AppLog.Debug($"[Perf] KeyVm.Click→Input done: {sw.ElapsedMilliseconds}ms");
 			}
 			catch(Exception e){
 				HandleErr(e);

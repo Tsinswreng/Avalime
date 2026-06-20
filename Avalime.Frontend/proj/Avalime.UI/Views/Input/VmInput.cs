@@ -29,7 +29,7 @@ public class VmInput : ViewModelBase
 	unsafe public VmInput(){
 		_afterInputHandler = (sender, args)=>{
 			var sw = System.Diagnostics.Stopwatch.StartNew();
-			AppLogX.Debug($"[Perf] VmInput.AfterInput start: {sw.ElapsedMilliseconds}ms");
+			AppLog.Debug($"[Perf] VmInput.AfterInput start: {sw.ElapsedMilliseconds}ms");
 			var rime = RimeConnection.Setup;
 			if(rime is null){
 				Dispatcher.UIThread.Post(() => Text = "");
@@ -44,7 +44,7 @@ public class VmInput : ViewModelBase
 			str preedit = ToolCStr.ToCsStr(ctx.composition.preedit);
 			rimeApi.free_context(&ctx);
 			Dispatcher.UIThread.Post(() => Text = preedit);
-			AppLogX.Debug($"[Perf] VmInput.AfterInput done: {sw.ElapsedMilliseconds}ms, preedit: {preedit}");
+			AppLog.Debug($"[Perf] VmInput.AfterInput done: {sw.ElapsedMilliseconds}ms, preedit: {preedit}");
 		};
 		ImeState.AfterInput += _afterInputHandler;
 	}

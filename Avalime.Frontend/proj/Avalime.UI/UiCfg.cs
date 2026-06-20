@@ -73,7 +73,7 @@ public partial class UiCfg
 			_cachedKeyboardFontFamily = fontFamily;
 			return fontFamily;
 		}catch(Exception ex){
-			AppLogX.Error(ex, "[KeyboardFont] GetKeyboardFontFamily failed");
+			AppLog.Error(ex, "[KeyboardFont] GetKeyboardFontFamily failed");
 		}
 		_cachedFontPath = fontPath;
 		_cachedFontFamilyName = null;
@@ -153,7 +153,7 @@ public partial class UiCfg
 			}
 			return anyEnglish ?? anyUnicode ?? family;
 		}catch(Exception ex){
-			AppLogX.Error(ex, "[KeyboardFont] TryReadFontFamilyName failed");
+			AppLog.Error(ex, "[KeyboardFont] TryReadFontFamilyName failed");
 			return null;
 		}
 	}

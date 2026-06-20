@@ -9,9 +9,9 @@ public class ViewModelBase : ObservableObject
 	//統一錯誤處理入口
 	public nil HandleErr(obj? Ex){
 		if(Ex is Exception ex){
-			AppLogX.Error(ex);
+			AppLog.Error(ex);
 		}else{
-			AppLogX.Error(Ex?.ToString()??"");
+			AppLog.Error(Ex?.ToString()??"");
 		}
 		return NIL;
 	}
