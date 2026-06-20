@@ -1,10 +1,8 @@
 using Avalime.Core.Keys;
-using Avalime.Core.Infra;
 using Avalime.Core.Infra.Log;
 using Avalime.Rime;
 using Avalime.ViewModels;
 using Avalonia.Threading;
-using Microsoft.Extensions.DependencyInjection;
 using Rime.Api;
 using Tsinswreng.CsInterop;
 
@@ -14,19 +12,19 @@ using Ctx = VmInput;
 public class VmInput : ViewModelBase
 	, IDisposable
 {
-	public static Ctx Mk(){return new Ctx();}
-
 	public str Text{
 		get => field;
 		set => SetProperty(ref field, value);
 	} = "";
 
-	public ImeState ImeState{get;set;} = Di.GetRSvc<ImeState>();
-	public RimeConnectionState RimeConnection{get;set;} = Di.GetRSvc<RimeConnectionState>();
+	public ImeState ImeState{get;set;}
+	public RimeConnectionState RimeConnection{get;set;}
 
 	readonly EventHandler<IEnumerable<IKeyEvent>> _afterInputHandler;
 
-	unsafe public VmInput(){
+	unsafe public VmInput(ImeState ImeState, RimeConnectionState RimeConnection){
+		this.ImeState = ImeState;
+		this.RimeConnection = RimeConnection;
 		_afterInputHandler = (sender, args)=>{
 			var sw = System.Diagnostics.Stopwatch.StartNew();
 			AppLog.Debug($"[Perf] VmInput.AfterInput start: {sw.ElapsedMilliseconds}ms");

@@ -1,4 +1,6 @@
 namespace Avalime.UI.Views.input;
+using Avalime.Core.Infra;
+using Avalime.Core.Keys;
 using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Media;
@@ -8,7 +10,10 @@ using Ctx = VmInput;
 public class ViewInput : AppViewBase<Ctx>
 {
 	public ViewInput(){
-		Ctx = Ctx.Mk();
+		Ctx = new Ctx(
+			Di.GetRSvc<ImeState>()
+			, Di.GetRSvc<RimeConnectionState>()
+		);
 		Render();
 	}
 

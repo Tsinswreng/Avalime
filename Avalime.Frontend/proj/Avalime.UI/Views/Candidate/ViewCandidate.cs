@@ -9,6 +9,9 @@ using Ctx = VmCandidate;
 
 public class ViewCandidate : AppViewBase<Ctx>
 {
+	Border _border = default!;
+	bool _isPressedInside;
+
 	public ViewCandidate(){
 		Ctx = Ctx.Samples[0];
 		Style();
@@ -54,9 +57,24 @@ public class ViewCandidate : AppViewBase<Ctx>
 			BorderThickness = new Thickness(0.5),
 			BorderBrush = SolidColorBrush.Parse("#253238"),
 		};
+		_border = border;
 		Ctx.Bind(border, Border.BackgroundProperty, x=>x.Background);
-		border.PointerPressed += (_, _) => {
-			Ctx?.Click?.Invoke();
+		border.PointerPressed += (_, e) => {
+			_isPressedInside = true;
+			e.Pointer.Capture(border);
+		};
+		border.PointerReleased += (_, e) => {
+			var shouldClick = _isPressedInside && IsPointerInside(e.GetPosition(_border));
+			_isPressedInside = false;
+			if(e.Pointer.Captured == border){
+				e.Pointer.Capture(null);
+			}
+			if(shouldClick){
+				Ctx?.Click?.Invoke();
+			}
+		};
+		border.PointerCaptureLost += (_, _) => {
+			_isPressedInside = false;
 		};
 
 		this.SetContent(border);
@@ -96,5 +114,11 @@ public class ViewCandidate : AppViewBase<Ctx>
 			});
 		})
 		;
+	}
+
+	bool IsPointerInside(Point p)
+	{
+		return p.X >= 0 && p.X <= _border.Bounds.Width
+			&& p.Y >= 0 && p.Y <= _border.Bounds.Height;
 	}
 }

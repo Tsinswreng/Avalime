@@ -1,4 +1,5 @@
 //ViewKey: 單個鍵盤按鍵視圖、支援點擊/長按/滑動 + Hint提示文字、樣式匹配 TswG 暗色方案
+using Avalime.Core.Infra;
 using Avalime.Core.Infra.Log;
 using Avalime.ViewModels.key;
 using Avalonia;
@@ -15,7 +16,7 @@ using Ctx = KeyVm;
 public class ViewKey : AppViewBase<Ctx>
 {
 	public ViewKey(){
-		Ctx = Ctx.Mk();
+		Ctx = new Ctx(Di.GetRSvc<RimeConnectionState>());
 		Style();
 		Render();
 	}

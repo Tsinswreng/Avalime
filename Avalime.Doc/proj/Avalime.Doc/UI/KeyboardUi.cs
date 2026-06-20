@@ -24,6 +24,19 @@ using Tsinswreng.CsCore;
 	- 控制是否進入剪貼板頁
 ]
 
+#H[DI 分層][
+	當前 UI 層依賴注入規則是：
+	- **只有 View 層可以直接調全局 `Di.GetRSvc<T>()`**
+	- `Vm` / `RimeConnectionState` / 其他非 View 類型一律使用構造函數注入
+
+	也就是說：
+	- `ViewIme` / `ViewKeyBoard` / `ViewInput` 這些 View 可以從全局 `Di` 取依賴，再 `new VmXxx(...)`
+	- `VmIme` / `VmCandidatesBar` / `VmInput` / `VmClipboard` / `VmToolBar` / `VmKey` / `VmRimeLog` 內部都不應再直接碰 `Di`
+	- `RimeConnectionState` 這類 service 內部若需要 `ImeState` 等依賴，也應在構造函數注入，不可反查全局容器
+
+	這條約束是爲了把 View 與非 View 的依賴邊界固定住，避免 VM / service 變成隱式 service locator。
+]
+
 #H[交互][
 	`VmKeyBoard` 維持佈局狀態。
 	`VmKey` 負責按鍵、長按與滑動動作。

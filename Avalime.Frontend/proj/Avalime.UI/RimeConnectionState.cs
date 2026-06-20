@@ -1,9 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Avalime.Core.Infra;
 using Avalime.Core.Infra.Log;
 using Avalime.Core.Keys;
 using Avalime.Rime;
-using Microsoft.Extensions.DependencyInjection;
 using System.Threading;
 using Avalonia.Threading;
 using Rime.Api;
@@ -13,11 +11,12 @@ namespace Avalime.UI;
 
 public partial class RimeConnectionState : ObservableObject
 {
+	readonly ImeState _imeState;
 	static void LogInfo(str message){
-		AppLog.Inst.Log(LogLevel.Information, 0, "[AvalimeRime] " + message, null, static (state, _) => state?.ToString() ?? "");
+		AppLog.Info("[AvalimeRime] " + message);
 	}
 	static void LogError(str message){
-		AppLog.Inst.Log(LogLevel.Error, 0, "[AvalimeRime] " + message, null, static (state, _) => state?.ToString() ?? "");
+		AppLog.Error("[AvalimeRime] " + message);
 	}
 
 	public bool IsConnected{
@@ -50,7 +49,8 @@ public partial class RimeConnectionState : ObservableObject
 		private set => SetProperty(ref field, value);
 	}
 
-	public RimeConnectionState(){
+	public RimeConnectionState(ImeState ImeState){
+		_imeState = ImeState;
 		RimeSetup.OnOptionChanged += (name, enabled) => {
 			if(name == "ascii_mode"){
 				// 一律 Post 到 UI 線程：on_message 可能從 後台/P/Invoke 回調 觸發
@@ -121,9 +121,8 @@ public partial class RimeConnectionState : ObservableObject
 			}
 			LogInfo("RimeSetup created");
 			await Dispatcher.UIThread.InvokeAsync(() => {
-				var imeState = Di.GetRSvc<ImeState>();
 				LogInfo("Resolving ImeState done");
-				imeState.ImeKeyProcessor = new RimeKeyProcessor(setup);
+				_imeState.ImeKeyProcessor = new RimeKeyProcessor(setup);
 				LogInfo("ImeKeyProcessor switched to RimeKeyProcessor");
 				Setup = setup;
 				IsConnected = true;

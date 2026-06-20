@@ -1,9 +1,7 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using Avalime.Core.Infra;
 using Avalime.UI.ViewModels;
 using Avalime.ViewModels;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Avalime.UI.Views.clipboard;
 
@@ -11,8 +9,8 @@ public class VmClipboard : ViewModelBase
 	, IDisposable
 {
 	public VmIme Ime { get; }
-	public IClipboardService ClipboardService { get; } = Di.GetRSvc<IClipboardService>();
-	public IKeyboardHost KeyboardHost { get; } = Di.GetRSvc<IKeyboardHost>();
+	public IClipboardService ClipboardService { get; }
+	public IKeyboardHost KeyboardHost { get; }
 
 	public ObservableCollection<VmClipboardItem> Items{
 		get => field;
@@ -21,8 +19,10 @@ public class VmClipboard : ViewModelBase
 
 	readonly PropertyChangedEventHandler _imePropertyChangedHandler;
 
-	public VmClipboard(VmIme ime){
+	public VmClipboard(VmIme ime, IClipboardService ClipboardService, IKeyboardHost KeyboardHost){
 		Ime = ime;
+		this.ClipboardService = ClipboardService;
+		this.KeyboardHost = KeyboardHost;
 		_imePropertyChangedHandler = async (_, e) => {
 			if(e.PropertyName == nameof(VmIme.ShowClipboard) && ime.ShowClipboard){
 				await RefreshAsy();

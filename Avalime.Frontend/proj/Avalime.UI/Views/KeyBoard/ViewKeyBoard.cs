@@ -25,7 +25,7 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 	readonly List<PropertyChangedEventHandler> _ctxHandlers = [];
 
 	public ViewKeyBoard(){
-		Ctx = Ctx.Mk();
+		Ctx = new Ctx(Di.GetRSvc<ImeState>());
 		Render();
 	}
 
@@ -141,7 +141,7 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 	}
 
 	ViewKey KView(KeyCfg Cfg){
-		var Vm = KeyVm.Mk();
+		var Vm = new KeyVm(Di.GetRSvc<RimeConnectionState>());
 		_disposables.Add(Vm);
 		Vm.Key_Click = Cfg.Key;
 		Vm.Click = MkSendKey(Cfg.Key);
@@ -179,7 +179,7 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 
 	/// 建立觸發自訂動作的按鍵（非發送按鍵事件）
 	ViewKey MkActionKey(str Label, Action OnClick, str? Hint = null){
-		var Vm = KeyVm.Mk();
+		var Vm = new KeyVm(Di.GetRSvc<RimeConnectionState>());
 		_disposables.Add(Vm);
 		Vm.Label = Label;
 		Vm.FontSize = UiCfg.Inst.ActionKeyFontSize;

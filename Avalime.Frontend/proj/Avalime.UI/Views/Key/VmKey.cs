@@ -1,12 +1,10 @@
 using System;
 using System.ComponentModel;
-using Avalime.Core.Infra;
 using Avalime.Core.Infra.Log;
 using Avalime.Core.Keys;
 using Avalime.UI;
 using Avalime.ViewModels;
 using Avalonia.Media;
-using Microsoft.Extensions.DependencyInjection;
 using KS = Avalime.Core.Keys.KeyStates;
 
 namespace Avalime.ViewModels.key;
@@ -15,16 +13,14 @@ using Ctx = KeyVm;
 public partial class KeyVm : ViewModelBase, IKeyViewModel
 	, IDisposable
 {
-	public static Ctx Mk(){return new Ctx();}
-
 	string _normalLabel = "";
 	readonly RimeConnectionState _rimeCon;
 	readonly PropertyChangedEventHandler _rimeConnectionPropertyChangedHandler;
 
-	public KeyVm(){
+	public KeyVm(RimeConnectionState RimeConnection){
 		Label = Key_Click?.Name??"";
 
-		_rimeCon = Di.GetRSvc<RimeConnectionState>();
+		_rimeCon = RimeConnection;
 		_rimeConnectionPropertyChangedHandler = (_, e) => {
 			if(e.PropertyName == nameof(_rimeCon.IsAsciiMode)){
 				if(_rimeCon.IsAsciiMode){

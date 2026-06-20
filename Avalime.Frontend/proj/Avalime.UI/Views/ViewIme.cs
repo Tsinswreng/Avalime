@@ -8,6 +8,8 @@ using Avalime.UI.Views.RimeLog;
 using Avalime.UI.Views.toolbar;
 using Avalonia.Controls;
 using System.ComponentModel;
+using Avalime.Core.Infra;
+using Avalime.Core.Keys;
 
 namespace Avalime.UI.Views;
 
@@ -23,7 +25,10 @@ public class ViewIme : AppViewBase<VmIme>
 	PropertyChangedEventHandler? _ctxPropertyChangedHandler;
 
 	public ViewIme(){
-		Ctx = VmIme.Mk();
+		Ctx = new VmIme(
+			Di.GetRSvc<ImeState>()
+			, Di.GetRSvc<RimeConnectionState>()
+		);
 		Render();
 	}
 
@@ -42,9 +47,14 @@ public class ViewIme : AppViewBase<VmIme>
 		var barHost = new Grid{
 			Height = topBarHeight
 		};
-		var toolbar = new ViewToolBar(new VmToolBar(Ctx!));
+		var toolbar = new ViewToolBar(new VmToolBar(Ctx!, Di.GetRSvc<RimeConnectionState>()));
 		_toolbar = toolbar;
-		var candidates = new ViewCandidatesBar();
+		var candidates = new ViewCandidatesBar(
+			new VmCandidatesBar(
+				Di.GetRSvc<ImeState>()
+				, Di.GetRSvc<RimeConnectionState>()
+			)
+		);
 		_candidates = candidates;
 		toolbar.Height = topBarHeight;
 		candidates.Height = topBarHeight;
@@ -55,9 +65,15 @@ public class ViewIme : AppViewBase<VmIme>
 		var bodyHost = new Grid();
 		var keyboard = new ViewKeyBoard();
 		_keyboard = keyboard;
-		var clipboard = new ViewClipboard(new VmClipboard(Ctx!));
+		var clipboard = new ViewClipboard(
+			new VmClipboard(
+				Ctx!
+				, Di.GetRSvc<IClipboardService>()
+				, Di.GetRSvc<IKeyboardHost>()
+			)
+		);
 		_clipboard = clipboard;
-		var rimeLog = new ViewRimeLog(new VmRimeLog());
+		var rimeLog = new ViewRimeLog(new VmRimeLog(Di.GetRSvc<RimeLogBuffer>()));
 		_rimeLog = rimeLog;
 		bodyHost.Children.Add(keyboard);
 		bodyHost.Children.Add(clipboard);

@@ -11,8 +11,8 @@ using Ctx = VmCandidatesBar;
 
 public class ViewCandidatesBar : AppViewBase<Ctx>
 {
-	public ViewCandidatesBar(){
-		Ctx = Ctx.Mk();
+	public ViewCandidatesBar(Ctx Vm){
+		Ctx = Vm;
 		Render();
 	}
 

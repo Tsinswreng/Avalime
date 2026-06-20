@@ -1,9 +1,7 @@
 using Avalime.Core.Keys;
-using Avalime.Core.Infra;
 using Avalime.Rime;
 using Avalime.ViewModels;
 using Avalonia.Threading;
-using Microsoft.Extensions.DependencyInjection;
 using Rime.Api;
 using System.ComponentModel;
 using Tsinswreng.CsInterop;
@@ -13,10 +11,8 @@ namespace Avalime.UI.ViewModels;
 public class VmIme : ViewModelBase
 	, IDisposable
 {
-	public static VmIme Mk(){return new VmIme();}
-
-	public ImeState ImeState { get; } = Di.GetRSvc<ImeState>();
-	public RimeConnectionState RimeConnection { get; } = Di.GetRSvc<RimeConnectionState>();
+	public ImeState ImeState { get; }
+	public RimeConnectionState RimeConnection { get; }
 
 	public bool IsComposing{
 		get => field;
@@ -48,7 +44,9 @@ public class VmIme : ViewModelBase
 	readonly PropertyChangedEventHandler _propertyChangedHandler;
 	readonly EventHandler<IEnumerable<IKeyEvent>> _afterInputHandler;
 
-	public VmIme(){
+	public VmIme(ImeState ImeState, RimeConnectionState RimeConnection){
+		this.ImeState = ImeState;
+		this.RimeConnection = RimeConnection;
 		_propertyChangedHandler = (_, e) => {
 			if(
 				e.PropertyName is nameof(IsComposing)

@@ -1,19 +1,18 @@
 using Avalime.Core.Keys;
-using Avalime.Core.Infra;
 using Avalime.UI;
 using Avalime.ViewModels;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Avalime.ViewModels.KeyBoard;
 using Ctx = VmKeyBoard;
 
 public partial class VmKeyBoard : ViewModelBase
 {
-	protected VmKeyBoard(){}
-	public static Ctx Mk(){return new Ctx();}
-
 	//TODO 改用接口
-	public ImeState ImeState{get;set;} = Di.GetRSvc<ImeState>();
+	public ImeState ImeState{get;set;}
+
+	public VmKeyBoard(ImeState ImeState){
+		this.ImeState = ImeState;
+	}
 
 	/// 是否顯示數字鍵盤佈局
 	public bool IsNumLayout{

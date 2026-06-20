@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using Avalime.Core.Infra;
 using Avalime.Core.Infra.Log;
 using Avalime.Core.Keys;
 using Avalime.Rime;
@@ -8,7 +7,6 @@ using Avalime.UI.Views.Candidate;
 using Avalime.ViewModels;
 using Avalonia.Media;
 using Avalonia.Threading;
-using Microsoft.Extensions.DependencyInjection;
 using Tsinswreng.CsInterop;
 using Rime.Api;
 using static Avalime.Core.Keys.KeyChars;
@@ -20,14 +18,14 @@ using Ctx = VmCandidatesBar;
 unsafe public partial class VmCandidatesBar : ViewModelBase
 	, IDisposable
 {
-	public static Ctx Mk(){return new Ctx();}
-
-	public ImeState ImeState{get;set;} = Di.GetRSvc<ImeState>();
-	public RimeConnectionState RimeConnection{get;set;} = Di.GetRSvc<RimeConnectionState>();
+	public ImeState ImeState{get;set;}
+	public RimeConnectionState RimeConnection{get;set;}
 
 	readonly EventHandler<IEnumerable<IKeyEvent>> _afterInputHandler;
 
-	public VmCandidatesBar(){
+	public VmCandidatesBar(ImeState ImeState, RimeConnectionState RimeConnection){
+		this.ImeState = ImeState;
+		this.RimeConnection = RimeConnection;
 		_afterInputHandler = (s,e)=>{
 			var sw = System.Diagnostics.Stopwatch.StartNew();
 			AppLog.Debug($"[Perf] VmCandidatesBar.AfterInput start: {sw.ElapsedMilliseconds}ms");
