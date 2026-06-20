@@ -19,6 +19,8 @@ using Tsinswreng.CsCore;
 #H[窗口行為][
 	`OnEvaluateFullscreenMode()` 會關掉全屏提取。
 	`OnConfigureWindow()` 把高度限制成半屏。
+	輸入法服務顯式使用 `MyTheme.Ime`，避免沿用 Activity 的透明窗口配置。
+	上滑退格隱藏鍵盤時只調 `RequestHideSelf(0)`，不再在下次顯示時重建整棵 `AvaloniaView`。
 ]
 
 #H[默認字體][

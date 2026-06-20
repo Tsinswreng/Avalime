@@ -41,13 +41,11 @@ IME Frontend for Rime with Avalonia
 cd Avalime.Frontend/proj/Avalime.Android
 
 # Release 編譯
-dotnet build -c Release
+dotnet publish -c Release
 
 # 安裝到已連接的設備
-adb install -r bin/Release/net10.0-android/Tsinswreng.Avalime-Signed.apk
+adb install -r bin/Release/net10.0-android/publish/Tsinswreng.Avalime-Signed.apk
 
-# 或一步到位
-dotnet run -c Release
 ```
 
 === 啟用輸入法
