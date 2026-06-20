@@ -10,9 +10,10 @@ using Tsinswreng.CsCore;
 #H[入口行為][
 	`Program.Main()`：
 	- 註冊 `I_OsKeyProcessor`
+	- 註冊桌面 stub：`IImeKeyProcessor`、`IKeyboardHost`、`IClipboardService`
 	- 註冊 `ImeState`
 	- 註冊 `RimeConnectionState`
-	- `App.SetSvcProvider(...)`
+	- `Di.SvcP = provider`
 	- `StartWithClassicDesktopLifetime(...)`
 ]
 

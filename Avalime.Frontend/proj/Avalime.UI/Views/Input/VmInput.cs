@@ -1,4 +1,5 @@
 using Avalime.Core.Keys;
+using Avalime.Core.Infra;
 using Avalime.Rime;
 using Avalime.ViewModels;
 using Avalonia.Threading;
@@ -18,8 +19,8 @@ public class VmInput : ViewModelBase
 		set => SetProperty(ref field, value);
 	} = "";
 
-	public ImeState ImeState{get;set;} = App.SvcP.GetRequiredService<ImeState>();
-	public RimeConnectionState RimeConnection{get;set;} = App.SvcP.GetRequiredService<RimeConnectionState>();
+	public ImeState ImeState{get;set;} = Di.GetRSvc<ImeState>();
+	public RimeConnectionState RimeConnection{get;set;} = Di.GetRSvc<RimeConnectionState>();
 
 	unsafe public VmInput(){
 		ImeState.AfterInput += (sender, args)=>{

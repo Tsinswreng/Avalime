@@ -1,4 +1,5 @@
 using Avalime.Core.Keys;
+using Avalime.Core.Infra;
 using Avalime.Rime;
 using Avalime.ViewModels;
 using Avalonia.Threading;
@@ -12,8 +13,8 @@ public class VmIme : ViewModelBase
 {
 	public static VmIme Mk(){return new VmIme();}
 
-	public ImeState ImeState { get; } = App.SvcP.GetRequiredService<ImeState>();
-	public RimeConnectionState RimeConnection { get; } = App.SvcP.GetRequiredService<RimeConnectionState>();
+	public ImeState ImeState { get; } = Di.GetRSvc<ImeState>();
+	public RimeConnectionState RimeConnection { get; } = Di.GetRSvc<RimeConnectionState>();
 
 	public bool IsComposing{
 		get => field;

@@ -1,6 +1,7 @@
 using Android.App;
 using Android.Runtime;
 using Avalime.Core.Infra;
+using Avalime.Core.Infra.Log;
 using Avalime.UI;
 using Avalonia;
 using Avalonia.Android;
@@ -19,6 +20,7 @@ public class Application : AvaloniaAndroidApplication<App>
 	public Application(nint javaReference, JniHandleOwnership transfer)
 		: base(javaReference, transfer)
 	{
+		AppLog.Inst.InnerLogger = new AndroidLogger("Avalime");
 		InitCfg(global::Android.App.Application.Context);
 		SetupSoFiles(global::Android.App.Application.Context);
 	}

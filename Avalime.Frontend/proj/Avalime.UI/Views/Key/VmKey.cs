@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using Avalime.Core.Infra;
 using Avalime.Core.Keys;
 using Avalime.UI;
 using Avalime.ViewModels;
@@ -19,7 +20,7 @@ public partial class KeyVm : ViewModelBase, IKeyViewModel
 	public KeyVm(){
 		Label = Key_Click?.Name??"";
 
-		var rimeCon = App.SvcP.GetRequiredService<RimeConnectionState>();
+		var rimeCon = Di.GetRSvc<RimeConnectionState>();
 		rimeCon.PropertyChanged += (_, e) => {
 			if(e.PropertyName == nameof(rimeCon.IsAsciiMode)){
 				if(rimeCon.IsAsciiMode){

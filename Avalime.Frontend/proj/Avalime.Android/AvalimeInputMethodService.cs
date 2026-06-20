@@ -6,11 +6,13 @@ using Android.Runtime;
 using Android.Views;
 using Android.Views.InputMethods;
 using Avalonia.Android;
+using Avalime.Core.Infra;
+using Avalime.Core.Infra.Log;
 using Avalime.Core.Keys;
 using Avalime.UI;
 using Avalime.UI.Views;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
 using Handler = Android.OS.Handler;
 using Looper = Android.OS.Looper;
 
@@ -84,10 +86,11 @@ public class AvalimeInputMethodService : InputMethodService
         services.AddSingleton<IClipboardService, AndroidClipboardService>();
         services.AddSingleton<ImeState>();
         services.AddSingleton<RimeConnectionState>();
+        services.AddSingleton<ILogger>(_ => AppLog.Inst);
         var provider = services.BuildServiceProvider(new ServiceProviderOptions{ValidateOnBuild = false, ValidateScopes = false});
-        App.SetSvcProvider(provider);
+        Di.SvcProvider = provider;
 
-        var imeState = App.SvcP.GetRequiredService<ImeState>();
+        var imeState = Di.GetRSvc<ImeState>();
 
         // 未處理按鍵轉發給 OS
         imeState.OsKeyProcessor = new AndroidOsKeyProcessor(() => CurrentInputConnection);

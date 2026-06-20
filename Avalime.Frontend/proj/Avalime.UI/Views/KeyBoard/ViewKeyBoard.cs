@@ -1,5 +1,6 @@
 //鍵盤主視圖：純按鍵區，支援主鍵盤/數字鍵盤切換
 using System.Collections.Generic;
+using Avalime.Core.Infra;
 using Avalime.Core.Keys;
 using Avalime.ViewModels.KeyBoard;
 using Avalime.ViewModels.key;
@@ -225,7 +226,7 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 	};
 
 	Func<zero> MkToggleAsciiMode() => () => {
-		var rimeCon = App.SvcP.GetRequiredService<RimeConnectionState>();
+		var rimeCon = Di.GetRSvc<RimeConnectionState>();
 		rimeCon.ToggleAsciiMode();
 		return 0;
 	};
@@ -236,7 +237,7 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 	};
 
 	Func<zero> MkHideKeyboard() => () => {
-		App.SvcP.GetRequiredService<IKeyboardHost>().HideKeyboard();
+		Di.GetRSvc<IKeyboardHost>().HideKeyboard();
 		return 0;
 	};
 

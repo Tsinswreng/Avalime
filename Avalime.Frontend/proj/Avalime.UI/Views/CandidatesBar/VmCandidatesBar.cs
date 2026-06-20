@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using Avalime.Core.Infra;
 using Avalime.Core.Keys;
 using Avalime.Rime;
 using Avalime.UI.Views.Candidate;
@@ -19,8 +20,8 @@ unsafe public partial class VmCandidatesBar : ViewModelBase
 {
 	public static Ctx Mk(){return new Ctx();}
 
-	public ImeState ImeState{get;set;} = App.SvcP.GetRequiredService<ImeState>();
-	public RimeConnectionState RimeConnection{get;set;} = App.SvcP.GetRequiredService<RimeConnectionState>();
+	public ImeState ImeState{get;set;} = Di.GetRSvc<ImeState>();
+	public RimeConnectionState RimeConnection{get;set;} = Di.GetRSvc<RimeConnectionState>();
 
 	public VmCandidatesBar(){
 		ImeState.AfterInput += (s,e)=>{

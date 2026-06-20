@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using Avalime.Core.Infra;
 using Avalime.UI.ViewModels;
 using Avalime.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,8 +9,8 @@ namespace Avalime.UI.Views.clipboard;
 public class VmClipboard : ViewModelBase
 {
 	public VmIme Ime { get; }
-	public IClipboardService ClipboardService { get; } = App.SvcP.GetRequiredService<IClipboardService>();
-	public IKeyboardHost KeyboardHost { get; } = App.SvcP.GetRequiredService<IKeyboardHost>();
+	public IClipboardService ClipboardService { get; } = Di.GetRSvc<IClipboardService>();
+	public IKeyboardHost KeyboardHost { get; } = Di.GetRSvc<IKeyboardHost>();
 
 	public ObservableCollection<VmClipboardItem> Items{
 		get => field;

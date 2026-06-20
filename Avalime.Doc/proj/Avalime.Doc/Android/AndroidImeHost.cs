@@ -40,6 +40,11 @@ using Tsinswreng.CsCore;
 	`OnCommit` 回調裡需要顯式切回 Android 主線程，再調 `CurrentInputConnection.CommitText`。
 ]
 
+#H[依賴注入與日誌][
+	Android 端在 `InputMethodService.OnCreate()` 組裝 `ServiceCollection`，並寫入全局 `Di.SvcP`。
+	`AppLog.Inst.InnerLogger` 在 Android `Application` 啟動時切到 `AndroidLogger`，Release 也可直接進 logcat。
+]
+
 #H[原生庫載入][
 	Android 端不再把 `librime.so` 放進 APK 的 `lib/arm64-v8a/` 標準原生庫路徑。
 	原因是某些 `librime_jni.so` 變體在 `JNI_OnLoad` 會主動查找宿主 App 裡的 Java 類，

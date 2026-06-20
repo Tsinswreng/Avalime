@@ -1,26 +1,30 @@
 namespace Avalime.Windows;
 
 using System;
+using Avalime.Core.Infra;
+using Avalime.Core.Infra.Log;
 using Avalime.Core.Keys;
 using Avalime.Rime;
 using Avalime.UI;
 using Avalonia;
 using Avalonia.Media;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 
 sealed class Program{
 	[STAThread]
 	public static void Main(string[] args){
+		AppLog.Inst.InnerLogger = new FuncLogger((level, message) => Console.WriteLine($"[{level}] {message}"));
 		var services = new ServiceCollection();
 		services.AddSingleton<
 			I_OsKeyProcessor
 			, WindowsKeyProcessor
 		>();
+		services.AddSingleton<IImeKeyProcessor, StubImeKeyProcessor>();
 		services.AddSingleton<IKeyboardHost, StubKeyboardHost>();
-
-		// IImeKeyProcessor NOT registered — Connect button switches it to RimeKeyProcessor
-		// (same flow as Android, avoids auto-init before .so is ready)
+		services.AddSingleton<IClipboardService, StubClipboardService>();
+		services.AddSingleton<ILogger>(_ => AppLog.Inst);
 
 		services.AddSingleton<
 			ImeState
@@ -30,7 +34,7 @@ sealed class Program{
 
 		var provider = services.BuildServiceProvider();
 		BuildAvaloniaApp()
-		.AfterSetup(e=>App.SetSvcProvider(provider))
+		.AfterSetup(e=>Di.SvcProvider = provider)
 		.StartWithClassicDesktopLifetime(args);
 	}
 

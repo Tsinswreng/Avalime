@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Avalime.Core.Infra;
 using Avalime.Core.Keys;
 using Avalime.Rime;
 using Microsoft.Extensions.DependencyInjection;
@@ -115,7 +116,7 @@ public partial class RimeConnectionState : ObservableObject
 			}
 			LogInfo("RimeSetup created");
 			await Dispatcher.UIThread.InvokeAsync(() => {
-				var imeState = App.SvcP.GetRequiredService<ImeState>();
+				var imeState = Di.GetRSvc<ImeState>();
 				LogInfo("Resolving ImeState done");
 				imeState.ImeKeyProcessor = new RimeKeyProcessor(setup);
 				LogInfo("ImeKeyProcessor switched to RimeKeyProcessor");

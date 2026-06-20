@@ -4,11 +4,20 @@ namespace Avalime.Core.Infra;
 
 [Doc("全局依賴注入管理")]
 public class Di{
-	public static IServiceProvider SvcP{get;set;} = null!;
+	public static IServiceProvider SvcProvider{
+		get{
+			return field ?? throw new InvalidOperationException("Di.SvcP has not been initialized.");
+		}
+		set{
+			field = value ?? throw new ArgumentNullException(nameof(value));
+		}
+	}
 
 	public static T GetRSvc<T>()
 		where T:class
 	{
-		return SvcP.GetRequiredService<T>();
+		return SvcProvider.GetRequiredService<T>();
 	}
+
 }
+

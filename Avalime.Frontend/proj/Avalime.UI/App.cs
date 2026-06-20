@@ -8,10 +8,6 @@ namespace Avalime.UI;
 
 public partial class App : Application
 {
-	public static IServiceProvider SvcP => AppServices.SvcP;
-	public static void SetSvcProvider(IServiceProvider svcP){ AppServices.SetSvcProvider(svcP); }
-	public static T GetRSvc<T>() where T:class => AppServices.GetRequiredService<T>();
-
 	public override void Initialize(){
 		AvaloniaXamlLoader.Load(this);
 	}

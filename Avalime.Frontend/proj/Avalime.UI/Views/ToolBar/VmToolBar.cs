@@ -1,5 +1,6 @@
 using Avalime.UI.ViewModels;
 using Avalime.ViewModels;
+using Avalime.Core.Infra;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Avalime.UI.Views.toolbar;
@@ -7,7 +8,7 @@ namespace Avalime.UI.Views.toolbar;
 public class VmToolBar : ViewModelBase
 {
 	public VmIme Ime { get; }
-	public RimeConnectionState RimeConnection { get; } = App.SvcP.GetRequiredService<RimeConnectionState>();
+	public RimeConnectionState RimeConnection { get; } = Di.GetRSvc<RimeConnectionState>();
 
 	public str HanLabel => RimeConnection.IsSimplification ? "汉" : "漢";
 
