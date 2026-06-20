@@ -6,6 +6,14 @@ using Avalime.Core.Infra.Log;
 using Avalime.Core.Keys;
 using Avalime.Rime;
 using Avalime.UI;
+using Avalime.UI.Views.ViewCandidatesBar;
+using Avalime.UI.Views.ViewClipboard;
+using Avalime.UI.Views.ViewIme;
+using Avalime.UI.Views.ViewInput;
+using Avalime.UI.Views.ViewKey;
+using Avalime.UI.Views.ViewKeyBoard;
+using Avalime.UI.Views.ViewRimeLog;
+using Avalime.UI.Views.ViewToolBar;
 using Avalonia;
 using Avalonia.Media;
 using Microsoft.Extensions.DependencyInjection;
@@ -39,7 +47,7 @@ sealed class Program{
 		services.AddTransient<VmInput>();
 		services.AddTransient<VmClipboard>();
 		services.AddTransient<VmRimeLog>();
-		services.AddTransient<KeyVm>();
+		services.AddTransient<VmKey>();
 		services.AddTransient<VmKeyBoard>();
 
 		var provider = services.BuildServiceProvider();

@@ -1,9 +1,11 @@
+using Avalime.Core.Infra;
 using Avalime.UI.Infra;
-using Avalime.UI.Views.ViewCandidate;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using Avalonia.Layout;
 using Avalonia.Media;
+using ViewCandidateControl = Avalime.UI.Views.ViewCandidate.ViewCandidate;
+using VmCandidateCtx = Avalime.UI.Views.ViewCandidate.VmCandidate;
 
 namespace Avalime.UI.Views.ViewCandidatesBar;
 using Ctx = VmCandidatesBar;
@@ -28,9 +30,9 @@ public class ViewCandidatesBar : AppViewBase<Ctx>
 	ItemsControl MkItems(){
 		var ans = new ItemsControl();
 		ans.VerticalAlignment = VAlign.Stretch;
-		ans.SetItemTemplate<VmCandidate>((vm, ns)=>{
-			var view = new ViewCandidate();
-			view.CBind<VmCandidate>(DataContextProperty, x=>x);
+		ans.SetItemTemplate<VmCandidateCtx>((vm, ns)=>{
+			var view = new ViewCandidateControl();
+			view.CBind<VmCandidateCtx>(DataContextProperty, x=>x);
 			return view;
 		}).SetItemsPanel(()=>new StackPanel{
 			Orientation = Orientation.Horizontal,

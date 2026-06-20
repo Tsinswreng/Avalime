@@ -2,25 +2,22 @@ using Avalime.Core.Keys;
 using Avalime.UI;
 using Avalime.ViewModels;
 
-namespace Avalime.ViewModels.KeyBoard;
+namespace Avalime.UI.Views.ViewKeyBoard;
 using Ctx = VmKeyBoard;
 
 public partial class VmKeyBoard : ViewModelBase
 {
-	//TODO 改用接口
 	public ImeState ImeState{get;set;}
 
 	public VmKeyBoard(ImeState ImeState){
 		this.ImeState = ImeState;
 	}
 
-	/// 是否顯示數字鍵盤佈局
 	public bool IsNumLayout{
 		get => field;
 		set => SetProperty(ref field, value);
 	}
 
-	/// 上滑 $ 鍵後切換；為 true 時後續普通按鍵都帶 Shift 修飾。
 	public bool IsShiftLocked{
 		get => field;
 		set => SetProperty(ref field, value);

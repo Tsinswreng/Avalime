@@ -7,40 +7,40 @@ using Avalime.ViewModels;
 using Avalonia.Media;
 using KS = Avalime.Core.Keys.KeyStates;
 
-namespace Avalime.ViewModels.key;
-using Ctx = KeyVm;
+namespace Avalime.UI.Views.ViewKey;
+using Ctx = VmKey;
 
-public partial class KeyVm : ViewModelBase, IKeyViewModel
+public partial class VmKey : ViewModelBase, IKeyViewModel
 	, IDisposable
 {
 	string _normalLabel = "";
 	readonly RimeConnectionState _rimeCon;
 	readonly PropertyChangedEventHandler _rimeConnectionPropertyChangedHandler;
 
-	public KeyVm(RimeConnectionState RimeConnection){
+	public VmKey(RimeConnectionState RimeConnection){
 		Label = Key_Click?.Name??"";
 
 		_rimeCon = RimeConnection;
 		_rimeConnectionPropertyChangedHandler = (_, e) => {
 			if(e.PropertyName == nameof(_rimeCon.IsAsciiMode)){
 				if(_rimeCon.IsAsciiMode){
-					_normalLabel = Label; // 保存非 ascii 標籤
+					_normalLabel = Label;
 					var name = Key_Click?.Name ?? "";
-					// 只對單個拉丁字母鍵顯示小寫
-					if(name.Length == 1 && char.IsAsciiLetter(name[0]))
+					if(name.Length == 1 && char.IsAsciiLetter(name[0])){
 						Label = char.ToLowerInvariant(name[0]).ToString();
+					}
 				}else{
-					Label = _normalLabel; // 恢復非 ascii 標籤
+					Label = _normalLabel;
 				}
 			}
 		};
 		_rimeCon.PropertyChanged += _rimeConnectionPropertyChangedHandler;
 
 		Click = ()=>{
-			var state = ImeState as ImeState;//TODO temp
+			var state = ImeState as ImeState;
 			try{
 				var sw = System.Diagnostics.Stopwatch.StartNew();
-				AppLog.Debug($"[Perf] KeyVm.Click→Input start: {sw.ElapsedMilliseconds}ms");
+				AppLog.Debug($"[Perf] VmKey.Click→Input start: {sw.ElapsedMilliseconds}ms");
 				state?.InputSafely([
 					new KeyEvent{
 						KeyChar = Key_Click,
@@ -51,7 +51,7 @@ public partial class KeyVm : ViewModelBase, IKeyViewModel
 						KeyState = KS.Up
 					}
 				], e => HandleErr(e));
-				AppLog.Debug($"[Perf] KeyVm.Click→Input done: {sw.ElapsedMilliseconds}ms");
+				AppLog.Debug($"[Perf] VmKey.Click→Input done: {sw.ElapsedMilliseconds}ms");
 			}
 			catch(Exception e){
 				HandleErr(e);
@@ -67,10 +67,9 @@ public partial class KeyVm : ViewModelBase, IKeyViewModel
 	public Func<zero>? SwipeUP{get;set;}
 	public Func<zero>? SwipeRight{get;set;}
 
-	/// <summary>長按後是否持續重複觸發 Click</summary>
 	public bool IsRepeat{get;set;}
 
-	public ImeState ImeState{get;set;}//TODO 改用接口
+	public ImeState ImeState{get;set;}
 
 	public IKeyChar Key_Click{
 		get => field;
@@ -85,13 +84,11 @@ public partial class KeyVm : ViewModelBase, IKeyViewModel
 		set => SetProperty(ref field, value);
 	} = "";
 
-	/// 按鍵提示文字（顯示滑動/長按的結果）
 	public str Hint{
 		get => field;
 		set => SetProperty(ref field, value);
 	} = "";
 
-	/// 按鍵底部提示文字（Ctrl 組合鍵等功能）
 	public str BottomHint{
 		get => field;
 		set => SetProperty(ref field, value);

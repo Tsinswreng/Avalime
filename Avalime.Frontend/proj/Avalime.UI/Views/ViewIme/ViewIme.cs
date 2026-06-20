@@ -1,11 +1,11 @@
 using Avalime.Core.Infra;
 using Avalime.UI.Infra;
-using Avalime.UI.Views.ViewCandidatesBar;
-using Avalime.UI.Views.ViewClipboard;
-using Avalime.UI.Views.ViewKeyBoard;
-using Avalime.UI.Views.ViewPreedit;
-using Avalime.UI.Views.ViewRimeLog;
-using Avalime.UI.Views.ViewToolBar;
+using ViewCandidatesBarControl = Avalime.UI.Views.ViewCandidatesBar.ViewCandidatesBar;
+using ViewClipboardControl = Avalime.UI.Views.ViewClipboard.ViewClipboard;
+using ViewKeyBoardControl = Avalime.UI.Views.ViewKeyBoard.ViewKeyBoard;
+using ViewPreeditControl = Avalime.UI.Views.ViewPreedit.ViewPreedit;
+using ViewRimeLogControl = Avalime.UI.Views.ViewRimeLog.ViewRimeLog;
+using ViewToolBarControl = Avalime.UI.Views.ViewToolBar.ViewToolBar;
 using Avalonia.Controls;
 using System.ComponentModel;
 using Tsinswreng.Avln.Grid;
@@ -16,12 +16,12 @@ using Ctx = VmIme;
 public class ViewIme : AppViewBase<Ctx>
 	, IDisposable
 {
-	ViewPreedit? _preedit;
-	ViewToolBar? _toolbar;
-	ViewCandidatesBar? _candidates;
-	ViewKeyBoard? _keyboard;
-	ViewClipboard? _clipboard;
-	ViewRimeLog? _rimeLog;
+	ViewPreeditControl? _preedit;
+	ViewToolBarControl? _toolbar;
+	ViewCandidatesBarControl? _candidates;
+	ViewKeyBoardControl? _keyboard;
+	ViewClipboardControl? _clipboard;
+	ViewRimeLogControl? _rimeLog;
 	PropertyChangedEventHandler? _ctxPropertyChangedHandler;
 	GridStack Root = new(IsRow: true);
 
@@ -40,25 +40,25 @@ public class ViewIme : AppViewBase<Ctx>
 			new(1, GUT.Star),
 		]);
 
-		var preedit = new ViewPreedit();
+		var preedit = new ViewPreeditControl();
 		_preedit = preedit;
 		preedit.Height = preeditHeight;
 
-		var toolbar = new ViewToolBar();
+		var toolbar = new ViewToolBarControl();
 		_toolbar = toolbar;
 		toolbar.Height = topBarHeight;
 
-		var candidates = new ViewCandidatesBar();
+		var candidates = new ViewCandidatesBarControl();
 		_candidates = candidates;
 		candidates.Height = topBarHeight;
 
-		var keyboard = new ViewKeyBoard();
+		var keyboard = new ViewKeyBoardControl();
 		_keyboard = keyboard;
 
-		var clipboard = new ViewClipboard();
+		var clipboard = new ViewClipboardControl();
 		_clipboard = clipboard;
 
-		var rimeLog = new ViewRimeLog();
+		var rimeLog = new ViewRimeLogControl();
 		_rimeLog = rimeLog;
 
 		void SyncVisible(){

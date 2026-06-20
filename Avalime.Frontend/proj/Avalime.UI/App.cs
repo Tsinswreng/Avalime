@@ -1,8 +1,7 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalime.ViewModels;
-using Avalime.UI.Views.ViewMainView;
-using Avalime.UI.Views.ViewMainWindow;
+using Avalime.UI.Views;
 using Avalonia.Markup.Xaml;
 
 namespace Avalime.UI;

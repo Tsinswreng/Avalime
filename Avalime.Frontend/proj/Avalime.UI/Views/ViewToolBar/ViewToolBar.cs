@@ -1,4 +1,4 @@
-using Avalime.UI.Icons;
+using Avalime.Core.Infra;
 using Avalime.UI.Infra;
 using Avalonia.Controls;
 using Avalonia.Input;
@@ -35,7 +35,7 @@ public class ViewToolBar : AppViewBase<Ctx>
 		Grid.SetColumn(btnHan, 0);
 
 		var btnClipboard = MkBtn();
-		var icon = Icons.Clipboard().ToIcon();
+		var icon = Avalime.UI.Icons.Icons.Clipboard();
 		icon.Width = UiCfg.Inst.TopBarFontSize;
 		icon.Height = UiCfg.Inst.TopBarFontSize;
 		btnClipboard.SetChild(icon);
@@ -46,7 +46,7 @@ public class ViewToolBar : AppViewBase<Ctx>
 		Grid.SetColumn(btnClipboard, 1);
 
 		var btnLog = MkBtn();
-		var logIcon = Icons.ScrollText().ToIcon();
+		var logIcon = Avalime.UI.Icons.Icons.ScrollText();
 		logIcon.Width = UiCfg.Inst.TopBarFontSize;
 		logIcon.Height = UiCfg.Inst.TopBarFontSize;
 		btnLog.SetChild(logIcon);

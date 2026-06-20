@@ -1,17 +1,15 @@
-//ViewKey: 單個鍵盤按鍵視圖、支援點擊/長按/滑動 + Hint提示文字、樣式匹配 TswG 暗色方案
 using Avalime.Core.Infra;
 using Avalime.Core.Infra.Log;
-using Avalime.ViewModels.key;
+using Avalime.UI.Infra;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.Styling;
 using Avalonia.Threading;
-using Avalime.UI.Infra;
 
 namespace Avalime.UI.Views.ViewKey;
-using Ctx = KeyVm;
+using Ctx = VmKey;
 
 public class ViewKey : AppViewBase<Ctx>
 {
@@ -27,11 +25,9 @@ public class ViewKey : AppViewBase<Ctx>
 		public const str KeyBorder = nameof(KeyBorder);
 	}
 
-	/// TswG 暗色配色
-	/// 分隔線顏色 = 鍵盤底色、模擬TswG的gap效果、相鄰兩鍵0.5+0.5=1px線即背景色
 	static class TswG{
 		public static readonly SolidColorBrush KeyText = Brush("#E0E0E0");
-		public static readonly SolidColorBrush GapLine = Brush("#253238"); //邊框線=鍵盤底色(keyboard_back_color)
+		public static readonly SolidColorBrush GapLine = Brush("#253238");
 		public static readonly SolidColorBrush HintText = Brush("#BDBDBD");
 		public static readonly CornerRadius Round = new(0);
 		public static readonly Thickness KeyMargin = new(0);
@@ -53,7 +49,7 @@ public class ViewKey : AppViewBase<Ctx>
 			.Set(MarginProperty, TswG.KeyMargin)
 			.Set(PaddingProperty, new Thickness(0))
 			.Set(BackgroundProperty, UiCfg.Inst.KeyBgColor)
-			.Set(BorderBrushProperty, TswG.GapLine)       //邊框=鍵盤底色、模擬gap
+			.Set(BorderBrushProperty, TswG.GapLine)
 			.Set(BorderThicknessProperty, TswG.BorderThick)
 		).A(
 			Sty.Is<Control>(x=>x.Class(Cls.Label))
@@ -70,7 +66,6 @@ public class ViewKey : AppViewBase<Ctx>
 		);
 	}
 
-	#region 手勢
 	Border _border = default!;
 	Point _pressPoint;
 	DispatcherTimer? _longPressTimer;
@@ -81,7 +76,7 @@ public class ViewKey : AppViewBase<Ctx>
 		_pressPoint = e.GetPosition(_border);
 		_longPressFired = false;
 		e.Pointer.Capture(_border);
-		_border.Background = UiCfg.Inst.MainColor; //按下視覺反饋
+		_border.Background = UiCfg.Inst.MainColor;
 		AppLog.Debug($"[Key] Pressed, hasLongPress={Ctx?.LongPress is not null}, isRepeat={Ctx?.IsRepeat}");
 		StartLongPressTimer();
 	}
@@ -90,8 +85,9 @@ public class ViewKey : AppViewBase<Ctx>
 		var pos = e.GetPosition(_border);
 		var dx = pos.X - _pressPoint.X;
 		var dy = pos.Y - _pressPoint.Y;
-		if(Math.Abs(dx) > SwipeThreshold || Math.Abs(dy) > SwipeThreshold)
+		if(Math.Abs(dx) > SwipeThreshold || Math.Abs(dy) > SwipeThreshold){
 			StopLongPressTimer();
+		}
 	}
 
 	void OnPointerReleased(object? s, PointerReleasedEventArgs e){
@@ -162,7 +158,6 @@ public class ViewKey : AppViewBase<Ctx>
 		_repeatTimer?.Stop();
 		_repeatTimer = null;
 	}
-	#endregion
 
 	void Render(){
 		var keyboardFont = UiCfg.Inst.KeyboardFontFamily;
@@ -178,7 +173,6 @@ public class ViewKey : AppViewBase<Ctx>
 		Ctx.Bind(border, Border.BackgroundProperty, x=>x.Background);
 
 		border.SetChild(new Grid(), grid=>{
-			//單格疊放：Hint疊在頂部、Label居中、BottomHint在底部、互不搶空間
 			var label = new TextBlock();
 			label.Classes.Add(Cls.Label);
 			if(keyboardFont is not null) label.FontFamily = keyboardFont;
@@ -202,8 +196,8 @@ public class ViewKey : AppViewBase<Ctx>
 			Ctx.Bind(hintBottom, x=>x.Text, x=>x.BottomHint);
 
 			grid.Children.Add(label);
-			grid.Children.Add(hint);       //hint在右上角
-			grid.Children.Add(hintBottom); //hintBottom在左下角
+			grid.Children.Add(hint);
+			grid.Children.Add(hintBottom);
 		});
 	}
 }

@@ -27,13 +27,16 @@ using Tsinswreng.CsCore;
 #H[DI 分層][
 	當前 UI 層依賴注入規則是：
 	- **只有 View 層可以直接調全局 `Di.GetRSvc<T>()`**
+	- `Di` 是唯一的全局 DI 入口；不要再經由 `App` 暴露 service locator
 	- `Vm` / `RimeConnectionState` / 其他非 View 類型一律使用構造函數注入
 	- **所有 View 都必須提供 `public` 無參構造函數**
 	- View 本身視爲無狀態；不要把 `Vm` 或其他運行時狀態通過 View 構造參數傳入
+	- 除 `MainView` / `MainWindow` 這種項目模板自帶入口外，`Views/` 下每個 View/Vm 都必須放在自己的專屬同名文件夾中（如 `Views/ViewIme/ViewIme.cs`、`Views/ViewIme/VmIme.cs`）
 
 	也就是說：
-	- `ViewIme` / `ViewKeyBoard` / `ViewInput` 這些 View 可以從全局 `Di` 取依賴，再 `new VmXxx(...)`
-	- 但要用 `view.Ctx = ...` / `DataContext = ...` 的方式把 ViewModel 綁上去，而不是寫成 `new ViewXxx(vm)`
+	- `ViewIme` / `ViewKeyBoard` / `ViewInput` 這些 View 內部只負責通過 `Di.DiOrMk<Ctx>()` 解析自身 `Ctx`
+	- 子 View 也各自解析自己的 `Ctx`；不要在父 View 中手動 `new VmXxx(...)` 再塞給子 View
+	- 禁止寫成 `new ViewXxx(vm)` 這種帶狀態構造方式
 	- `VmIme` / `VmCandidatesBar` / `VmInput` / `VmClipboard` / `VmToolBar` / `VmKey` / `VmRimeLog` 內部都不應再直接碰 `Di`
 	- `RimeConnectionState` 這類 service 內部若需要 `ImeState` 等依賴，也應在構造函數注入，不可反查全局容器
 
@@ -54,7 +57,7 @@ using Tsinswreng.CsCore;
 	由於 `AfterInput` 可能在後台線程觸發，`VmIme` / `VmCandidatesBar` / `VmInput` 更新綁定屬性時都需要切回 `Dispatcher.UIThread`。
 	Y 鍵左滑切換 `ascii_mode`，通過 `RimeConnectionState.ToggleAsciiMode()` 在**後台線程**調用 `set_option`（防止約 350ms 的原生調用阻塞 UI 線程導致 ANR）。
 	`ToggleAsciiMode` 內部使用 `Interlocked` 防止連點並發，直接計算新狀態並通過 `Dispatcher.UIThread.Post` 更新 `IsAsciiMode`。
-	ASCII 模式下所有按鍵標籤顯示為小寫拉丁字母（如 Q→q、Σ→s），`KeyVm` 監聽 `IsAsciiMode` 自動切換。
+	ASCII 模式下所有按鍵標籤顯示為小寫拉丁字母（如 Q→q、Σ→s），`VmKey` 監聽 `IsAsciiMode` 自動切換。
 	工具欄第一個按鈕切換 `simplification` option：
 	- `false` 時顯示 `漢`
 	- `true` 時顯示 `汉`
@@ -88,7 +91,7 @@ using Tsinswreng.CsCore;
 	- `VmCandidatesBar`：解除 `ImeState.AfterInput`
 	- `VmInput`：解除 `ImeState.AfterInput`
 	- `VmClipboard` / `VmToolBar` / `VmKey`：解除各自對宿主或全局狀態的訂閱
-	- `ViewKeyBoard`：回收所有 `KeyVm`，並解除對 `VmKeyBoard.PropertyChanged` 的監聽
+	- `ViewKeyBoard`：回收所有 `VmKey`，並解除對 `VmKeyBoard.PropertyChanged` 的監聽
 
 	這一層文檔的約束是：
 	- 以後若再新增掛在 `ImeState` / `RimeConnectionState` / 其他長生命週期單例上的事件訂閱，必須同步補 `Dispose`

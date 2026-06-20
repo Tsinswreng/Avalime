@@ -1,7 +1,7 @@
-using Avalime.UI.Views.ViewInput;
+using ViewInputControl = Avalime.UI.Views.ViewInput.ViewInput;
 
 namespace Avalime.UI.Views.ViewPreedit;
 
-public class ViewPreedit : ViewInput
+public class ViewPreedit : ViewInputControl
 {
 }
