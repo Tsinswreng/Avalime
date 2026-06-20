@@ -6,6 +6,7 @@ using Tsinswreng.CsCore;
 #H[用途][
 	UI 端分成 `ViewIme`、候選欄、工具欄、預編輯欄、剪貼板頁和純鍵盤。
 	`MainView` 直接掛 `ViewIme`。
+	候選詞完整鏈路與生命週期另見 `CandidateLifecycle`。
 ]
 
 #H[鍵盤結構][
