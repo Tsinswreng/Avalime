@@ -24,6 +24,8 @@ public class ViewIme : AppViewBase<Ctx>
 	ViewRimeLogControl? _rimeLog;
 	PropertyChangedEventHandler? _ctxPropertyChangedHandler;
 	GridStack Root = new(IsRow: true);
+	Grid? _topBarOverlay;
+	Grid? _bodyOverlay;
 
 	public ViewIme(){
 		Ctx = Di.DiOrMk<Ctx>();
@@ -97,21 +99,18 @@ public class ViewIme : AppViewBase<Ctx>
 		SyncVisible();
 
 		Root
-		.A(preedit, o=>{
-			Grid.SetRow(o, 0);
-		})
-		.A(new Grid{
-			Height = topBarHeight
-		}, o=>{
-			Grid.SetRow(o, 1);
-			o.A(toolbar);
-			o.A(candidates);
+		.A(preedit)
+		.A(new Grid(), o=>{
+			_topBarOverlay = o;
+			o.Height = topBarHeight;
+			o.A(toolbar)
+			.A(candidates);
 		})
 		.A(new Grid(), o=>{
-			Grid.SetRow(o, 2);
-			o.A(keyboard);
-			o.A(clipboard);
-			o.A(rimeLog);
+			_bodyOverlay = o;
+			o.A(keyboard)
+			.A(clipboard)
+			.A(rimeLog);
 		});
 	}
 

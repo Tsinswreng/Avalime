@@ -9,59 +9,65 @@ using Ctx = VmToolBar;
 
 public class ViewToolBar : AppViewBase<Ctx>
 {
+	GridStack Root = new(IsRow: false);
+
 	public ViewToolBar(){
 		Ctx = Di.DiOrMk<Ctx>();
 		Render();
 	}
 
 	void Render(){
-		var root = new Grid();
-		root.ColumnDefinitions = new("*,*,*,*,*,*,*,*,*,*");
-		root.Background = Brushes.Black;
-		root.Height = UiCfg.Inst.TopBarHeight;
+		this.SetContent(Root.Grid);
+		Root.Grid.Background = Brushes.Black;
+		Root.Grid.Height = UiCfg.Inst.TopBarHeight;
+		Root.SetColDefs([
+			new(1, GUT.Star),
+			new(1, GUT.Star),
+			new(1, GUT.Star),
+			new(1, GUT.Star),
+			new(1, GUT.Star),
+			new(1, GUT.Star),
+			new(1, GUT.Star),
+			new(1, GUT.Star),
+			new(1, GUT.Star),
+			new(1, GUT.Star),
+		]);
 
-		var btnHan = MkBtn();
-		btnHan.SetChild(new TextBlock(), o=>{
-			o.Foreground = Brushes.White;
-			o.VerticalAlignment = VAlign.Center;
-			o.HorizontalAlignment = HAlign.Center;
-			o.FontSize = UiCfg.Inst.TopBarFontSize;
-		});
-		Ctx.Bind((TextBlock)btnHan.Child!, TextBlock.TextProperty, x => x.HanLabel);
-		btnHan.PointerPressed += (_, e) => {
-			e.Handled = true;
-			Ctx?.ToggleSimplification();
-		};
-		Grid.SetColumn(btnHan, 0);
-
-		var btnClipboard = MkBtn();
-		var icon = Avalime.UI.Icons.Icons.Clipboard();
-		icon.Width = UiCfg.Inst.TopBarFontSize;
-		icon.Height = UiCfg.Inst.TopBarFontSize;
-		btnClipboard.SetChild(icon);
-		btnClipboard.PointerPressed += (_, e) => {
-			e.Handled = true;
-			Ctx?.ToggleClipboard();
-		};
-		Grid.SetColumn(btnClipboard, 1);
-
-		var btnLog = MkBtn();
-		var logIcon = Avalime.UI.Icons.Icons.ScrollText();
-		logIcon.Width = UiCfg.Inst.TopBarFontSize;
-		logIcon.Height = UiCfg.Inst.TopBarFontSize;
-		btnLog.SetChild(logIcon);
-		btnLog.PointerPressed += (_, e) => {
-			e.Handled = true;
-			Ctx?.ToggleRimeLog();
-		};
-		Grid.SetColumn(btnLog, 2);
-
-		root
-		.A(btnHan)
-		.A(btnClipboard)
-		.A(btnLog)
+		Root
+		.A(MkBtn(), b=>{
+			b.PointerPressed += (_, e) => {
+				e.Handled = true;
+				Ctx?.ToggleSimplification();
+			};
+			b.SetChild(new TextBlock(), o=>{
+				o.Foreground = Brushes.White;
+				o.VerticalAlignment = VAlign.Center;
+				o.HorizontalAlignment = HAlign.Center;
+				o.FontSize = UiCfg.Inst.TopBarFontSize;
+				Ctx.Bind(o, TextBlock.TextProperty, x => x.HanLabel);
+			});
+		})
+		.A(MkBtn(), b=>{
+			b.PointerPressed += (_, e) => {
+				e.Handled = true;
+				Ctx?.ToggleClipboard();
+			};
+			b.SetChild(Avalime.UI.Icons.Icons.Clipboard(), o=>{
+				o.Width = UiCfg.Inst.TopBarFontSize;
+				o.Height = UiCfg.Inst.TopBarFontSize;
+			});
+		})
+		.A(MkBtn(), b=>{
+			b.PointerPressed += (_, e) => {
+				e.Handled = true;
+				Ctx?.ToggleRimeLog();
+			};
+			b.SetChild(Avalime.UI.Icons.Icons.ScrollText(), o=>{
+				o.Width = UiCfg.Inst.TopBarFontSize;
+				o.Height = UiCfg.Inst.TopBarFontSize;
+			});
+		})
 		;
-		this.SetContent(root);
 	}
 
 	static Border MkBtn(){

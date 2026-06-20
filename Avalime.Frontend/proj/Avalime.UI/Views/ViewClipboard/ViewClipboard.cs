@@ -37,10 +37,9 @@ public class ViewClipboard : AppViewBase<Ctx>
 		});
 		Ctx.Bind(items, ItemsControl.ItemsSourceProperty, x => x.Items);
 
-		var sc = new ScrollViewer{
-			Background = Brushes.Black,
-			Content = items
-		};
-		this.SetContent(sc);
+		this.SetContent(new ScrollViewer(), o=>{
+			o.Background = Brushes.Black;
+			o.SetContent(items);
+		});
 	}
 }

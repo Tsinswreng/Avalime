@@ -164,44 +164,38 @@ public class ViewKey : AppViewBase<Ctx>
 		this.SetContent(new Border(), b=>{
 			_border = b;
 			b.Classes.Add(Cls.KeyBorder);
-			Content = b;
 
 			b.PointerPressed += OnPointerPressed;
 			b.PointerMoved += OnPointerMoved;
 			b.PointerReleased += OnPointerReleased;
 			b.PointerCaptureLost += OnPointerCaptureLost;
 			Ctx.Bind(b, Border.BackgroundProperty, x=>x.Background);
-			//UI寫法不符合Ngaq的Avln.Dsl規範
 			b.SetChild(new Grid(), grid=>{
-				var label = new TextBlock();
-				label.Classes.Add(Cls.Label);
-				if(keyboardFont is not null) label.FontFamily = keyboardFont;
-				Ctx.Bind(label, x=>x.Text, x=>x.Label);
-				Ctx.Bind(label, TextBlock.FontSizeProperty, x=>x.FontSize);
-
-				var hint = new TextBlock();
-				hint.Classes.Add(Cls.HintLabel);
-				if(keyboardFont is not null) hint.FontFamily = keyboardFont;
-				hint.VerticalAlignment = VAlign.Top;
-				hint.HorizontalAlignment = HAlign.Right;
-				hint.Margin = new(0, 1, 3, 0);
-				Ctx.Bind(hint, x=>x.Text, x=>x.Hint);
-
-				var hintBottom = new TextBlock();
-				hintBottom.Classes.Add(Cls.HintLabel);
-				if(keyboardFont is not null) hintBottom.FontFamily = keyboardFont;
-				hintBottom.VerticalAlignment = VAlign.Bottom;
-				hintBottom.HorizontalAlignment = HAlign.Left;
-				hintBottom.Margin = new(2, 0, 0, 2);
-				Ctx.Bind(hintBottom, x=>x.Text, x=>x.BottomHint);
-
-				grid.Children.Add(label);
-				grid.Children.Add(hint);
-				grid.Children.Add(hintBottom);
+				grid
+				.A(new TextBlock(), o=>{
+					o.Classes.Add(Cls.Label);
+					if(keyboardFont is not null) o.FontFamily = keyboardFont;
+					Ctx.Bind(o, x=>x.Text, x=>x.Label);
+					Ctx.Bind(o, TextBlock.FontSizeProperty, x=>x.FontSize);
+				})
+				.A(new TextBlock(), o=>{
+					o.Classes.Add(Cls.HintLabel);
+					if(keyboardFont is not null) o.FontFamily = keyboardFont;
+					o.VerticalAlignment = VAlign.Top;
+					o.HorizontalAlignment = HAlign.Right;
+					o.Margin = new(0, 1, 3, 0);
+					Ctx.Bind(o, x=>x.Text, x=>x.Hint);
+				})
+				.A(new TextBlock(), o=>{
+					o.Classes.Add(Cls.HintLabel);
+					if(keyboardFont is not null) o.FontFamily = keyboardFont;
+					o.VerticalAlignment = VAlign.Bottom;
+					o.HorizontalAlignment = HAlign.Left;
+					o.Margin = new(2, 0, 0, 2);
+					Ctx.Bind(o, x=>x.Text, x=>x.BottomHint);
+				})
+				;
 			});
 		});
-
-
-
 	}
 }

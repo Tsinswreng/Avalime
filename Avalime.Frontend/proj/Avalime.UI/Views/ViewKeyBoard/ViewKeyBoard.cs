@@ -46,8 +46,10 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 		_mainKeys = MkKeysGrid(isNum: false);
 		_numKeys = MkKeysGrid(isNum: true);
 		_numKeys.IsVisible = false;
-		panel.Children.Add(_mainKeys);
-		panel.Children.Add(_numKeys);
+		panel
+		.A(_mainKeys)
+		.A(_numKeys)
+		;
 
 		PropertyChangedEventHandler onLayoutChanged = (s, e) => {
 			if(e.PropertyName == nameof(Ctx.IsNumLayout)){
@@ -61,32 +63,36 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 	}
 
 	Grid MkKeysGrid(bool isNum){
-		var ans = new Grid{
-			RowDefinitions = new("0.8*,*,*,*,*,0.8*"),
-			Background = SolidColorBrush.Parse("#253238"),
-		};
-		i32 rowIdx = 0;
+		var root = new GridStack();
+		root.Grid.Background = SolidColorBrush.Parse("#253238");
+		root.SetRowDefs([
+			new(0.8, GUT.Star),
+			new(1, GUT.Star),
+			new(1, GUT.Star),
+			new(1, GUT.Star),
+			new(1, GUT.Star),
+			new(0.8, GUT.Star),
+		]);
 		if(isNum){
-			AddRow(ans, MkNumRow1(), ref rowIdx);
-			AddRow(ans, MkNumRow2(), ref rowIdx);
-			AddRow(ans, MkNumRow3(), ref rowIdx);
-			AddRow(ans, MkNumRow4(), ref rowIdx);
-			AddRow(ans, MkNumRow5(), ref rowIdx);
-			AddRow(ans, MkNumRow6(), ref rowIdx);
+			root
+			.A(MkNumRow1())
+			.A(MkNumRow2())
+			.A(MkNumRow3())
+			.A(MkNumRow4())
+			.A(MkNumRow5())
+			.A(MkNumRow6())
+			;
 		}else{
-			AddRow(ans, MkRow1(), ref rowIdx);
-			AddRow(ans, MkRow2(), ref rowIdx);
-			AddRow(ans, MkRow3(), ref rowIdx);
-			AddRow(ans, MkRow4(), ref rowIdx);
-			AddRow(ans, MkRow5(), ref rowIdx);
-			AddRow(ans, MkRow6(), ref rowIdx);
+			root
+			.A(MkRow1())
+			.A(MkRow2())
+			.A(MkRow3())
+			.A(MkRow4())
+			.A(MkRow5())
+			.A(MkRow6())
+			;
 		}
-		return ans;
-	}
-
-	static void AddRow(Grid grid, Grid row, ref i32 idx){
-		grid.Children.Add(row);
-		Grid.SetRow(row, idx++);
+		return root.Grid;
 	}
 
 	readonly struct KeyCfg{
@@ -105,32 +111,6 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 		public Func<zero>? SwipeRightAction{get;init;}
 		public Func<zero>? SwipeUpAction{get;init;}
 		public bool IsRepeat{get;init;}
-	}
-
-	Grid MkRowCfg(params KeyCfg[] cfgs){
-		var ans = new Grid();
-		i32 col = 0;
-		foreach(var _ in cfgs) ans.ColumnDefinitions.Add(new(1, GUT.Star));
-		foreach(var cfg in cfgs){
-			ans.Children.Add(KView(cfg));
-			Grid.SetColumn(ans.Children[^1], col++);
-		}
-		return ans;
-	}
-
-	Grid MkRowOfControls(IList<Control> ctrls, IList<i32>? colWidths = null){
-		var ans = new Grid();
-		i32 col = 0;
-		if(colWidths is not null){
-			foreach(var w in colWidths) ans.ColumnDefinitions.Add(new(w, GUT.Star));
-		}else{
-			foreach(var _ in ctrls) ans.ColumnDefinitions.Add(new(1, GUT.Star));
-		}
-		foreach(var ctrl in ctrls){
-			ans.Children.Add(ctrl);
-			Grid.SetColumn(ans.Children[^1], col++);
-		}
-		return ans;
 	}
 
 	ViewKeyControl KView(KeyCfg cfg){
@@ -264,169 +244,246 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 		return 0;
 	};
 
-	Grid MkRow1()=>MkRowCfg(
-		new(){Key=D1, Hint="!", LongClick=Exclamation, SwipeUp=Exclamation},
-		new(){Key=D2, Hint="@", LongClick=At, SwipeUp=At},
-		new(){Key=D3, Hint="#", LongClick=HashTag, SwipeUp=HashTag},
-		new(){Key=D4, Hint="$", LongClick=Dollar, SwipeUp=Dollar},
-		new(){Key=D5, Hint="%", LongClick=Percent, SwipeUp=Percent},
-		new(){Key=D6, Hint="^", LongClick=Caret, SwipeUp=Caret},
-		new(){Key=D7, Hint="&", LongClick=Ampersand, SwipeUp=Ampersand},
-		new(){Key=D8, Hint="*", LongClick=Asterisk, SwipeUp=Asterisk},
-		new(){Key=D9, Hint="(", LongClick=Paren_L, SwipeUp=Paren_L},
-		new(){Key=D0, Hint=")", LongClick=Paren_R, SwipeUp=Paren_R}
-	);
+	Grid MkRow1(){
+		var root = new GridStack(IsRow: false);
+		root.SetColDefs([
+			new(1, GUT.Star), new(1, GUT.Star), new(1, GUT.Star), new(1, GUT.Star), new(1, GUT.Star),
+			new(1, GUT.Star), new(1, GUT.Star), new(1, GUT.Star), new(1, GUT.Star), new(1, GUT.Star),
+		]);
+		root
+		.A(KView(new(){Key=D1, Hint="!", LongClick=Exclamation, SwipeUp=Exclamation}))
+		.A(KView(new(){Key=D2, Hint="@", LongClick=At, SwipeUp=At}))
+		.A(KView(new(){Key=D3, Hint="#", LongClick=HashTag, SwipeUp=HashTag}))
+		.A(KView(new(){Key=D4, Hint="$", LongClick=Dollar, SwipeUp=Dollar}))
+		.A(KView(new(){Key=D5, Hint="%", LongClick=Percent, SwipeUp=Percent}))
+		.A(KView(new(){Key=D6, Hint="^", LongClick=Caret, SwipeUp=Caret}))
+		.A(KView(new(){Key=D7, Hint="&", LongClick=Ampersand, SwipeUp=Ampersand}))
+		.A(KView(new(){Key=D8, Hint="*", LongClick=Asterisk, SwipeUp=Asterisk}))
+		.A(KView(new(){Key=D9, Hint="(", LongClick=Paren_L, SwipeUp=Paren_L}))
+		.A(KView(new(){Key=D0, Hint=")", LongClick=Paren_R, SwipeUp=Paren_R}))
+		;
+		return root.Grid;
+	}
 
-	Grid MkRow2()=>MkRowCfg(
-		new(){Key=q, Label="Q", SwipeUp=Q},
-		new(){Key=w, Label="W", SwipeUp=W},
-		new(){Key=e, Label="E", SwipeUp=E},
-		new(){Key=r, Label="R", SwipeUp=R},
-		new(){Key=t, Label="T", SwipeUp=T},
-		new(){Key=u, Label="U", SwipeUp=U, SwipeLeft=Paren_L, SwipeRight=Paren_R},
-		new(){Key=i, Label="I", SwipeUp=I, SwipeLeft=SquareBracket_L, SwipeRight=SquareBracket_R},
-		new(){Key=o, Label="O", SwipeUp=O, SwipeLeft=Braces_L, SwipeRight=Braces_R},
-		new(){Key=p, Label="Π", SwipeUp=P, SwipeLeft=Less, SwipeRight=Greater},
-		new(){Key=y, Label="Y", Hint="⇆", HintBottom="↷", SwipeUp=Y, SwipeLeftAction=MkToggleAsciiMode(), SwipeRightAction=MkSendCtrlKey(y), LongClickAction=MkSendCtrlKey(y)}
-	);
+	Grid MkRow2(){
+		var root = new GridStack(IsRow: false);
+		root.SetColDefs([
+			new(1, GUT.Star), new(1, GUT.Star), new(1, GUT.Star), new(1, GUT.Star), new(1, GUT.Star),
+			new(1, GUT.Star), new(1, GUT.Star), new(1, GUT.Star), new(1, GUT.Star), new(1, GUT.Star),
+		]);
+		root
+		.A(KView(new(){Key=q, Label="Q", SwipeUp=Q}))
+		.A(KView(new(){Key=w, Label="W", SwipeUp=W}))
+		.A(KView(new(){Key=e, Label="E", SwipeUp=E}))
+		.A(KView(new(){Key=r, Label="R", SwipeUp=R}))
+		.A(KView(new(){Key=t, Label="T", SwipeUp=T}))
+		.A(KView(new(){Key=u, Label="U", SwipeUp=U, SwipeLeft=Paren_L, SwipeRight=Paren_R}))
+		.A(KView(new(){Key=i, Label="I", SwipeUp=I, SwipeLeft=SquareBracket_L, SwipeRight=SquareBracket_R}))
+		.A(KView(new(){Key=o, Label="O", SwipeUp=O, SwipeLeft=Braces_L, SwipeRight=Braces_R}))
+		.A(KView(new(){Key=p, Label="Π", SwipeUp=P, SwipeLeft=Less, SwipeRight=Greater}))
+		.A(KView(new(){Key=y, Label="Y", Hint="⇆", HintBottom="↷", SwipeUp=Y, SwipeLeftAction=MkToggleAsciiMode(), SwipeRightAction=MkSendCtrlKey(y), LongClickAction=MkSendCtrlKey(y)}))
+		;
+		return root.Grid;
+	}
 
-	Grid MkRow3()=>MkRowCfg(
-		new(){Key=a, Label="A", HintBottom="☑", SwipeUp=A, SwipeRightAction=MkSendCtrlKey(a), LongClickAction=MkSendCtrlKey(a)},
-		new(){Key=s, Label="Σ", Hint="⇪", SwipeUp=S},
-		new(){Key=d, Label="Δ", SwipeUp=D},
-		new(){Key=f, Label="F", SwipeUp=F},
-		new(){Key=g, Label="G", SwipeUp=G, SwipeLeft=Left, SwipeRight=Right, SwipeDown=Down},
-		new(){Key=h, Label="H", SwipeUp=H},
-		new(){Key=j, Label="J", SwipeUp=J},
-		new(){Key=k, Label="K", SwipeUp=K},
-		new(){Key=l, Label="Λ", SwipeUp=L},
-		new(){Key=Semicolon, Label=";", Hint=":", SwipeUp=Colon, LongClick=Colon}
-	);
+	Grid MkRow3(){
+		var root = new GridStack(IsRow: false);
+		root.SetColDefs([
+			new(1, GUT.Star), new(1, GUT.Star), new(1, GUT.Star), new(1, GUT.Star), new(1, GUT.Star),
+			new(1, GUT.Star), new(1, GUT.Star), new(1, GUT.Star), new(1, GUT.Star), new(1, GUT.Star),
+		]);
+		root
+		.A(KView(new(){Key=a, Label="A", HintBottom="☑", SwipeUp=A, SwipeRightAction=MkSendCtrlKey(a), LongClickAction=MkSendCtrlKey(a)}))
+		.A(KView(new(){Key=s, Label="Σ", Hint="⇪", SwipeUp=S}))
+		.A(KView(new(){Key=d, Label="Δ", SwipeUp=D}))
+		.A(KView(new(){Key=f, Label="F", SwipeUp=F}))
+		.A(KView(new(){Key=g, Label="G", SwipeUp=G, SwipeLeft=Left, SwipeRight=Right, SwipeDown=Down}))
+		.A(KView(new(){Key=h, Label="H", SwipeUp=H}))
+		.A(KView(new(){Key=j, Label="J", SwipeUp=J}))
+		.A(KView(new(){Key=k, Label="K", SwipeUp=K}))
+		.A(KView(new(){Key=l, Label="Λ", SwipeUp=L}))
+		.A(KView(new(){Key=Semicolon, Label=";", Hint=":", SwipeUp=Colon, LongClick=Colon}))
+		;
+		return root.Grid;
+	}
 
-	Grid MkRow4()=>MkRowCfg(
-		new(){Key=z, Label="Z", HintBottom="↶", SwipeUp=Z, SwipeRightAction=MkSendCtrlKey(z), LongClickAction=MkSendCtrlKey(z)},
-		new(){Key=x, Label="X", HintBottom="✁", SwipeUp=X, SwipeRightAction=MkSendCtrlKey(x), LongClickAction=MkSendCtrlKey(x)},
-		new(){Key=c, Label="C", HintBottom="❐", SwipeUp=C, SwipeRightAction=MkSendCtrlKey(c), LongClickAction=MkSendCtrlKey(c)},
-		new(){Key=v, Label="V", HintBottom="▣", SwipeUp=V, SwipeRightAction=MkSendCtrlKey(v), LongClickAction=MkSendCtrlKey(v)},
-		new(){Key=b, Label="B", SwipeUp=B},
-		new(){Key=n, Label="N", SwipeUp=N},
-		new(){Key=m, Label="M", Hint="$m,", SwipeUp=M, SwipeDownAction=MkSendTextAndSpace(Dollar, m, Comma), SwipeLeftAction=MkSendTextAndSpace(Dollar, m, Comma, j), SwipeRightAction=MkSendTextAndSpace(Dollar, m, Comma, i)},
-		new(){Key=Comma, Label=",", Hint="<", SwipeUp=Less, LongClick=Less, SwipeLeft=Less},
-		new(){Key=Period, Label=".", Hint=">", SwipeUp=Greater, LongClick=Greater, SwipeRight=Greater},
-		new(){Key=Apostrophe, Label="'", Hint="\"", SwipeUp=Quote}
-	);
+	Grid MkRow4(){
+		var root = new GridStack(IsRow: false);
+		root.SetColDefs([
+			new(1, GUT.Star), new(1, GUT.Star), new(1, GUT.Star), new(1, GUT.Star), new(1, GUT.Star),
+			new(1, GUT.Star), new(1, GUT.Star), new(1, GUT.Star), new(1, GUT.Star), new(1, GUT.Star),
+		]);
+		root
+		.A(KView(new(){Key=z, Label="Z", HintBottom="↶", SwipeUp=Z, SwipeRightAction=MkSendCtrlKey(z), LongClickAction=MkSendCtrlKey(z)}))
+		.A(KView(new(){Key=x, Label="X", HintBottom="✁", SwipeUp=X, SwipeRightAction=MkSendCtrlKey(x), LongClickAction=MkSendCtrlKey(x)}))
+		.A(KView(new(){Key=c, Label="C", HintBottom="❐", SwipeUp=C, SwipeRightAction=MkSendCtrlKey(c), LongClickAction=MkSendCtrlKey(c)}))
+		.A(KView(new(){Key=v, Label="V", HintBottom="▣", SwipeUp=V, SwipeRightAction=MkSendCtrlKey(v), LongClickAction=MkSendCtrlKey(v)}))
+		.A(KView(new(){Key=b, Label="B", SwipeUp=B}))
+		.A(KView(new(){Key=n, Label="N", SwipeUp=N}))
+		.A(KView(new(){Key=m, Label="M", Hint="$m,", SwipeUp=M, SwipeDownAction=MkSendTextAndSpace(Dollar, m, Comma), SwipeLeftAction=MkSendTextAndSpace(Dollar, m, Comma, j), SwipeRightAction=MkSendTextAndSpace(Dollar, m, Comma, i)}))
+		.A(KView(new(){Key=Comma, Label=",", Hint="<", SwipeUp=Less, LongClick=Less, SwipeLeft=Less}))
+		.A(KView(new(){Key=Period, Label=".", Hint=">", SwipeUp=Greater, LongClick=Greater, SwipeRight=Greater}))
+		.A(KView(new(){Key=Apostrophe, Label="'", Hint="\"", SwipeUp=Quote}))
+		;
+		return root.Grid;
+	}
 
 	Grid MkRow5(){
-		var colWidths = new List<i32>{2,1,1,2,1,1,2};
-		var ctrls = new List<Control>{
-			KView(new(){Key=Enter, Label="↵"}),
-			KView(new(){Key=Tab, Label="␉"}),
-			KView(new(){Key=Left, Label="←", Hint="⇤"}),
-			KView(new(){Key=Space, Label="", SwipeLeft=Left, SwipeRight=Right}),
-			KView(new(){Key=Right, Label="→", Hint="⇥"}),
-			KView(new(){Key=Dollar, Label="$", Hint="⇪", SwipeUpAction=MkToggleShiftLock()}),
-			KView(new(){Key=Backspace, Label="⌫", LongClick=Backspace, SwipeUpAction=MkHideKeyboard(), IsRepeat=true}),
-		};
-		return MkRowOfControls(ctrls, colWidths);
+		var root = new GridStack(IsRow: false);
+		root.SetColDefs([
+			new(2, GUT.Star), new(1, GUT.Star), new(1, GUT.Star), new(2, GUT.Star),
+			new(1, GUT.Star), new(1, GUT.Star), new(2, GUT.Star),
+		]);
+		root
+		.A(KView(new(){Key=Enter, Label="↵"}))
+		.A(KView(new(){Key=Tab, Label="␉"}))
+		.A(KView(new(){Key=Left, Label="←", Hint="⇤"}))
+		.A(KView(new(){Key=Space, Label="", SwipeLeft=Left, SwipeRight=Right}))
+		.A(KView(new(){Key=Right, Label="→", Hint="⇥"}))
+		.A(KView(new(){Key=Dollar, Label="$", Hint="⇪", SwipeUpAction=MkToggleShiftLock()}))
+		.A(KView(new(){Key=Backspace, Label="⌫", LongClick=Backspace, SwipeUpAction=MkHideKeyboard(), IsRepeat=true}))
+		;
+		return root.Grid;
 	}
 
 	Grid MkRow6(){
-		var ctrls = new List<Control>{
-			KView(new(){Key=Minus, Label="-", Hint="_", SwipeUp=Underscore}),
-			KView(new(){Key=Equal, Label="=", Hint="+", SwipeUp=Plus}),
-			KView(new(){Key=SquareBracket_L, Label="[", Hint="{", SwipeUp=Braces_L, LongClick=Braces_L}),
-			KView(new(){Key=SquareBracket_R, Label="]", Hint="}", SwipeUp=Braces_R, LongClick=Braces_R}),
-			KView(new(){Key=Up, Label="↑"}),
-			KView(new(){Key=Down, Label="↓"}),
-			KView(new(){Key=Slash, Label="/", Hint="?", SwipeUp=Question}),
-			KView(new(){Key=BackSlash, Label="\\", Hint="|", SwipeUp=Pipe}),
-			KView(new(){Key=Grave, Label="`", Hint="~", SwipeUp=Tilde}),
-			MkActionKey("123", () => Ctx.IsNumLayout = true),
-		};
-		return MkRowOfControls(ctrls);
+		var root = new GridStack(IsRow: false);
+		root.SetColDefs([
+			new(1, GUT.Star), new(1, GUT.Star), new(1, GUT.Star), new(1, GUT.Star), new(1, GUT.Star),
+			new(1, GUT.Star), new(1, GUT.Star), new(1, GUT.Star), new(1, GUT.Star), new(1, GUT.Star),
+		]);
+		root
+		.A(KView(new(){Key=Minus, Label="-", Hint="_", SwipeUp=Underscore}))
+		.A(KView(new(){Key=Equal, Label="=", Hint="+", SwipeUp=Plus}))
+		.A(KView(new(){Key=SquareBracket_L, Label="[", Hint="{", SwipeUp=Braces_L, LongClick=Braces_L}))
+		.A(KView(new(){Key=SquareBracket_R, Label="]", Hint="}", SwipeUp=Braces_R, LongClick=Braces_R}))
+		.A(KView(new(){Key=Up, Label="↑"}))
+		.A(KView(new(){Key=Down, Label="↓"}))
+		.A(KView(new(){Key=Slash, Label="/", Hint="?", SwipeUp=Question}))
+		.A(KView(new(){Key=BackSlash, Label="\\", Hint="|", SwipeUp=Pipe}))
+		.A(KView(new(){Key=Grave, Label="`", Hint="~", SwipeUp=Tilde}))
+		.A(MkActionKey("123", () => Ctx.IsNumLayout = true))
+		;
+		return root.Grid;
 	}
 
-	Grid MkNumRow1()=>MkRowCfg(
-		new(){Key=D1, Hint="!", LongClick=Exclamation, SwipeUp=Exclamation},
-		new(){Key=D2, Hint="@", LongClick=At, SwipeUp=At},
-		new(){Key=D3, Hint="#", LongClick=HashTag, SwipeUp=HashTag},
-		new(){Key=D4, Hint="$", LongClick=Dollar, SwipeUp=Dollar},
-		new(){Key=D5, Hint="%", LongClick=Percent, SwipeUp=Percent},
-		new(){Key=D6, Hint="^", LongClick=Caret, SwipeUp=Caret},
-		new(){Key=D7, Hint="&", LongClick=Ampersand, SwipeUp=Ampersand},
-		new(){Key=D8, Hint="*", LongClick=Asterisk, SwipeUp=Asterisk},
-		new(){Key=D9, Hint="(", LongClick=Paren_L, SwipeUp=Paren_L},
-		new(){Key=D0, Hint=")", LongClick=Paren_R, SwipeUp=Paren_R}
-	);
+	Grid MkNumRow1(){
+		var root = new GridStack(IsRow: false);
+		root.SetColDefs([
+			new(1, GUT.Star),
+			new(1, GUT.Star),
+			new(1, GUT.Star),
+			new(1, GUT.Star),
+			new(1, GUT.Star),
+			new(1, GUT.Star),
+			new(1, GUT.Star),
+			new(1, GUT.Star),
+			new(1, GUT.Star),
+			new(1, GUT.Star),
+		]);
+		root
+		.A(KView(new(){Key=D1, Hint="!", LongClick=Exclamation, SwipeUp=Exclamation}))
+		.A(KView(new(){Key=D2, Hint="@", LongClick=At, SwipeUp=At}))
+		.A(KView(new(){Key=D3, Hint="#", LongClick=HashTag, SwipeUp=HashTag}))
+		.A(KView(new(){Key=D4, Hint="$", LongClick=Dollar, SwipeUp=Dollar}))
+		.A(KView(new(){Key=D5, Hint="%", LongClick=Percent, SwipeUp=Percent}))
+		.A(KView(new(){Key=D6, Hint="^", LongClick=Caret, SwipeUp=Caret}))
+		.A(KView(new(){Key=D7, Hint="&", LongClick=Ampersand, SwipeUp=Ampersand}))
+		.A(KView(new(){Key=D8, Hint="*", LongClick=Asterisk, SwipeUp=Asterisk}))
+		.A(KView(new(){Key=D9, Hint="(", LongClick=Paren_L, SwipeUp=Paren_L}))
+		.A(KView(new(){Key=D0, Hint=")", LongClick=Paren_R, SwipeUp=Paren_R}))
+		;
+		return root.Grid;
+	}
 
 	Grid MkNumRow2(){
-		var colWidths = new List<i32>{1,1,2,2,2,1,1};
-		var ctrls = new List<Control>{
-			KView(new(){Key=q, Label="Q", SwipeUp=Q}),
-			KView(new(){Key=w, Label="W", SwipeUp=W}),
-			KView(new(){Key=D7}),
-			KView(new(){Key=D8}),
-			KView(new(){Key=D9, SwipeUp=I, LongClick=SquareBracket_L, SwipeLeft=SquareBracket_L, SwipeRight=SquareBracket_R}),
-			KView(new(){Key=p, Label="Π", SwipeUp=P, SwipeLeft=Less, SwipeRight=Greater}),
-			KView(new(){Key=y, Label="Y", Hint="⇆", HintBottom="↷", SwipeUp=Y, SwipeRightAction=MkSendCtrlKey(y), LongClickAction=MkSendCtrlKey(y)}),
-		};
-		return MkRowOfControls(ctrls, colWidths);
+		var root = new GridStack(IsRow: false);
+		root.SetColDefs([
+			new(1, GUT.Star), new(1, GUT.Star), new(2, GUT.Star), new(2, GUT.Star),
+			new(2, GUT.Star), new(1, GUT.Star), new(1, GUT.Star),
+		]);
+		root
+		.A(KView(new(){Key=q, Label="Q", SwipeUp=Q}))
+		.A(KView(new(){Key=w, Label="W", SwipeUp=W}))
+		.A(KView(new(){Key=D7}))
+		.A(KView(new(){Key=D8}))
+		.A(KView(new(){Key=D9, SwipeUp=I, LongClick=SquareBracket_L, SwipeLeft=SquareBracket_L, SwipeRight=SquareBracket_R}))
+		.A(KView(new(){Key=p, Label="Π", SwipeUp=P, SwipeLeft=Less, SwipeRight=Greater}))
+		.A(KView(new(){Key=y, Label="Y", Hint="⇆", HintBottom="↷", SwipeUp=Y, SwipeRightAction=MkSendCtrlKey(y), LongClickAction=MkSendCtrlKey(y)}))
+		;
+		return root.Grid;
 	}
 
 	Grid MkNumRow3(){
-		var colWidths = new List<i32>{1,1,2,2,2,1,1};
-		var ctrls = new List<Control>{
-			KView(new(){Key=a, Label="A", SwipeUp=A}),
-			KView(new(){Key=s, Label="Σ", Hint="⇪", SwipeUp=S}),
-			KView(new(){Key=D4, SwipeUp=D}),
-			KView(new(){Key=D5, SwipeUp=G, SwipeLeft=Left, SwipeRight=Right, SwipeDown=Down}),
-			KView(new(){Key=D6, SwipeUp=J}),
-			KView(new(){Key=l, Label="Λ", SwipeUp=L}),
-			KView(new(){Key=Semicolon, Label=";", Hint=":", SwipeUp=Colon, LongClick=Colon}),
-		};
-		return MkRowOfControls(ctrls, colWidths);
+		var root = new GridStack(IsRow: false);
+		root.SetColDefs([
+			new(1, GUT.Star), new(1, GUT.Star), new(2, GUT.Star), new(2, GUT.Star),
+			new(2, GUT.Star), new(1, GUT.Star), new(1, GUT.Star),
+		]);
+		root
+		.A(KView(new(){Key=a, Label="A", SwipeUp=A}))
+		.A(KView(new(){Key=s, Label="Σ", Hint="⇪", SwipeUp=S}))
+		.A(KView(new(){Key=D4, SwipeUp=D}))
+		.A(KView(new(){Key=D5, SwipeUp=G, SwipeLeft=Left, SwipeRight=Right, SwipeDown=Down}))
+		.A(KView(new(){Key=D6, SwipeUp=J}))
+		.A(KView(new(){Key=l, Label="Λ", SwipeUp=L}))
+		.A(KView(new(){Key=Semicolon, Label=";", Hint=":", SwipeUp=Colon, LongClick=Colon}))
+		;
+		return root.Grid;
 	}
 
 	Grid MkNumRow4(){
-		var colWidths = new List<i32>{1,1,2,2,2,1,1};
-		var ctrls = new List<Control>{
-			KView(new(){Key=z, Label="Z", SwipeUp=Z}),
-			KView(new(){Key=x, Label="X", SwipeUp=X}),
-			KView(new(){Key=D1, SwipeUp=C}),
-			KView(new(){Key=D2, SwipeUp=B}),
-			KView(new(){Key=D3, SwipeUp=M}),
-			KView(new(){Key=Period, Label=".", Hint=">", SwipeUp=Greater, LongClick=Greater, SwipeRight=Greater}),
-			KView(new(){Key=Apostrophe, Label="'", Hint="\"", SwipeUp=Quote}),
-		};
-		return MkRowOfControls(ctrls, colWidths);
+		var root = new GridStack(IsRow: false);
+		root.SetColDefs([
+			new(1, GUT.Star), new(1, GUT.Star), new(2, GUT.Star), new(2, GUT.Star),
+			new(2, GUT.Star), new(1, GUT.Star), new(1, GUT.Star),
+		]);
+		root
+		.A(KView(new(){Key=z, Label="Z", SwipeUp=Z}))
+		.A(KView(new(){Key=x, Label="X", SwipeUp=X}))
+		.A(KView(new(){Key=D1, SwipeUp=C}))
+		.A(KView(new(){Key=D2, SwipeUp=B}))
+		.A(KView(new(){Key=D3, SwipeUp=M}))
+		.A(KView(new(){Key=Period, Label=".", Hint=">", SwipeUp=Greater, LongClick=Greater, SwipeRight=Greater}))
+		.A(KView(new(){Key=Apostrophe, Label="'", Hint="\"", SwipeUp=Quote}))
+		;
+		return root.Grid;
 	}
 
 	Grid MkNumRow5(){
-		var colWidths = new List<i32>{2,2,2,2,2};
-		var ctrls = new List<Control>{
-			KView(new(){Key=Enter, Label="↵"}),
-			KView(new(){Key=D0}),
-			KView(new(){Key=Space, Label="", SwipeLeft=Left, SwipeRight=Right}),
-			KView(new(){Key=Period, Label=".", Hint=">", SwipeUp=Greater}),
-			KView(new(){Key=Backspace, Label="⌫", LongClick=Backspace, SwipeUpAction=MkHideKeyboard(), IsRepeat=true}),
-		};
-		return MkRowOfControls(ctrls, colWidths);
+		var root = new GridStack(IsRow: false);
+		root.SetColDefs([
+			new(2, GUT.Star), new(2, GUT.Star), new(2, GUT.Star), new(2, GUT.Star), new(2, GUT.Star),
+		]);
+		root
+		.A(KView(new(){Key=Enter, Label="↵"}))
+		.A(KView(new(){Key=D0}))
+		.A(KView(new(){Key=Space, Label="", SwipeLeft=Left, SwipeRight=Right}))
+		.A(KView(new(){Key=Period, Label=".", Hint=">", SwipeUp=Greater}))
+		.A(KView(new(){Key=Backspace, Label="⌫", LongClick=Backspace, SwipeUpAction=MkHideKeyboard(), IsRepeat=true}))
+		;
+		return root.Grid;
 	}
 
 	Grid MkNumRow6(){
-		var ctrls = new List<Control>{
-			KView(new(){Key=Minus, Label="-", Hint="_", SwipeUp=Underscore}),
-			KView(new(){Key=Equal, Label="=", Hint="+", SwipeUp=Plus}),
-			KView(new(){Key=Slash, Label="/", Hint="?", SwipeUp=Question}),
-			KView(new(){Key=BackSlash, Label="\\", Hint="|", SwipeUp=Pipe}),
-			KView(new(){Key=Left, Label="←", Hint="⇤"}),
-			KView(new(){Key=Right, Label="→", Hint="⇥"}),
-			KView(new(){Key=Up, Label="↑"}),
-			KView(new(){Key=Down, Label="↓"}),
-			KView(new(){Key=Grave, Label="`", Hint="~", SwipeUp=Tilde}),
-			MkActionKey("qwe", () => Ctx.IsNumLayout = false),
-		};
-		return MkRowOfControls(ctrls);
+		var root = new GridStack(IsRow: false);
+		root.SetColDefs([
+			new(1, GUT.Star), new(1, GUT.Star), new(1, GUT.Star), new(1, GUT.Star), new(1, GUT.Star),
+			new(1, GUT.Star), new(1, GUT.Star), new(1, GUT.Star), new(1, GUT.Star), new(1, GUT.Star),
+		]);
+		root
+		.A(KView(new(){Key=Minus, Label="-", Hint="_", SwipeUp=Underscore}))
+		.A(KView(new(){Key=Equal, Label="=", Hint="+", SwipeUp=Plus}))
+		.A(KView(new(){Key=Slash, Label="/", Hint="?", SwipeUp=Question}))
+		.A(KView(new(){Key=BackSlash, Label="\\", Hint="|", SwipeUp=Pipe}))
+		.A(KView(new(){Key=Left, Label="←", Hint="⇤"}))
+		.A(KView(new(){Key=Right, Label="→", Hint="⇥"}))
+		.A(KView(new(){Key=Up, Label="↑"}))
+		.A(KView(new(){Key=Down, Label="↓"}))
+		.A(KView(new(){Key=Grave, Label="`", Hint="~", SwipeUp=Tilde}))
+		.A(MkActionKey("qwe", () => Ctx.IsNumLayout = false))
+		;
+		return root.Grid;
 	}
 
 	public void Dispose()

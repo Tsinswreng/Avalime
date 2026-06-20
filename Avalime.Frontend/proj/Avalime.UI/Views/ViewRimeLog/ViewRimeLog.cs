@@ -35,11 +35,10 @@ public class ViewRimeLog : AppViewBase<Ctx>
 		});
 		Ctx.Bind(items, ItemsControl.ItemsSourceProperty, x => x.Lines);
 
-		var sc = new ScrollViewer{
-			Background = Brushes.Black,
-			Content = items,
-			VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
-		};
-		this.SetContent(sc);
+		this.SetContent(new ScrollViewer(), o=>{
+			o.Background = Brushes.Black;
+			o.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
+			o.SetContent(items);
+		});
 	}
 }
