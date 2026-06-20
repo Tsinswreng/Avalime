@@ -9,7 +9,4 @@
 		<PublishAot>true</PublishAot>
 	</PropertyGroup>
 
-	<ItemGroup>
-		<PackageReference Include="Tsinswreng.CsCfg" Version="0.0.1-alpha" />
-	</ItemGroup>
 </Project>
