@@ -20,7 +20,7 @@ unsafe public class RimeKeyProcessor
 		Rime = RimeSetup.apiFn;
 	}
 
-	public Task<RespOnKeyEvent> OnKeyEventsAsy(IEnumerable<IKeyEvent> KeyEvents) {
+	public async Task<IRespOnKeyEvent> OnKeyEvents(IEnumerable<IKeyEvent> KeyEvents, CT Ct) {
 		var sw = System.Diagnostics.Stopwatch.StartNew();
 		AppLog.Debug($"[Perf] RimeKeyProcessor start: {sw.ElapsedMilliseconds}ms");
 		var resp = new RespOnKeyEvent();
@@ -35,11 +35,12 @@ unsafe public class RimeKeyProcessor
 			);
 			AppLog.Debug($"[Perf] RimeKeyProcessor process_key({keyEvent.KeyChar.Name}, {(keyEvent.KeyState.IsKeyDown?"Down":"Up")}): {swPk.ElapsedMilliseconds}ms, handled={handled}");
 
+			//引擎未處理之按鍵 交由OS處理
 			if(handled == RimeUtil.False){
 				resp.UnhandledKeys.Add(keyEvent);
 			}
 
-			// 檢查 commit
+			// 檢查 commit 這裏的commit是沒有進translator 出候選那種 直接在processor階段就上屏的
 			var swCommit = System.Diagnostics.Stopwatch.StartNew();
 			var commit = new RimeCommit();
 			commit.data_size = RimeUtil.DataSize<RimeCommit>();
@@ -53,6 +54,6 @@ unsafe public class RimeKeyProcessor
 			AppLog.Debug($"[Perf] RimeKeyProcessor get_commit: {swCommit.ElapsedMilliseconds}ms");
 		}
 		AppLog.Debug($"[Perf] RimeKeyProcessor total: {sw.ElapsedMilliseconds}ms, unhandled: {resp.UnhandledKeys.Count}");
-		return Task.FromResult(resp);
+		return resp;
 	}
 }

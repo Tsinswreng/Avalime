@@ -4,7 +4,6 @@ using Avalime.Core.Infra;
 using Avalime.Core.Keys;
 using Avalime.UI;
 using Avalime.UI.Infra;
-using ViewKeyControl = Avalime.UI.Views.ViewKey.ViewKey;
 using VmKeyCtx = Avalime.UI.Views.ViewKey.VmKey;
 using Avalonia.Controls;
 using Avalonia.Controls.Documents;
@@ -113,7 +112,7 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 		public bool IsRepeat{get;init;}
 	}
 
-	ViewKeyControl KView(KeyCfg cfg){
+	ViewKey.ViewKey KView(KeyCfg cfg){
 		var vm = Di.DiOrMk<VmKeyCtx>();
 		_disposables.Add(vm);
 		vm.Key_Click = cfg.Key;
@@ -134,6 +133,7 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 		if(cfg.SwipeRight is not null) vm.SwipeRight = MkSendKey(cfg.SwipeRight);
 		if(cfg.SwipeRightAction is not null) vm.SwipeRight = cfg.SwipeRightAction;
 		if(cfg.IsRepeat) vm.IsRepeat = true;
+		//鎖定shift旹高亮
 		if(cfg.Key == Dollar && cfg.Label == "$"){
 			void SyncBg(){
 				vm.Background = Ctx.IsShiftLocked ? UiCfg.Inst.MainColor : UiCfg.Inst.KeyBgColor;
@@ -147,10 +147,10 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 				}
 			}
 		}
-		return new ViewKeyControl{Ctx = vm};
+		return new ViewKey.ViewKey { Ctx = vm};
 	}
 
-	ViewKeyControl MkActionKey(str label, Action onClick, str? hint = null){
+	ViewKey.ViewKey MkActionKey(str label, Action onClick, str? hint = null){
 		var vm = Di.DiOrMk<VmKeyCtx>();
 		_disposables.Add(vm);
 		vm.Label = label;
@@ -158,7 +158,7 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 		if(hint is not null) vm.Hint = hint;
 		vm.Click = () => { onClick(); return 0; };
 		vm.ImeState = Ctx.ImeState;
-		return new ViewKeyControl{Ctx = vm};
+		return new ViewKey.ViewKey { Ctx = vm};
 	}
 
 	Func<zero> MkSendKey(IKeyChar key) => () => {
