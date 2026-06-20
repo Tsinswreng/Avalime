@@ -17,14 +17,17 @@ namespace Avalime.UI.Views.candidatesBar;
 using Ctx = VmCandidatesBar;
 
 unsafe public partial class VmCandidatesBar : ViewModelBase
+	, IDisposable
 {
 	public static Ctx Mk(){return new Ctx();}
 
 	public ImeState ImeState{get;set;} = Di.GetRSvc<ImeState>();
 	public RimeConnectionState RimeConnection{get;set;} = Di.GetRSvc<RimeConnectionState>();
 
+	readonly EventHandler<IEnumerable<IKeyEvent>> _afterInputHandler;
+
 	public VmCandidatesBar(){
-		ImeState.AfterInput += (s,e)=>{
+		_afterInputHandler = (s,e)=>{
 			var sw = System.Diagnostics.Stopwatch.StartNew();
 			System.Diagnostics.Debug.WriteLine($"[Perf] VmCandidatesBar.AfterInput start: {sw.ElapsedMilliseconds}ms");
 			var rime = RimeConnection.Setup;
@@ -57,6 +60,7 @@ unsafe public partial class VmCandidatesBar : ViewModelBase
 			Dispatcher.UIThread.Post(() => CandVms = newList); // 一次性替換，只觸發一次 PropertyChanged
 			System.Diagnostics.Debug.WriteLine($"[Perf] VmCandidatesBar.AfterInput done: {sw.ElapsedMilliseconds}ms, candidates: {count}");
 		};
+		ImeState.AfterInput += _afterInputHandler;
 	}
 
 	public VmCandidate ToCand(in RimeCandidate cand, int index, bool isHighlighted){
@@ -94,4 +98,9 @@ unsafe public partial class VmCandidatesBar : ViewModelBase
 		get => field;
 		set => SetProperty(ref field, value);
 	} = [];
+
+	public void Dispose()
+	{
+		ImeState.AfterInput -= _afterInputHandler;
+	}
 }

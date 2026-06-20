@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using Avalime.Core.Infra;
 using Avalime.Core.Keys;
@@ -12,18 +13,21 @@ namespace Avalime.ViewModels.key;
 using Ctx = KeyVm;
 
 public partial class KeyVm : ViewModelBase, IKeyViewModel
+	, IDisposable
 {
 	public static Ctx Mk(){return new Ctx();}
 
 	string _normalLabel = "";
+	readonly RimeConnectionState _rimeCon;
+	readonly PropertyChangedEventHandler _rimeConnectionPropertyChangedHandler;
 
 	public KeyVm(){
 		Label = Key_Click?.Name??"";
 
-		var rimeCon = Di.GetRSvc<RimeConnectionState>();
-		rimeCon.PropertyChanged += (_, e) => {
-			if(e.PropertyName == nameof(rimeCon.IsAsciiMode)){
-				if(rimeCon.IsAsciiMode){
+		_rimeCon = Di.GetRSvc<RimeConnectionState>();
+		_rimeConnectionPropertyChangedHandler = (_, e) => {
+			if(e.PropertyName == nameof(_rimeCon.IsAsciiMode)){
+				if(_rimeCon.IsAsciiMode){
 					_normalLabel = Label; // 保存非 ascii 標籤
 					var name = Key_Click?.Name ?? "";
 					// 只對單個拉丁字母鍵顯示小寫
@@ -34,6 +38,7 @@ public partial class KeyVm : ViewModelBase, IKeyViewModel
 				}
 			}
 		};
+		_rimeCon.PropertyChanged += _rimeConnectionPropertyChangedHandler;
 
 		Click = ()=>{
 			var state = ImeState as ImeState;//TODO temp
@@ -105,4 +110,9 @@ public partial class KeyVm : ViewModelBase, IKeyViewModel
 		get => field;
 		set => SetProperty(ref field, value);
 	} = UiCfg.Inst.KeyFontSize;
+
+	public void Dispose()
+	{
+		_rimeCon.PropertyChanged -= _rimeConnectionPropertyChangedHandler;
+	}
 }

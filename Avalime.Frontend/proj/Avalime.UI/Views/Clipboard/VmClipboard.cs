@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using Avalime.Core.Infra;
 using Avalime.UI.ViewModels;
 using Avalime.ViewModels;
@@ -7,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Avalime.UI.Views.clipboard;
 
 public class VmClipboard : ViewModelBase
+	, IDisposable
 {
 	public VmIme Ime { get; }
 	public IClipboardService ClipboardService { get; } = Di.GetRSvc<IClipboardService>();
@@ -17,13 +19,16 @@ public class VmClipboard : ViewModelBase
 		set => SetProperty(ref field, value);
 	} = [];
 
+	readonly PropertyChangedEventHandler _imePropertyChangedHandler;
+
 	public VmClipboard(VmIme ime){
 		Ime = ime;
-		ime.PropertyChanged += async (_, e) => {
+		_imePropertyChangedHandler = async (_, e) => {
 			if(e.PropertyName == nameof(VmIme.ShowClipboard) && ime.ShowClipboard){
 				await RefreshAsy();
 			}
 		};
+		ime.PropertyChanged += _imePropertyChangedHandler;
 	}
 
 	public async Task RefreshAsy(CT ct = default){
@@ -39,6 +44,11 @@ public class VmClipboard : ViewModelBase
 			});
 		}
 		Items = items;
+	}
+
+	public void Dispose()
+	{
+		Ime.PropertyChanged -= _imePropertyChangedHandler;
 	}
 }
 

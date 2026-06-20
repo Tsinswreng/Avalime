@@ -11,6 +11,7 @@ namespace Avalime.UI.Views.input;
 using Ctx = VmInput;
 
 public class VmInput : ViewModelBase
+	, IDisposable
 {
 	public static Ctx Mk(){return new Ctx();}
 
@@ -22,8 +23,10 @@ public class VmInput : ViewModelBase
 	public ImeState ImeState{get;set;} = Di.GetRSvc<ImeState>();
 	public RimeConnectionState RimeConnection{get;set;} = Di.GetRSvc<RimeConnectionState>();
 
+	readonly EventHandler<IEnumerable<IKeyEvent>> _afterInputHandler;
+
 	unsafe public VmInput(){
-		ImeState.AfterInput += (sender, args)=>{
+		_afterInputHandler = (sender, args)=>{
 			var sw = System.Diagnostics.Stopwatch.StartNew();
 			System.Diagnostics.Debug.WriteLine($"[Perf] VmInput.AfterInput start: {sw.ElapsedMilliseconds}ms");
 			var rime = RimeConnection.Setup;
@@ -42,5 +45,11 @@ public class VmInput : ViewModelBase
 			Dispatcher.UIThread.Post(() => Text = preedit);
 			System.Diagnostics.Debug.WriteLine($"[Perf] VmInput.AfterInput done: {sw.ElapsedMilliseconds}ms, preedit: {preedit}");
 		};
+		ImeState.AfterInput += _afterInputHandler;
+	}
+
+	public void Dispose()
+	{
+		ImeState.AfterInput -= _afterInputHandler;
 	}
 }

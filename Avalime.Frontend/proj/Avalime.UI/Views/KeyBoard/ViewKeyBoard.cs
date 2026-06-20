@@ -19,7 +19,11 @@ namespace Avalime.UI.Views.KeyBoard;
 using Ctx = VmKeyBoard;
 
 public class ViewKeyBoard : AppViewBase<Ctx>
+	, IDisposable
 {
+	readonly List<IDisposable> _disposables = [];
+	readonly List<PropertyChangedEventHandler> _ctxHandlers = [];
+
 	public ViewKeyBoard(){
 		Ctx = Ctx.Mk();
 		Render();
@@ -50,12 +54,14 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 		panel.Children.Add(_mainKeys);
 		panel.Children.Add(_numKeys);
 
-		Ctx!.PropertyChanged += (s, e) => {
+		PropertyChangedEventHandler onLayoutChanged = (s, e) => {
 			if(e.PropertyName == nameof(Ctx.IsNumLayout)){
 				_mainKeys.IsVisible = !Ctx.IsNumLayout;
 				_numKeys.IsVisible = Ctx.IsNumLayout;
 			}
 		};
+		_ctxHandlers.Add(onLayoutChanged);
+		Ctx!.PropertyChanged += onLayoutChanged;
 		return panel;
 	}
 
@@ -136,6 +142,7 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 
 	ViewKey KView(KeyCfg Cfg){
 		var Vm = KeyVm.Mk();
+		_disposables.Add(Vm);
 		Vm.Key_Click = Cfg.Key;
 		Vm.Click = MkSendKey(Cfg.Key);
 		Vm.FontSize = UiCfg.Inst.KeyFontSize;
@@ -159,6 +166,7 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 				Vm.Background = Ctx!.IsShiftLocked ? UiCfg.Inst.MainColor : UiCfg.Inst.KeyBgColor;
 			}
 			SyncBg();
+			_ctxHandlers.Add(OnKbPropertyChanged);
 			Ctx.PropertyChanged += OnKbPropertyChanged;
 			void OnKbPropertyChanged(object? sender, PropertyChangedEventArgs e){
 				if(e.PropertyName == nameof(Ctx.IsShiftLocked)){
@@ -172,6 +180,7 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 	/// 建立觸發自訂動作的按鍵（非發送按鍵事件）
 	ViewKey MkActionKey(str Label, Action OnClick, str? Hint = null){
 		var Vm = KeyVm.Mk();
+		_disposables.Add(Vm);
 		Vm.Label = Label;
 		Vm.FontSize = UiCfg.Inst.ActionKeyFontSize;
 		if(Hint is not null) Vm.Hint = Hint;
@@ -442,4 +451,18 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 		return MkRowOfControls(Ctrls);
 	}
 	#endregion
+
+	public void Dispose()
+	{
+		if(Ctx is not null){
+			foreach(var handler in _ctxHandlers){
+				Ctx.PropertyChanged -= handler;
+			}
+		}
+		_ctxHandlers.Clear();
+		foreach(var disposable in _disposables){
+			disposable.Dispose();
+		}
+		_disposables.Clear();
+	}
 }

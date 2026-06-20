@@ -5,11 +5,13 @@ using Avalime.ViewModels;
 using Avalonia.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using Rime.Api;
+using System.ComponentModel;
 using Tsinswreng.CsInterop;
 
 namespace Avalime.UI.ViewModels;
 
 public class VmIme : ViewModelBase
+	, IDisposable
 {
 	public static VmIme Mk(){return new VmIme();}
 
@@ -37,8 +39,11 @@ public class VmIme : ViewModelBase
 	public bool ShowKeyboard => !IsClipboardVisible;
 	public bool ShowClipboard => IsClipboardVisible;
 
+	readonly PropertyChangedEventHandler _propertyChangedHandler;
+	readonly EventHandler<IEnumerable<IKeyEvent>> _afterInputHandler;
+
 	public VmIme(){
-		PropertyChanged += (_, e) => {
+		_propertyChangedHandler = (_, e) => {
 			if(
 				e.PropertyName is nameof(IsComposing)
 				or nameof(HasPreedit)
@@ -51,8 +56,10 @@ public class VmIme : ViewModelBase
 				OnPropertyChanged(nameof(ShowClipboard));
 			}
 		};
+		PropertyChanged += _propertyChangedHandler;
 
-		ImeState.AfterInput += (_, _) => RefreshCompositionState();
+		_afterInputHandler = (_, _) => RefreshCompositionState();
+		ImeState.AfterInput += _afterInputHandler;
 		_ = RimeConnection.ConnectAsy();
 	}
 
@@ -96,5 +103,11 @@ public class VmIme : ViewModelBase
 
 	public void ExitClipboard(){
 		IsClipboardVisible = false;
+	}
+
+	public void Dispose()
+	{
+		PropertyChanged -= _propertyChangedHandler;
+		ImeState.AfterInput -= _afterInputHandler;
 	}
 }

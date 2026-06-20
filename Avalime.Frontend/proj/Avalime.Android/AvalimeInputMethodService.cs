@@ -30,7 +30,8 @@ public class AvalimeInputMethodService : InputMethodService
     public AvalimeInputMethodService(nint javaReference, JniHandleOwnership transfer)
         : base(javaReference, transfer) { }
 
-    AvaloniaView? _inputView;
+    LoggingAvaloniaView? _inputView;
+    bool _shouldRecreateInputView;
 
     int GetHalfScreenHeight()
     {
@@ -53,16 +54,22 @@ public class AvalimeInputMethodService : InputMethodService
     {
         Debug.WriteLine("[IME] OnCreateInputView");
 
-        if (_inputView != null)
+        if (_inputView != null && !_shouldRecreateInputView)
             return _inputView;
 
-        _inputView = new AvaloniaView(this)
+        if (_inputView?.Content is IDisposable disposableContent)
+        {
+            disposableContent.Dispose();
+        }
+
+        _inputView = new LoggingAvaloniaView(this)
         {
             Content = new MainView()
         };
         _inputView.LayoutParameters = new ViewGroup.LayoutParams(
             ViewGroup.LayoutParams.MatchParent,
             GetHalfScreenHeight());
+        _shouldRecreateInputView = false;
 
         return _inputView;
     }
@@ -118,13 +125,17 @@ public class AvalimeInputMethodService : InputMethodService
     public override void OnStartInputView(EditorInfo? info, bool restarting)
     {
         base.OnStartInputView(info, restarting);
+        if (_shouldRecreateInputView)
+        {
+            SetInputView(OnCreateInputView());
+        }
         Debug.WriteLine("[IME] OnStartInputView");
     }
 
     public override void OnWindowShown()
     {
         base.OnWindowShown();
-        Debug.WriteLine($"[IME] OnWindowShown inputViewNull={_inputView is null}");
+        Debug.WriteLine($"[IME] OnWindowShown inputViewNull={_inputView is null} shouldRecreate={_shouldRecreateInputView}");
     }
 
     public override void OnWindowHidden()
@@ -149,6 +160,7 @@ public class AvalimeInputMethodService : InputMethodService
     public override void OnFinishInputView(bool finishingInput)
     {
         base.OnFinishInputView(finishingInput);
+        _shouldRecreateInputView = true;
         Debug.WriteLine("[IME] OnFinishInputView");
     }
 
