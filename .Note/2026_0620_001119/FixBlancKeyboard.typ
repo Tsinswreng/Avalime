@@ -44,5 +44,15 @@ avalime本身有一個功能、就是「退格鍵上滑隱藏輸入法」
 2026_0620_112213[
 看
 E:\_code\CsRime\Avalime\Avalime.Core\proj\Avalime.Core\Infra\Log\DelegatingLogger.cs
+E:\_code\CsRime\Avalime\Avalime.Core\proj\Avalime.Core\Infra\Log\AppLog.cs
+
+不方便依賴注入的地方 就用 AppLog.Inst 來打日誌
+方便依賴注入的話 就注 `AddSingleton<ILogger>(AppLog.Inst)`
+然後注Logger。
+
+然後在安卓啓動時 把AppLog.Inst 設成
+E:\_code\CsNgaq\Ngaq.Frontend\proj\Ngaq.Android\AndroidLogger.cs
+
+這樣行不行?
 
 ]
