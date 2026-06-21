@@ -7,7 +7,7 @@ using Avalime.ViewModels;
 using Avalonia.Media;
 using KS = Avalime.Core.Keys.KeyStates;
 
-namespace Avalime.UI.Views.ViewKey;
+namespace Avalime.UI.Views.Key;
 using Ctx = VmKey;
 
 public partial class VmKey : ViewModelBase, IKeyViewModel
@@ -109,3 +109,4 @@ public partial class VmKey : ViewModelBase, IKeyViewModel
 		_rimeCon.PropertyChanged -= _rimeConnectionPropertyChangedHandler;
 	}
 }
+

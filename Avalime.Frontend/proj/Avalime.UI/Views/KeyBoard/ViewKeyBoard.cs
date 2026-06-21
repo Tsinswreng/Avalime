@@ -4,7 +4,6 @@ using Avalime.Core.Infra;
 using Avalime.Core.Keys;
 using Avalime.UI;
 using Avalime.UI.Infra;
-using VmKeyCtx = Avalime.UI.Views.ViewKey.VmKey;
 using Avalonia.Controls;
 using Avalonia.Controls.Documents;
 using Avalonia.Media;
@@ -12,7 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using static Avalime.Core.Keys.KeyChars;
 using KS = Avalime.Core.Keys.KeyStates;
 
-namespace Avalime.UI.Views.ViewKeyBoard;
+namespace Avalime.UI.Views.KeyBoard;
 using Ctx = VmKeyBoard;
 
 public class ViewKeyBoard : AppViewBase<Ctx>
@@ -20,9 +19,13 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 {
 	readonly List<IDisposable> _disposables = [];
 	readonly List<PropertyChangedEventHandler> _ctxHandlers = [];
+	readonly RimeConnectionState _rimeConnection;
+	readonly IKeyboardHost _keyboardHost;
 
 	public ViewKeyBoard(){
 		Ctx = Di.DiOrMk<Ctx>();
+		_rimeConnection = Di.GetRSvc<RimeConnectionState>();
+		_keyboardHost = Di.GetRSvc<IKeyboardHost>();
 		Render();
 	}
 
@@ -113,7 +116,7 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 	}
 
 	ViewKey.ViewKey KView(KeyCfg cfg){
-		var vm = Di.DiOrMk<VmKeyCtx>();
+		var vm = new VmKey(_rimeConnection);
 		_disposables.Add(vm);
 		vm.Key_Click = cfg.Key;
 		vm.Click = MkSendKey(cfg.Key);
@@ -151,7 +154,7 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 	}
 
 	ViewKey.ViewKey MkActionKey(str label, Action onClick, str? hint = null){
-		var vm = Di.DiOrMk<VmKeyCtx>();
+		var vm = new VmKey(_rimeConnection);
 		_disposables.Add(vm);
 		vm.Label = label;
 		vm.FontSize = UiCfg.Inst.ActionKeyFontSize;
@@ -206,7 +209,7 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 	};
 
 	Func<zero> MkToggleAsciiMode() => () => {
-		Di.GetRSvc<RimeConnectionState>().ToggleAsciiMode();
+		_rimeConnection.ToggleAsciiMode();
 		return 0;
 	};
 
@@ -216,7 +219,7 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 	};
 
 	Func<zero> MkHideKeyboard() => () => {
-		Di.GetRSvc<IKeyboardHost>().HideKeyboard();
+		_keyboardHost.HideKeyboard();
 		return 0;
 	};
 
@@ -500,3 +503,4 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 		_disposables.Clear();
 	}
 }
+

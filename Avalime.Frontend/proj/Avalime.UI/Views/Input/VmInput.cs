@@ -6,7 +6,7 @@ using Avalonia.Threading;
 using Rime.Api;
 using Tsinswreng.CsInterop;
 
-namespace Avalime.UI.Views.ViewInput;
+namespace Avalime.UI.Views.Input;
 using Ctx = VmInput;
 
 public class VmInput : ViewModelBase
@@ -53,3 +53,4 @@ public class VmInput : ViewModelBase
 		ImeState.AfterInput -= _afterInputHandler;
 	}
 }
+

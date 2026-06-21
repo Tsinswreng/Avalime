@@ -3,7 +3,7 @@ using System.Collections.ObjectModel;
 using Avalime.Core.Infra.Log;
 using Avalime.Core.Keys;
 using Avalime.Rime;
-using Avalime.UI.Views.ViewCandidate;
+using Avalime.UI.Views.Candidate;
 using Avalime.ViewModels;
 using Avalonia.Media;
 using Avalonia.Threading;
@@ -12,7 +12,7 @@ using Tsinswreng.CsInterop;
 using static Avalime.Core.Keys.KeyChars;
 using KS = Avalime.Core.Keys.KeyStates;
 
-namespace Avalime.UI.Views.ViewCandidatesBar;
+namespace Avalime.UI.Views.CandidatesBar;
 using Ctx = VmCandidatesBar;
 
 unsafe public partial class VmCandidatesBar : ViewModelBase
@@ -104,3 +104,4 @@ unsafe public partial class VmCandidatesBar : ViewModelBase
 		ImeState.AfterInput -= _afterInputHandler;
 	}
 }
+

@@ -6,7 +6,7 @@ using Rime.Api;
 using System.ComponentModel;
 using Tsinswreng.CsInterop;
 
-namespace Avalime.UI.Views.ViewIme;
+namespace Avalime.UI.Views.Ime;
 
 public class VmIme : ViewModelBase
 	, IDisposable
@@ -132,3 +132,4 @@ public class VmIme : ViewModelBase
 		RimeConnection.PropertyChanged -= OnRimeConnectionPropertyChanged;
 	}
 }
+

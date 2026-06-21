@@ -4,10 +4,10 @@ using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using Avalonia.Layout;
 using Avalonia.Media;
-using ViewCandidateControl = Avalime.UI.Views.ViewCandidate.ViewCandidate;
-using VmCandidateCtx = Avalime.UI.Views.ViewCandidate.VmCandidate;
+using ViewCandidateControl = Avalime.UI.Views.Candidate.ViewCandidate;
+using VmCandidateCtx = Avalime.UI.Views.Candidate.VmCandidate;
 
-namespace Avalime.UI.Views.ViewCandidatesBar;
+namespace Avalime.UI.Views.CandidatesBar;
 using Ctx = VmCandidatesBar;
 
 public class ViewCandidatesBar : AppViewBase<Ctx>
@@ -43,3 +43,4 @@ public class ViewCandidatesBar : AppViewBase<Ctx>
 		return ans;
 	}
 }
+

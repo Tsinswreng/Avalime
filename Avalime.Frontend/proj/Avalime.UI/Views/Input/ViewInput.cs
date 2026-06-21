@@ -4,7 +4,7 @@ using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Media;
 
-namespace Avalime.UI.Views.ViewInput;
+namespace Avalime.UI.Views.Input;
 using Ctx = VmInput;
 
 public class ViewInput : AppViewBase<Ctx>
@@ -36,3 +36,4 @@ public class ViewInput : AppViewBase<Ctx>
 		});
 	}
 }
+

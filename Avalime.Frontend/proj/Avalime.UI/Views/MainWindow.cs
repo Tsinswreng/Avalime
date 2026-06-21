@@ -8,3 +8,4 @@ public class MainWindow : Window
 		Content = new MainView();
 	}
 }
+

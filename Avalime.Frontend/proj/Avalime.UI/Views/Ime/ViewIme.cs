@@ -1,16 +1,16 @@
 using Avalime.Core.Infra;
 using Avalime.UI.Infra;
-using ViewCandidatesBarControl = Avalime.UI.Views.ViewCandidatesBar.ViewCandidatesBar;
-using ViewClipboardControl = Avalime.UI.Views.ViewClipboard.ViewClipboard;
-using ViewKeyBoardControl = Avalime.UI.Views.ViewKeyBoard.ViewKeyBoard;
-using ViewPreeditControl = Avalime.UI.Views.ViewPreedit.ViewPreedit;
-using ViewRimeLogControl = Avalime.UI.Views.ViewRimeLog.ViewRimeLog;
-using ViewToolBarControl = Avalime.UI.Views.ViewToolBar.ViewToolBar;
+using ViewCandidatesBarControl = Avalime.UI.Views.CandidatesBar.ViewCandidatesBar;
+using ViewClipboardControl = Avalime.UI.Views.Clipboard.ViewClipboard;
+using ViewKeyBoardControl = Avalime.UI.Views.KeyBoard.ViewKeyBoard;
+using ViewPreeditControl = Avalime.UI.Views.Preedit.ViewPreedit;
+using ViewRimeLogControl = Avalime.UI.Views.RimeLog.ViewRimeLog;
+using ViewToolBarControl = Avalime.UI.Views.ToolBar.ViewToolBar;
 using Avalonia.Controls;
 using System.ComponentModel;
 using Tsinswreng.Avln.Grid;
 
-namespace Avalime.UI.Views.ViewIme;
+namespace Avalime.UI.Views.Ime;
 using Ctx = VmIme;
 
 public class ViewIme : AppViewBase<Ctx>
@@ -128,3 +128,4 @@ public class ViewIme : AppViewBase<Ctx>
 		(Ctx as IDisposable)?.Dispose();
 	}
 }
+

@@ -1,7 +1,7 @@
 using System.Collections.ObjectModel;
 using Avalime.ViewModels;
 
-namespace Avalime.UI.Views.ViewRimeLog;
+namespace Avalime.UI.Views.RimeLog;
 
 public class VmRimeLog : ViewModelBase
 {
@@ -11,3 +11,4 @@ public class VmRimeLog : ViewModelBase
 		Lines = RimeLogBuffer.Lines;
 	}
 }
+

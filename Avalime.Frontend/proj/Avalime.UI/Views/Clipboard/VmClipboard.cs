@@ -2,7 +2,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using Avalime.ViewModels;
 
-namespace Avalime.UI.Views.ViewClipboard;
+namespace Avalime.UI.Views.Clipboard;
 
 public class VmClipboard : ViewModelBase
 	, IDisposable
@@ -60,3 +60,4 @@ public class VmClipboardItem : ViewModelBase
 
 	public Action? Click { get; set; }
 }
+

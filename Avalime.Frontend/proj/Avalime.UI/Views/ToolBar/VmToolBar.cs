@@ -1,7 +1,7 @@
 using Avalime.ViewModels;
 using System.ComponentModel;
 
-namespace Avalime.UI.Views.ViewToolBar;
+namespace Avalime.UI.Views.ToolBar;
 
 public class VmToolBar : ViewModelBase
 	, IDisposable
@@ -41,3 +41,4 @@ public class VmToolBar : ViewModelBase
 		RimeConnection.PropertyChanged -= _rimeConnectionPropertyChangedHandler;
 	}
 }
+

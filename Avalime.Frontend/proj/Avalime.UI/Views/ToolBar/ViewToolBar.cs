@@ -4,7 +4,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
 
-namespace Avalime.UI.Views.ViewToolBar;
+namespace Avalime.UI.Views.ToolBar;
 using Ctx = VmToolBar;
 
 public class ViewToolBar : AppViewBase<Ctx>
@@ -82,3 +82,4 @@ public class ViewToolBar : AppViewBase<Ctx>
 		};
 	}
 }
+

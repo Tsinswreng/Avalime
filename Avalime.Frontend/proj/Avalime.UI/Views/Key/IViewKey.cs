@@ -1,4 +1,4 @@
-namespace Avalime.UI.Views.ViewKey;
+namespace Avalime.UI.Views.Key;
 using Tsinswreng.CsCore;
 
 [Doc(@$"輸入法觸摸鍵盤上的按鍵
@@ -30,3 +30,4 @@ public interface IViewKey{
 	[Doc(@$"右滑")]
 	public Task<nil> SwipeRight(CT Ct);
 }
+

@@ -8,7 +8,7 @@ using Avalonia.Media;
 using Avalonia.Styling;
 using Avalonia.Threading;
 
-namespace Avalime.UI.Views.ViewKey;
+namespace Avalime.UI.Views.Key;
 using Ctx = VmKey;
 
 public class ViewKey : AppViewBase<Ctx>
@@ -199,3 +199,4 @@ public class ViewKey : AppViewBase<Ctx>
 		});
 	}
 }
+

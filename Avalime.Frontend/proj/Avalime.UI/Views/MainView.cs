@@ -1,4 +1,4 @@
-using ViewImeControl = Avalime.UI.Views.ViewIme.ViewIme;
+using ViewImeControl = Avalime.UI.Views.Ime.ViewIme;
 using Avalonia.Controls;
 
 namespace Avalime.UI.Views;
@@ -19,3 +19,4 @@ public class MainView : UserControl
 		_viewIme = null;
 	}
 }
+

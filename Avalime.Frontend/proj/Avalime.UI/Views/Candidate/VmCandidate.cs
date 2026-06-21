@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Avalime.ViewModels;
 using Avalonia.Media;
 
-namespace Avalime.UI.Views.ViewCandidate;
+namespace Avalime.UI.Views.Candidate;
 using Ctx = VmCandidate;
 
 public class VmCandidate : ViewModelBase
@@ -38,3 +38,4 @@ public class VmCandidate : ViewModelBase
 		set => SetProperty(ref field, value);
 	} = Brushes.White;
 }
+

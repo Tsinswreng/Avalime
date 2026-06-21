@@ -7,7 +7,7 @@ using Avalonia.Controls.Templates;
 using Avalonia.Layout;
 using Avalonia.Media;
 
-namespace Avalime.UI.Views.ViewRimeLog;
+namespace Avalime.UI.Views.RimeLog;
 using Ctx = VmRimeLog;
 
 public class ViewRimeLog : AppViewBase<Ctx>
@@ -42,3 +42,4 @@ public class ViewRimeLog : AppViewBase<Ctx>
 		});
 	}
 }
+

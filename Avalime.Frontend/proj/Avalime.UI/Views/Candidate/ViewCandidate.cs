@@ -1,4 +1,4 @@
-namespace Avalime.UI.Views.ViewCandidate;
+namespace Avalime.UI.Views.Candidate;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
@@ -122,3 +122,4 @@ public class ViewCandidate : AppViewBase<Ctx>
 			&& p.Y >= 0 && p.Y <= _border.Bounds.Height;
 	}
 }
+

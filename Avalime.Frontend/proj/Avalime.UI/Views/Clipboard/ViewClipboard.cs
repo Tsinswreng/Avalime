@@ -5,7 +5,7 @@ using Avalonia.Controls.Templates;
 using Avalonia.Layout;
 using Avalonia.Media;
 
-namespace Avalime.UI.Views.ViewClipboard;
+namespace Avalime.UI.Views.Clipboard;
 using Ctx = VmClipboard;
 
 public class ViewClipboard : AppViewBase<Ctx>
@@ -43,3 +43,4 @@ public class ViewClipboard : AppViewBase<Ctx>
 		});
 	}
 }
+
