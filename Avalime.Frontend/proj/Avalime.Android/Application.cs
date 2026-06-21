@@ -2,9 +2,19 @@ using Android.App;
 using Android.Runtime;
 using Avalime.Core.Infra;
 using Avalime.Core.Infra.Log;
+using Avalime.Core.Keys;
 using Avalime.UI;
+using Avalime.UI.Views.CandidatesBar;
+using Avalime.UI.Views.Clipboard;
+using Avalime.UI.Views.Ime;
+using Avalime.UI.Views.Input;
+using Avalime.UI.Views.Key;
+using Avalime.UI.Views.KeyBoard;
+using Avalime.UI.Views.RimeLog;
+using Avalime.UI.Views.ToolBar;
 using Avalonia;
 using Avalonia.Android;
+using Microsoft.Extensions.DependencyInjection;
 using Tsinswreng.CsCfg;
 using Tsinswreng.CsTools;
 using System.IO;
@@ -127,6 +137,29 @@ public class Application : AvaloniaAndroidApplication<App>
 		return internalDir;
 	}
 
+	static IServiceProvider BuildAndroidActivityServices()
+	{
+		var services = new ServiceCollection();
+		services.AddSingleton<IImeKeyProcessor, AndroidStubImeKeyProcessor>();
+		services.AddSingleton<IOsKeyProcessor, AndroidStubOsKeyProcessor>();
+		services.AddSingleton<IKeyboardHost, ActivityKeyboardHost>();
+		services.AddSingleton<IClipboardService, AndroidClipboardService>();
+		services.AddSingleton<ImeUiState>();
+		services.AddSingleton<ISvcIme>();
+		services.AddSingleton<RimeConnectionState>();
+		services.AddSingleton<RimeLogBuffer>();
+		services.AddTransient<VmIme>();
+		services.AddTransient<VmToolBar>();
+		services.AddTransient<VmCandidatesBar>();
+		services.AddTransient<VmInput>();
+		services.AddTransient<VmClipboard>();
+		services.AddTransient<VmRimeLog>();
+		services.AddTransient<VmKey>();
+		services.AddTransient<VmKeyBoard>();
+		services.AddSingleton<Microsoft.Extensions.Logging.ILogger>(_ => AppLog.Inst);
+		return services.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = false, ValidateScopes = false });
+	}
+
 	static void EnsureAssetFile(AssetManager assets, string assetPath, string outputPath, bool overwrite)
 	{
 		EnsureParentDir(outputPath);
@@ -169,9 +202,28 @@ public class Application : AvaloniaAndroidApplication<App>
 
 	protected override AppBuilder CustomizeAppBuilder(AppBuilder builder)
 	{
+		if(DiTryNeedsInit()){
+			Di.SvcProvider = BuildAndroidActivityServices();
+		}
 		return base.CustomizeAppBuilder(builder)
 			.With(new Avalonia.Media.FontManagerOptions{
 				DefaultFamilyName = "serif"
 			});
 	}
+
+	static bool DiTryNeedsInit(){
+		try{
+			_ = Di.SvcProvider;
+			return false;
+		}catch(InvalidOperationException){
+			return true;
+		}
+	}
+}
+
+file class ActivityKeyboardHost : IKeyboardHost
+{
+	public void HideKeyboard() { }
+
+	public void CommitText(str text) { }
 }
