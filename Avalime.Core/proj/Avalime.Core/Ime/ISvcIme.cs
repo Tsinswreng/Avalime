@@ -1,8 +1,8 @@
-namespace Avalime.Core.Ime;
+// namespace Avalime.Core.Ime;
 
-public interface ISvcIme{
+// public interface ISvcIme{
 
-	//簡化版本
-	public IAsyncEnumerable<ICandidate> Input(str Input, CT Ct);
-	
-}
+// 	//簡化版本
+// 	public IAsyncEnumerable<ICandidate> Input(str Input, CT Ct);
+
+// }

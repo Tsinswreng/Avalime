@@ -11,7 +11,7 @@ namespace Avalime.UI;
 
 public partial class RimeConnectionState : ObservableObject
 {
-	readonly SvcState _imeState;
+	readonly ISvcIme _imeState;
 	static void LogInfo(str message){
 		AppLog.Info("[AvalimeRime] " + message);
 	}
@@ -49,7 +49,7 @@ public partial class RimeConnectionState : ObservableObject
 		private set => SetProperty(ref field, value);
 	}
 
-	public RimeConnectionState(SvcState ImeState){
+	public RimeConnectionState(ISvcIme ImeState){
 		_imeState = ImeState;
 		RimeSetup.OnOptionChanged += (name, enabled) => {
 			if(name == "ascii_mode"){

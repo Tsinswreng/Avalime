@@ -1,20 +1,25 @@
 namespace Avalime.Core.Keys;
 using Avalime.Core.Infra.Log;
 
-public class SvcState
+
+
+[Doc(@$"輸入法引擎抽象與適配。
+外部訪問其API當由{nameof(ISvcIme)}引用而非{nameof(SvcIme)}。
+暫時定義爲class 後續會改成interface。
+")]
+public class ISvcIme
 	//:I_ImeState //TODO 先叶後抽象
 {
-
 	public IDictionary<object, object?> Cfg{get;set;}= new Dictionary<object, object?>();
 	public IOsKeyProcessor OsKeyProcessor{get;set;}
 	public IImeKeyProcessor ImeKeyProcessor{get;set;}
 
-	public SvcState(IOsKeyProcessor osKeyProcessor, IImeKeyProcessor imeKeyProcessor) {
+	public ISvcIme(IOsKeyProcessor osKeyProcessor, IImeKeyProcessor imeKeyProcessor) {
 		this.OsKeyProcessor = osKeyProcessor;
 		this.ImeKeyProcessor = imeKeyProcessor;
 	}
 
-	public SvcState(IOsKeyProcessor osKeyProcessor) {
+	public ISvcIme(IOsKeyProcessor osKeyProcessor) {
 		this.OsKeyProcessor = osKeyProcessor;
 	}
 
@@ -67,4 +72,10 @@ public class SvcState
 	/// 當 Rime 引擎 commit 文字時觸發。參數為 commit 的文字內容。
 	public event EventHandler<string>? OnCommit;
 
+}
+
+
+[Doc(@$"實現類")]
+public class SvcIme:ISvcIme{
+	
 }

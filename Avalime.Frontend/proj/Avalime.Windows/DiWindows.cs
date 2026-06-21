@@ -19,7 +19,7 @@ public static class DiWindows{
 	>();
 
 	z.AddSingleton<
-		SvcState
+		ISvcIme
 	>();
 
 	z.AddSingleton<RimeConnectionState>();

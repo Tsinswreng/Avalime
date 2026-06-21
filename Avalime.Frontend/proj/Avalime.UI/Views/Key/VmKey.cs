@@ -37,7 +37,7 @@ public partial class VmKey : ViewModelBase, IKeyViewModel
 		_rimeCon.PropertyChanged += _rimeConnectionPropertyChangedHandler;
 
 		Click = ()=>{
-			var state = ImeState as SvcState;
+			var state = ImeState as ISvcIme;
 			try{
 				var sw = System.Diagnostics.Stopwatch.StartNew();
 				AppLog.Debug($"[Perf] VmKey.Click→Input start: {sw.ElapsedMilliseconds}ms");
@@ -69,7 +69,7 @@ public partial class VmKey : ViewModelBase, IKeyViewModel
 
 	public bool IsRepeat{get;set;}
 
-	public SvcState ImeState{get;set;}
+	public ISvcIme ImeState{get;set;}
 
 	public IKeyChar Key_Click{
 		get => field;
