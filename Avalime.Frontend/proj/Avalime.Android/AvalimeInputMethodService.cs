@@ -167,12 +167,12 @@ public class AvalimeInputMethodService : InputMethodService {
 
 class AndroidStubOsKeyProcessor : IOsKeyProcessor {
 	public event ErrHandler? OnErr;
-	public Task<RespOnKeyEvent> OnKeyEventsAsy(IEnumerable<IKeyEvent> keyEvents)
-		=> Task.FromResult(new RespOnKeyEvent());
+	public Task<IRespOnKeyEvent> OnKeyEvents(IEnumerable<IKeyEvent> keyEvents, CT Ct)
+		=> Task.FromResult<IRespOnKeyEvent>(new RespOnKeyEvent());
 }
 
 class AndroidStubImeKeyProcessor : IImeKeyProcessor {
 	public event ErrHandler? OnErr;
-	public Task<RespOnKeyEvent> OnKeyEventsAsy(IEnumerable<IKeyEvent> keyEvents)
-		=> Task.FromResult(new RespOnKeyEvent());
+	public Task<IRespOnKeyEvent> OnKeyEvents(IEnumerable<IKeyEvent> keyEvents, CT Ct)
+		=> Task.FromResult<IRespOnKeyEvent>(new RespOnKeyEvent());
 }

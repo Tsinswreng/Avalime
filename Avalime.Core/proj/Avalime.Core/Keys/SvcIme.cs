@@ -1,5 +1,6 @@
 namespace Avalime.Core.Keys;
 using Avalime.Core.Infra.Log;
+using Avalime.Core.Ime;
 
 
 
@@ -11,8 +12,79 @@ public class ISvcIme
 	//:I_ImeState //TODO 先叶後抽象
 {
 	public IDictionary<object, object?> Cfg{get;set;}= new Dictionary<object, object?>();
-	public IOsKeyProcessor OsKeyProcessor{get;set;}
-	public IImeKeyProcessor ImeKeyProcessor{get;set;}
+	public IOsKeyProcessor? OsKeyProcessor{get;set;}
+	public IImeKeyProcessor? ImeKeyProcessor{get;set;}
+
+	public bool IsConnected{
+		get => field;
+		set{
+			if(field == value){return;}
+			field = value;
+			ConnectionStateChanged?.Invoke(this, EventArgs.Empty);
+		}
+	}
+
+	public bool IsConnecting{
+		get => field;
+		set{
+			if(field == value){return;}
+			field = value;
+			ConnectionStateChanged?.Invoke(this, EventArgs.Empty);
+		}
+	}
+
+	public bool IsAsciiMode{
+		get => field;
+		set{
+			if(field == value){return;}
+			field = value;
+			StateChanged?.Invoke(this, EventArgs.Empty);
+		}
+	}
+
+	public bool IsSimplification{
+		get => field;
+		set{
+			if(field == value){return;}
+			field = value;
+			StateChanged?.Invoke(this, EventArgs.Empty);
+		}
+	}
+
+	public bool IsComposing{
+		get => field;
+		set{
+			if(field == value){return;}
+			field = value;
+			StateChanged?.Invoke(this, EventArgs.Empty);
+		}
+	}
+
+	public str StatusText{
+		get => field;
+		set{
+			if(field == value){return;}
+			field = value;
+			ConnectionStateChanged?.Invoke(this, EventArgs.Empty);
+		}
+	} = "Ime 未連接";
+
+	public str Preedit{
+		get => field;
+		set{
+			if(field == value){return;}
+			field = value;
+			StateChanged?.Invoke(this, EventArgs.Empty);
+		}
+	} = "";
+
+	public IReadOnlyList<ICandidate> Candidates{
+		get => field;
+		set{
+			field = value;
+			StateChanged?.Invoke(this, EventArgs.Empty);
+		}
+	} = [];
 
 	public ISvcIme(IOsKeyProcessor osKeyProcessor, IImeKeyProcessor imeKeyProcessor) {
 		this.OsKeyProcessor = osKeyProcessor;
@@ -21,6 +93,9 @@ public class ISvcIme
 
 	public ISvcIme(IOsKeyProcessor osKeyProcessor) {
 		this.OsKeyProcessor = osKeyProcessor;
+	}
+
+	public ISvcIme() {
 	}
 
 	public void InputSafely(IEnumerable<IKeyEvent> keyEvents, Action<Exception>? onError = null){
@@ -66,8 +141,36 @@ public class ISvcIme
 		return new();
 	}
 
-	public event EventHandler<IEnumerable<IKeyEvent>> BeforeInput;
-	public event EventHandler<IEnumerable<IKeyEvent>> AfterInput;
+	public virtual Task ConnectAsy(CT ct = default){
+		IsConnected = ImeKeyProcessor is not null;
+		if(IsConnected && string.IsNullOrWhiteSpace(StatusText)){
+			StatusText = "Ime 已連接";
+		}
+		return Task.CompletedTask;
+	}
+
+	public virtual Task ToggleAsciiModeAsy(CT ct = default){
+		IsAsciiMode = !IsAsciiMode;
+		return Task.CompletedTask;
+	}
+
+	public virtual Task ToggleSimplificationAsy(CT ct = default){
+		IsSimplification = !IsSimplification;
+		return Task.CompletedTask;
+	}
+
+	public void ReplaceCandidates(IEnumerable<ICandidate>? candidates){
+		Candidates = candidates?.ToArray() ?? [];
+	}
+
+	public void ReplacePreedit(str? preedit){
+		Preedit = preedit ?? "";
+	}
+
+	public event EventHandler<IEnumerable<IKeyEvent>>? BeforeInput;
+	public event EventHandler<IEnumerable<IKeyEvent>>? AfterInput;
+	public event EventHandler? StateChanged;
+	public event EventHandler? ConnectionStateChanged;
 
 	/// 當 Rime 引擎 commit 文字時觸發。參數為 commit 的文字內容。
 	public event EventHandler<string>? OnCommit;
@@ -77,5 +180,5 @@ public class ISvcIme
 
 [Doc(@$"實現類")]
 public class SvcIme:ISvcIme{
-	
+
 }

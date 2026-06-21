@@ -4,7 +4,6 @@ using System;
 using Avalime.Core.Infra;
 using Avalime.Core.Infra.Log;
 using Avalime.Core.Keys;
-using Avalime.Rime;
 using Avalime.UI;
 using Avalime.UI.Views.CandidatesBar;
 using Avalime.UI.Views.Clipboard;
@@ -41,6 +40,7 @@ sealed class Program{
 		>();
 
 		services.AddSingleton<RimeConnectionState>();
+		services.AddSingleton<RimeLogBuffer>();
 		services.AddTransient<VmIme>();
 		services.AddTransient<VmToolBar>();
 		services.AddTransient<VmCandidatesBar>();

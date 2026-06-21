@@ -1,5 +1,4 @@
 using Avalime.Core.Keys;
-using Avalime.Rime;
 using Avalime.UI;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -23,6 +22,7 @@ public static class DiWindows{
 	>();
 
 	z.AddSingleton<RimeConnectionState>();
+	z.AddSingleton<RimeLogBuffer>();
 	return z;
 		}
 

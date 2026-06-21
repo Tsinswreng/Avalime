@@ -5,8 +5,8 @@ using Avalime.UI;
 
 class StubImeKeyProcessor : IImeKeyProcessor {
 	public event ErrHandler? OnErr;
-	public Task<RespOnKeyEvent> OnKeyEventsAsy(IEnumerable<IKeyEvent> keyEvents)
-		=> Task.FromResult(new RespOnKeyEvent());
+	public Task<IRespOnKeyEvent> OnKeyEvents(IEnumerable<IKeyEvent> keyEvents, CT Ct)
+		=> Task.FromResult<IRespOnKeyEvent>(new RespOnKeyEvent());
 }
 
 class StubKeyboardHost : IKeyboardHost {

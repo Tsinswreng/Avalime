@@ -9,3 +9,8 @@ public interface ICandidate{
 	public str Comment{get;set;}
 }
 
+public class Candidate:ICandidate{
+	public str Text{get;set;} = "";
+	public str Comment{get;set;} = "";
+}
+

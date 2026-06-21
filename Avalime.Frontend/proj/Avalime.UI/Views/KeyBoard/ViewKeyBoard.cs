@@ -9,6 +9,8 @@ using Avalonia.Controls.Documents;
 using Avalonia.Media;
 using Microsoft.Extensions.DependencyInjection;
 using static Avalime.Core.Keys.KeyChars;
+using KeyVm = Avalime.UI.Views.Key.VmKey;
+using KeyView = Avalime.UI.Views.Key.ViewKey;
 using KS = Avalime.Core.Keys.KeyStates;
 
 namespace Avalime.UI.Views.KeyBoard;
@@ -115,8 +117,8 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 		public bool IsRepeat{get;init;}
 	}
 
-	ViewKey.ViewKey KView(KeyCfg cfg){
-		var vm = new VmKey(_rimeConnection);
+	KeyView KView(KeyCfg cfg){
+		var vm = new KeyVm(_rimeConnection);
 		_disposables.Add(vm);
 		vm.Key_Click = cfg.Key;
 		vm.Click = MkSendKey(cfg.Key);
@@ -150,18 +152,18 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 				}
 			}
 		}
-		return new ViewKey.ViewKey { Ctx = vm};
+		return new KeyView { Ctx = vm};
 	}
 
-	ViewKey.ViewKey MkActionKey(str label, Action onClick, str? hint = null){
-		var vm = new VmKey(_rimeConnection);
+	KeyView MkActionKey(str label, Action onClick, str? hint = null){
+		var vm = new KeyVm(_rimeConnection);
 		_disposables.Add(vm);
 		vm.Label = label;
 		vm.FontSize = UiCfg.Inst.ActionKeyFontSize;
 		if(hint is not null) vm.Hint = hint;
 		vm.Click = () => { onClick(); return 0; };
 		vm.ImeState = Ctx.ImeState;
-		return new ViewKey.ViewKey { Ctx = vm};
+		return new KeyView { Ctx = vm};
 	}
 
 	Func<zero> MkSendKey(IKeyChar key) => () => {

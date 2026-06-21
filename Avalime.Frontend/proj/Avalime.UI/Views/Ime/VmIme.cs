@@ -1,10 +1,7 @@
 using Avalime.Core.Keys;
-using Avalime.Rime;
 using Avalime.ViewModels;
 using Avalonia.Threading;
-using Rime.Api;
 using System.ComponentModel;
-using Tsinswreng.CsInterop;
 
 namespace Avalime.UI.Views.Ime;
 
@@ -90,34 +87,9 @@ public class VmIme : ViewModelBase
 		}
 	}
 
-	unsafe void RefreshCompositionState(){
-		var rime = RimeConnection.Setup;
-		if(rime is null){
-			Dispatcher.UIThread.Post(() => {
-				IsComposing = false;
-				HasPreedit = false;
-			});
-			return;
-		}
-		var status = new RimeStatus{
-			data_size = RimeUtil.DataSize<RimeStatus>()
-		};
-		var gotStatus = rime.apiFn.get_status(rime.rimeSessionId, &status) == RimeUtil.True;
-		var composing = gotStatus && status.is_composing != RimeUtil.False;
-		if(gotStatus){
-			rime.apiFn.free_status(&status);
-		}
-
-		var ctx = new RimeContext{
-			data_size = RimeUtil.DataSize<RimeContext>()
-		};
-		var gotContext = rime.apiFn.get_context(rime.rimeSessionId, &ctx) == RimeUtil.True;
-		var hasPreedit = false;
-		if(gotContext){
-			hasPreedit = ctx.composition.length > 0 || !string.IsNullOrEmpty(ToolCStr.ToCsStr(ctx.composition.preedit));
-			rime.apiFn.free_context(&ctx);
-		}
-
+	void RefreshCompositionState(){
+		var composing = ImeState.IsComposing;
+		var hasPreedit = !string.IsNullOrEmpty(ImeState.Preedit);
 		Dispatcher.UIThread.Post(() => {
 			IsComposing = composing;
 			HasPreedit = hasPreedit;
@@ -132,4 +104,3 @@ public class VmIme : ViewModelBase
 		RimeConnection.PropertyChanged -= OnRimeConnectionPropertyChanged;
 	}
 }
-

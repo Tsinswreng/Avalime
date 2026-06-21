@@ -14,9 +14,9 @@ public class AndroidOsKeyProcessor : IOsKeyProcessor
 
 	public event ErrHandler? OnErr;
 
-	public Task<RespOnKeyEvent> OnKeyEventsAsy(IEnumerable<IKeyEvent> keyEvents){
+	public Task<IRespOnKeyEvent> OnKeyEvents(IEnumerable<IKeyEvent> keyEvents, CT Ct){
 		var ic = _getInputConnection();
-		if(ic is null) return Task.FromResult(new RespOnKeyEvent());
+		if(ic is null) return Task.FromResult<IRespOnKeyEvent>(new RespOnKeyEvent());
 
 		foreach(var keyEvent in keyEvents){
 			if(!keyEvent.KeyState.IsKeyDown) continue;
@@ -36,7 +36,7 @@ public class AndroidOsKeyProcessor : IOsKeyProcessor
 				}
 			}
 		}
-		return Task.FromResult(new RespOnKeyEvent());
+		return Task.FromResult<IRespOnKeyEvent>(new RespOnKeyEvent());
 	}
 
 	static global::Android.Views.MetaKeyStates ToAndroidMetaState(IKeyBoardState? keyBoardState){

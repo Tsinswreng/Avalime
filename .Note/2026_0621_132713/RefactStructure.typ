@@ -7,6 +7,6 @@ E:\_code\CsRime\Avalime\Avalime.Core\proj\Avalime.Core\Keys\SvcIme.cs
 Core抽象層
 
 
-然後看
+然後到安卓程序集入口中build一下 直到無錯誤。
 
 ]

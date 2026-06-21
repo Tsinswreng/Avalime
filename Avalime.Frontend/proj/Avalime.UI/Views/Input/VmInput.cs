@@ -1,10 +1,7 @@
 using Avalime.Core.Infra.Log;
 using Avalime.Core.Keys;
-using Avalime.Rime;
 using Avalime.ViewModels;
 using Avalonia.Threading;
-using Rime.Api;
-using Tsinswreng.CsInterop;
 
 namespace Avalime.UI.Views.Input;
 using Ctx = VmInput;
@@ -18,30 +15,15 @@ public class VmInput : ViewModelBase
 	} = "";
 
 	public ISvcIme ImeState{get;}
-	public RimeConnectionState RimeConnection{get;}
 
 	readonly EventHandler<IEnumerable<IKeyEvent>> _afterInputHandler;
 
-	unsafe public VmInput(ISvcIme ImeState, RimeConnectionState RimeConnection){
+	public VmInput(ISvcIme ImeState){
 		this.ImeState = ImeState;
-		this.RimeConnection = RimeConnection;
 		_afterInputHandler = (sender, args)=>{
 			var sw = System.Diagnostics.Stopwatch.StartNew();
 			AppLog.Debug($"[Perf] VmInput.AfterInput start: {sw.ElapsedMilliseconds}ms");
-			var rime = RimeConnection.Setup;
-			if(rime is null){
-				Dispatcher.UIThread.Post(() => Text = "");
-				return;
-			}
-			var rimeApi = rime.apiFn;
-			var ctx = new RimeContext{
-				data_size = RimeUtil.DataSize<RimeContext>()
-			};
-			if(rimeApi.get_context(rime.rimeSessionId, &ctx) != RimeUtil.True){
-				return;
-			}
-			str preedit = ToolCStr.ToCsStr(ctx.composition.preedit);
-			rimeApi.free_context(&ctx);
+			str preedit = ImeState.Preedit;
 			Dispatcher.UIThread.Post(() => Text = preedit);
 			AppLog.Debug($"[Perf] VmInput.AfterInput done: {sw.ElapsedMilliseconds}ms, preedit: {preedit}");
 		};
@@ -53,4 +35,3 @@ public class VmInput : ViewModelBase
 		ImeState.AfterInput -= _afterInputHandler;
 	}
 }
-
