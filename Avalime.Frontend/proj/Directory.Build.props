@@ -11,6 +11,6 @@
 <ItemGroup>
 		<Compile Include="../TypeAlias.cs" />
 		<ProjectReference Include="$(MSBuildThisFileDirectory)..\..\Avalime.Core\proj\Avalime.Core\Avalime.Core.csproj"/>
-		<ProjectReference Include="$(MSBuildThisFileDirectory)..\..\Avalime.Core\proj\Avalime.Rime\Avalime.Rime.csproj"/>
+		<!-- <ProjectReference Include="$(MSBuildThisFileDirectory)..\..\Avalime.Core\proj\Avalime.Rime\Avalime.Rime.csproj"/> -->
 	</ItemGroup>
 </Project>
