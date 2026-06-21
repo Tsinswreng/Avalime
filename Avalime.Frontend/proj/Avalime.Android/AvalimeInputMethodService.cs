@@ -90,7 +90,7 @@ public class AvalimeInputMethodService : InputMethodService {
 		services.AddSingleton<IKeyboardHost>(_ => new AndroidKeyboardHost(() => this));
 		services.AddSingleton<IClipboardService, AndroidClipboardService>();
 		services.AddSingleton<ImeUiState>();
-		services.AddSingleton<ImeState>();
+		services.AddSingleton<SvcState>();
 		services.AddSingleton<RimeConnectionState>();
 		services.AddSingleton<RimeLogBuffer>();
 		services.AddTransient<VmIme>();
@@ -105,7 +105,7 @@ public class AvalimeInputMethodService : InputMethodService {
 		var provider = services.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = false, ValidateScopes = false });
 		Di.SvcProvider = provider;
 
-		var imeState = Di.GetRSvc<ImeState>();
+		var imeState = Di.GetRSvc<SvcState>();
 
 		// 未處理按鍵轉發給 OS
 		imeState.OsKeyProcessor = new AndroidOsKeyProcessor(() => CurrentInputConnection);

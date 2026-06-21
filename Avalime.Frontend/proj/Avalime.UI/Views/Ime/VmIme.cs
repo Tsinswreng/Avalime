@@ -11,7 +11,7 @@ namespace Avalime.UI.Views.Ime;
 public class VmIme : ViewModelBase
 	, IDisposable
 {
-	public ImeState ImeState { get; }
+	public SvcState ImeState { get; }
 	public RimeConnectionState RimeConnection { get; }
 	public ImeUiState UiState { get; }
 
@@ -40,7 +40,7 @@ public class VmIme : ViewModelBase
 	readonly EventHandler<IEnumerable<IKeyEvent>> _afterInputHandler;
 	readonly PropertyChangedEventHandler _uiStatePropertyChangedHandler;
 
-	public VmIme(ImeState ImeState, RimeConnectionState RimeConnection, ImeUiState UiState){
+	public VmIme(SvcState ImeState, RimeConnectionState RimeConnection, ImeUiState UiState){
 		this.ImeState = ImeState;
 		this.RimeConnection = RimeConnection;
 		this.UiState = UiState;

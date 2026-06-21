@@ -7,9 +7,9 @@ using Ctx = VmKeyBoard;
 
 public partial class VmKeyBoard : ViewModelBase
 {
-	public ImeState ImeState{get;set;}
+	public SvcState ImeState{get;set;}
 
-	public VmKeyBoard(ImeState ImeState){
+	public VmKeyBoard(SvcState ImeState){
 		this.ImeState = ImeState;
 	}
 

@@ -1,7 +1,7 @@
 namespace Avalime.Core.Keys;
 using Avalime.Core.Infra.Log;
 
-public class ImeState
+public class SvcState
 	//:I_ImeState //TODO 先叶後抽象
 {
 
@@ -9,12 +9,12 @@ public class ImeState
 	public IOsKeyProcessor OsKeyProcessor{get;set;}
 	public IImeKeyProcessor ImeKeyProcessor{get;set;}
 
-	public ImeState(IOsKeyProcessor osKeyProcessor, IImeKeyProcessor imeKeyProcessor) {
+	public SvcState(IOsKeyProcessor osKeyProcessor, IImeKeyProcessor imeKeyProcessor) {
 		this.OsKeyProcessor = osKeyProcessor;
 		this.ImeKeyProcessor = imeKeyProcessor;
 	}
 
-	public ImeState(IOsKeyProcessor osKeyProcessor) {
+	public SvcState(IOsKeyProcessor osKeyProcessor) {
 		this.OsKeyProcessor = osKeyProcessor;
 	}
 

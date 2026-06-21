@@ -17,12 +17,12 @@ public class VmInput : ViewModelBase
 		set => SetProperty(ref field, value);
 	} = "";
 
-	public ImeState ImeState{get;}
+	public SvcState ImeState{get;}
 	public RimeConnectionState RimeConnection{get;}
 
 	readonly EventHandler<IEnumerable<IKeyEvent>> _afterInputHandler;
 
-	unsafe public VmInput(ImeState ImeState, RimeConnectionState RimeConnection){
+	unsafe public VmInput(SvcState ImeState, RimeConnectionState RimeConnection){
 		this.ImeState = ImeState;
 		this.RimeConnection = RimeConnection;
 		_afterInputHandler = (sender, args)=>{

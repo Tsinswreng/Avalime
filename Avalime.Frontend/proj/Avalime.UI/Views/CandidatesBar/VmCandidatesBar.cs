@@ -18,12 +18,12 @@ using Ctx = VmCandidatesBar;
 unsafe public partial class VmCandidatesBar : ViewModelBase
 	, IDisposable
 {
-	public ImeState ImeState{get;}
+	public SvcState ImeState{get;}
 	public RimeConnectionState RimeConnection{get;}
 
 	readonly EventHandler<IEnumerable<IKeyEvent>> _afterInputHandler;
 
-	public VmCandidatesBar(ImeState ImeState, RimeConnectionState RimeConnection){
+	public VmCandidatesBar(SvcState ImeState, RimeConnectionState RimeConnection){
 		this.ImeState = ImeState;
 		this.RimeConnection = RimeConnection;
 		_afterInputHandler = (s, e)=>{

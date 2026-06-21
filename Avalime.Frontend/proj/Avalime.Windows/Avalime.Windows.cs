@@ -37,7 +37,7 @@ sealed class Program{
 		services.AddSingleton<ILogger>(_ => AppLog.Inst);
 
 		services.AddSingleton<
-			ImeState
+			SvcState
 		>();
 
 		services.AddSingleton<RimeConnectionState>();
