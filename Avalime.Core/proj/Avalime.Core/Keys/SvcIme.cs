@@ -1,7 +1,24 @@
 namespace Avalime.Core.Keys;
 using Avalime.Core.Infra.Log;
 using Avalime.Core.Ime;
+using Tsinswreng.CsPage;
 
+[Doc(@$"一頁候選詞，包含候選列表與分頁訊息。
+為引擎單頁候選的快照，含頁號、是否末頁、頁大小、高亮索引。")]
+public class CandidatePage:IPage<ICandidate>{
+
+	/// 當前頁內高亮候選的索引
+	public int HighlightedIndex{get;set;}
+	public bool IsLastPage{get;set;}
+	#region ICandidate
+	public IList<ICandidate>? Data{get;set;} = [];
+	public u64 PageSize{get;set;}
+	public u64 TotCnt { get;set; }
+	/// from 0
+	public u64 PageIdx { get;set; }
+	public bool HasTotCnt { get;set; }
+	#endregion ICandidate
+}
 
 
 [Doc(@$"輸入法引擎抽象與適配。
@@ -78,13 +95,13 @@ public class ISvcIme
 		}
 	} = "";
 
-	public IReadOnlyList<ICandidate> Candidates{
+	public CandidatePage Candidates{
 		get => field;
 		set{
 			field = value;
 			StateChanged?.Invoke(this, EventArgs.Empty);
 		}
-	} = [];
+	} = new();
 
 	public ISvcIme(IOsKeyProcessor osKeyProcessor, IImeKeyProcessor imeKeyProcessor) {
 		this.OsKeyProcessor = osKeyProcessor;
@@ -159,8 +176,8 @@ public class ISvcIme
 		return Task.CompletedTask;
 	}
 
-	public void ReplaceCandidates(IEnumerable<ICandidate>? candidates){
-		Candidates = candidates?.ToArray() ?? [];
+	public void ReplaceCandidates(CandidatePage page){
+		Candidates = page;
 	}
 
 	public void ReplacePreedit(str? preedit){
