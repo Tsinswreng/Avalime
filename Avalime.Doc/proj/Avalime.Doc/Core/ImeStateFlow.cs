@@ -45,6 +45,7 @@ using Tsinswreng.CsCore;
 	- `VmInput` 用 `AfterInput` 讀 preedit
 	- `VmCandidatesBar` 用 `AfterInput` 刷候選詞（最多 16 個）
 	- Android `AvalimeInputMethodService` 訂閱 `OnCommit`，通過 `CommitText` 輸出到目標 App
+	- Android 入口層註冊 `AndroidRimeImeService : ISvcIme`，由它負責初始化 `RimeSetup` 並在 `AfterInput` 後把 `RimeStatus/RimeContext` 回填到 `Preedit` / `Candidates` / `IsComposing`
 	- `AndroidOsKeyProcessor` 實現 `I_OsKeyProcessor`，將未處理按鍵轉發給 OS
 	- `RimeConnectionState` 維護 `IsAsciiMode` 屬性，通過 `RimeSetup.OnOptionChanged` 靜態事件同步引擎狀態（回調一律經 `Dispatcher.UIThread.Post` 確保在 UI 線程更新）
 	- `ToggleAsciiMode()` 在後台線程調用 `get_option`/`set_option`（避免 ~350ms 原生調用阻塞 UI），通過 `Interlocked` 防並發，直接更新 `IsAsciiMode` 後經 `Dispatcher.UIThread.Post` 同步 UI

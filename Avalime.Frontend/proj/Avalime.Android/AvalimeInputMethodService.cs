@@ -7,6 +7,7 @@ using Android.Views.InputMethods;
 using Avalime.Core.Infra;
 using Avalime.Core.Infra.Log;
 using Avalime.Core.Keys;
+using Avalime.Rime;
 using Avalime.UI;
 using Avalime.UI.Views;
 using Avalime.UI.Views.CandidatesBar;
@@ -85,12 +86,13 @@ public class AvalimeInputMethodService : InputMethodService {
 		AppLog.Info("[IME] OnCreate");
 
 		var services = new ServiceCollection();
-		services.AddSingleton<IImeKeyProcessor, AndroidStubImeKeyProcessor>();
+		services.AddSingleton<RimeSetup>(_ => RimeSetup.Inst);
+		services.AddSingleton<IImeKeyProcessor, RimeKeyProcessor>();
 		services.AddSingleton<IOsKeyProcessor, AndroidStubOsKeyProcessor>();
 		services.AddSingleton<IKeyboardHost>(_ => new AndroidKeyboardHost(() => this));
 		services.AddSingleton<IClipboardService, AndroidClipboardService>();
 		services.AddSingleton<ImeUiState>();
-		services.AddSingleton<ISvcIme>();
+		services.AddSingleton<ISvcIme, AndroidRimeImeService>();
 		services.AddSingleton<RimeConnectionState>();
 		services.AddSingleton<RimeLogBuffer>();
 		services.AddTransient<VmIme>();
@@ -106,6 +108,7 @@ public class AvalimeInputMethodService : InputMethodService {
 		Di.SvcProvider = provider;
 
 		var imeState = Di.GetRSvc<ISvcIme>();
+		imeState.StatusText = "正在連接 Rime";
 
 		// 未處理按鍵轉發給 OS
 		imeState.OsKeyProcessor = new AndroidOsKeyProcessor(() => CurrentInputConnection);

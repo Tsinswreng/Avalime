@@ -3,6 +3,7 @@ using Android.Runtime;
 using Avalime.Core.Infra;
 using Avalime.Core.Infra.Log;
 using Avalime.Core.Keys;
+using Avalime.Rime;
 using Avalime.UI;
 using Avalime.UI.Views.CandidatesBar;
 using Avalime.UI.Views.Clipboard;
@@ -75,11 +76,18 @@ public class Application : AvaloniaAndroidApplication<App>
 		foreach (var so in passthroughSoFiles)
 		{
 			var dst = System.IO.Path.Combine(internalDir, so);
-			// 優先：內部目錄已有就不複製（開發者用 run-as cp 放進去的）
-			if (System.IO.File.Exists(dst))
+			// 優先：內部目錄已有且非空就不複製（開發者用 run-as cp 放進去的）
+			if (System.IO.File.Exists(dst) && new FileInfo(dst).Length > 0)
 			{
 				AppLog.Info("[Avalime] already in place: " + dst);
 				continue;
+			}
+			if(File.Exists(dst)){
+				try{
+					File.Delete(dst);
+				}catch(Exception ex){
+					AppLog.Warn("[Avalime] failed to delete invalid so " + dst + ": " + ex.Message);
+				}
 			}
 			// 嘗試從 /sdcard/rime/ 複製（需要儲存權限，現代 Android 通常失敗）
 			var src = System.IO.Path.Combine(externalDir, so);
@@ -111,7 +119,7 @@ public class Application : AvaloniaAndroidApplication<App>
 
 		// preload libc++_shared.so, required by librime.so
 		var libcpp = System.IO.Path.Combine(internalDir, "libc++_shared.so");
-		if (System.IO.File.Exists(libcpp))
+		if (System.IO.File.Exists(libcpp) && new FileInfo(libcpp).Length > 0)
 		{
 			try
 			{
@@ -140,12 +148,13 @@ public class Application : AvaloniaAndroidApplication<App>
 	static IServiceProvider BuildAndroidActivityServices()
 	{
 		var services = new ServiceCollection();
-		services.AddSingleton<IImeKeyProcessor, AndroidStubImeKeyProcessor>();
+		services.AddSingleton<RimeSetup>(_ => RimeSetup.Inst);
+		services.AddSingleton<IImeKeyProcessor, RimeKeyProcessor>();
 		services.AddSingleton<IOsKeyProcessor, AndroidStubOsKeyProcessor>();
 		services.AddSingleton<IKeyboardHost, ActivityKeyboardHost>();
 		services.AddSingleton<IClipboardService, AndroidClipboardService>();
 		services.AddSingleton<ImeUiState>();
-		services.AddSingleton<ISvcIme>();
+		services.AddSingleton<ISvcIme, AndroidRimeImeService>();
 		services.AddSingleton<RimeConnectionState>();
 		services.AddSingleton<RimeLogBuffer>();
 		services.AddTransient<VmIme>();
@@ -157,7 +166,10 @@ public class Application : AvaloniaAndroidApplication<App>
 		services.AddTransient<VmKey>();
 		services.AddTransient<VmKeyBoard>();
 		services.AddSingleton<Microsoft.Extensions.Logging.ILogger>(_ => AppLog.Inst);
-		return services.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = false, ValidateScopes = false });
+		var provider = services.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = false, ValidateScopes = false });
+		var imeState = provider.GetRequiredService<ISvcIme>();
+		imeState.StatusText = "正在連接 Rime";
+		return provider;
 	}
 
 	static void EnsureAssetFile(AssetManager assets, string assetPath, string outputPath, bool overwrite)

@@ -28,6 +28,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="../Avalime.UI/Avalime.UI.csproj" />
+		<ProjectReference Include="../../../Avalime.Rime/proj/Avalime.Rime/Avalime.Rime.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
