@@ -11,7 +11,17 @@
 		<Compile Include="../GlobalUsing.cs" />
 	</ItemGroup>
 		<ItemGroup>
+		<PackageReference Include="Tsinswreng.CsCore" Version="0.0.1-alpha" />
+		<PackageReference Include="Tsinswreng.CsTools" Version="0.0.1-alpha" />
+		<PackageReference Include="Tsinswreng.CsPage" Version="0.0.1-alpha" />
+		<PackageReference Include="Tsinswreng.CsI18n" Version="0.0.1-alpha" />
 		<PackageReference Include="Tsinswreng.CsCfg" Version="0.0.1-alpha" />
+		<PackageReference Include="Tsinswreng.CsErr" Version="0.0.1-alpha" />
+		<PackageReference Include="Tsinswreng.CsTempus" Version="0.0.1-alpha" />
+		<PackageReference Include="Tsinswreng.CsU128Id" Version="0.0.1-alpha" />
+		<PackageReference Include="Tsinswreng.CsYamlMd" Version="0.0.1-alpha" />
+		<PackageReference Include="Tsinswreng.CsTextWithBlob" Version="0.0.1-alpha" />
+		<PackageReference Include="Tsinswreng.Srefl" Version="1.0.2-alpha" />
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.0" />
