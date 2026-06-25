@@ -8,23 +8,25 @@ using Tsinswreng.CsCfg;
 using Tsinswreng.CsCore;
 namespace Avalime.UI;
 
-public partial class UiCfg
-{
-	protected static UiCfg? _inst = null;
-	public static UiCfg Inst => _inst ??= new UiCfg();
+public partial class UiCfg{
+	public UiCfg(){
+		BaseFontSize = KeysCfg.Keyboard.Font.BaseFontSize.GetFrom(AppCfg.Inst);
+
+	}
+	public static UiCfg Inst => field??= new UiCfg();
 
 	[Doc(@$"#See[{nameof(KeysCfg.Keyboard.Font.BaseFontSize)}]")]
-	public double BaseFontSize { get; set; } = 30.0;
-	public double KeyFontSize => BaseFontSize * 0.9;
-	public double CandidateFontSize => BaseFontSize * 0.9;
-	public double CandidateCommentFontSize => BaseFontSize * 0.38;
-	public double CandidateCommentHeight => BaseFontSize * 0.66;
-	public double CandidateTextHeight => TopBarHeight - CandidateCommentHeight;
-	public double PreeditHeight => BaseFontSize * 1.12;
-	public double ActionKeyFontSize => BaseFontSize * 0.72;
-	public double HintFontSize => BaseFontSize * 0.46;
-	public double TopBarHeight => BaseFontSize * 1.66;
-	public double TopBarFontSize => BaseFontSize * 0.72;
+	public f64 BaseFontSize { get; set; } = 30.0;
+	public f64 KeyFontSize => BaseFontSize * 0.9;
+	public f64 CandidateFontSize => BaseFontSize * 0.9;
+	public f64 CandidateCommentFontSize => BaseFontSize * 0.38;
+	public f64 CandidateCommentHeight => BaseFontSize * 0.66;
+	public f64 CandidateTextHeight => TopBarHeight - CandidateCommentHeight;
+	public f64 PreeditHeight => BaseFontSize * 1.12;
+	public f64 ActionKeyFontSize => BaseFontSize * 0.72;
+	public f64 HintFontSize => BaseFontSize * 0.46;
+	public f64 TopBarHeight => BaseFontSize * 1.66;
+	public f64 TopBarFontSize => BaseFontSize * 0.72;
 	public FontFamily? KeyboardFontFamily => GetKeyboardFontFamily();
 	public IBrush MainColor { get; set; } = SolidColorBrush.Parse("#4DB6AC");
 	public IBrush KeyBgColor { get; set; } = SolidColorBrush.Parse("#000000");

@@ -10,7 +10,8 @@
 	"Keyboard": {
 		"Font": {
 			"Path": "/sdcard/Android/data/Tsinswreng.Avalime/files/UserData/fonts/zzmc.ttf",
-			"Family": "孤鹜 筑紫明朝"
+			"Family": "孤鹜 筑紫明朝",
+			"BaseFontSize": 32.0
 		}
 	}
 }

@@ -84,6 +84,8 @@ public class VmIme : ViewModelBase
 	{
 		if(ImeState.IsConnecting || !ImeState.IsConnected){
 			UiState.IsRimeLogVisible = true;
+		}else{
+			UiState.IsRimeLogVisible = false;
 		}
 	}
 

@@ -69,6 +69,7 @@ using Tsinswreng.CsCore;
 	工具欄還有一個日誌按鈕，點擊後在鍵盤區與 `Rime` 日誌頁之間切換；
 	切換範圍只覆蓋 `ViewKeyBoard` 所在的 body 區，預編輯欄、候選欄、工具欄本身不切。
 	當 `RimeConnectionState` 處於 `IsConnecting=true` 或尚未 `IsConnected` 時，也會自動切到日誌頁，方便直接觀察引擎連接輸出。
+		連接完成（`IsConnecting=false` 且 `IsConnected=true`）後自動切回鍵盤視圖。
 ]
 
 #H[Rime 日誌頁][
