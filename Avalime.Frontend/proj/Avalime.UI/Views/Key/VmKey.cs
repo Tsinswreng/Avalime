@@ -14,16 +14,15 @@ public partial class VmKey : ViewModelBase, IKeyViewModel
 	, IDisposable
 {
 	string _normalLabel = "";
-	readonly RimeConnectionState _rimeCon;
-	readonly PropertyChangedEventHandler _rimeConnectionPropertyChangedHandler;
+	readonly PropertyChangedEventHandler _imePropertyChangedHandler;
 
-	public VmKey(RimeConnectionState RimeConnection){
+	public VmKey(ISvcIme ImeState){
 		Label = Key_Click?.Name??"";
 
-		_rimeCon = RimeConnection;
-		_rimeConnectionPropertyChangedHandler = (_, e) => {
-			if(e.PropertyName == nameof(_rimeCon.IsAsciiMode)){
-				if(_rimeCon.IsAsciiMode){
+		this.ImeState = ImeState;
+		_imePropertyChangedHandler = (_, e) => {
+			if(e.PropertyName == nameof(ISvcIme.IsAsciiMode)){
+				if(this.ImeState.IsAsciiMode){
 					_normalLabel = Label;
 					var name = Key_Click?.Name ?? "";
 					if(name.Length == 1 && char.IsAsciiLetter(name[0])){
@@ -34,10 +33,10 @@ public partial class VmKey : ViewModelBase, IKeyViewModel
 				}
 			}
 		};
-		_rimeCon.PropertyChanged += _rimeConnectionPropertyChangedHandler;
+		this.ImeState.PropertyChanged += _imePropertyChangedHandler;
 
 		Click = ()=>{
-			var state = ImeState as ISvcIme;
+			var state = this.ImeState;
 			try{
 				var sw = System.Diagnostics.Stopwatch.StartNew();
 				AppLog.Debug($"[Perf] VmKey.Click→Input start: {sw.ElapsedMilliseconds}ms");
@@ -106,7 +105,6 @@ public partial class VmKey : ViewModelBase, IKeyViewModel
 
 	public void Dispose()
 	{
-		_rimeCon.PropertyChanged -= _rimeConnectionPropertyChangedHandler;
+		ImeState.PropertyChanged -= _imePropertyChangedHandler;
 	}
 }
-

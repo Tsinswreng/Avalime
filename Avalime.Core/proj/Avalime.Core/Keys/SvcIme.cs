@@ -1,6 +1,7 @@
 namespace Avalime.Core.Keys;
 using Avalime.Core.Infra.Log;
 using Avalime.Core.Ime;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Tsinswreng.CsPage;
 
 [Doc(@$"一頁候選詞，包含候選列表與分頁訊息。
@@ -26,81 +27,62 @@ public class CandidatePage:IPage<ICandidate>{
 暫時定義爲class 後續會改成interface。
 ")]
 public class ISvcIme
+	:ObservableObject
 	//:I_ImeState //TODO 先叶後抽象
 {
-	public IDictionary<object, object?> Cfg{get;set;}= new Dictionary<object, object?>();
-	public IOsKeyProcessor? OsKeyProcessor{get;set;}
-	public IImeKeyProcessor? ImeKeyProcessor{get;set;}
+	public IDictionary<object, object?> Cfg{
+		get;
+		set => SetProperty(ref field, value);
+	} = new Dictionary<object, object?>();
+
+	public IOsKeyProcessor? OsKeyProcessor{
+		get;
+		set => SetProperty(ref field, value);
+	}
+
+	public IImeKeyProcessor? ImeKeyProcessor{
+		get;
+		set => SetProperty(ref field, value);
+	}
 
 	public bool IsConnected{
-		get => field;
-		set{
-			if(field == value){return;}
-			field = value;
-			ConnectionStateChanged?.Invoke(this, EventArgs.Empty);
-		}
+		get;
+		set => SetProperty(ref field, value);
 	}
 
 	public bool IsConnecting{
-		get => field;
-		set{
-			if(field == value){return;}
-			field = value;
-			ConnectionStateChanged?.Invoke(this, EventArgs.Empty);
-		}
+		get;
+		set => SetProperty(ref field, value);
 	}
 
 	public bool IsAsciiMode{
-		get => field;
-		set{
-			if(field == value){return;}
-			field = value;
-			StateChanged?.Invoke(this, EventArgs.Empty);
-		}
+		get;
+		set => SetProperty(ref field, value);
 	}
 
 	public bool IsSimplification{
-		get => field;
-		set{
-			if(field == value){return;}
-			field = value;
-			StateChanged?.Invoke(this, EventArgs.Empty);
-		}
+		get;
+		set => SetProperty(ref field, value);
 	}
 
 	public bool IsComposing{
-		get => field;
-		set{
-			if(field == value){return;}
-			field = value;
-			StateChanged?.Invoke(this, EventArgs.Empty);
-		}
+		get;
+		set => SetProperty(ref field, value);
 	}
 
 	public str StatusText{
-		get => field;
-		set{
-			if(field == value){return;}
-			field = value;
-			ConnectionStateChanged?.Invoke(this, EventArgs.Empty);
-		}
+		get;
+		set => SetProperty(ref field, value);
 	} = "Ime 未連接";
 
 	public str Preedit{
-		get => field;
-		set{
-			if(field == value){return;}
-			field = value;
-			StateChanged?.Invoke(this, EventArgs.Empty);
-		}
+		get;
+		set => SetProperty(ref field, value);
 	} = "";
 
 	public CandidatePage Candidates{
-		get => field;
-		set{
-			field = value;
-			StateChanged?.Invoke(this, EventArgs.Empty);
-		}
+		get;
+		set => SetProperty(ref field, value);
 	} = new();
 
 	public ISvcIme(IOsKeyProcessor osKeyProcessor, IImeKeyProcessor imeKeyProcessor) {
@@ -186,8 +168,6 @@ public class ISvcIme
 
 	public event EventHandler<IEnumerable<IKeyEvent>>? BeforeInput;
 	public event EventHandler<IEnumerable<IKeyEvent>>? AfterInput;
-	public event EventHandler? StateChanged;
-	public event EventHandler? ConnectionStateChanged;
 
 	/// 當 Rime 引擎 commit 文字時觸發。參數為 commit 的文字內容。
 	public event EventHandler<string>? OnCommit;

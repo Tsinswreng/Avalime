@@ -143,7 +143,7 @@ unsafe public class AndroidRimeImeService : ISvcIme
 				IsConnected = false;
 				StatusText = "Rime session 無效";
 				ReplacePreedit("");
-				ReplaceCandidates([]);
+				ReplaceCandidates(new());
 				IsComposing = false;
 				return;
 			}
@@ -173,15 +173,15 @@ unsafe public class AndroidRimeImeService : ISvcIme
 				}
 			}else{
 				ReplacePreedit("");
-				ReplaceCandidates([]);
+				ReplaceCandidates(new());
 			}
 		}
 	}
 
 	/// <summary>
-	/// 在 native context 有效期間把候選詞複製成 Core DTO，之後即可安全釋放 context。
+	/// 在 native context 有效期間把候選詞複製成 Core DTO，包含分頁訊息，之後即可安全釋放 context。
 	/// </summary>
-	IReadOnlyList<ICandidate> ReadCandidates(RimeContext* Context){
+	CandidatePage ReadCandidates(RimeContext* Context){
 		var Ans = new List<ICandidate>();
 		var Menu = Context->menu;
 		for(i32 Index = 0; Index < Menu.num_candidates; Index++){
@@ -191,7 +191,13 @@ unsafe public class AndroidRimeImeService : ISvcIme
 				, Comment = ToolCStr.ToCsStr(Candidate.comment) ?? ""
 			});
 		}
-		return Ans;
+		return new CandidatePage{
+			Data = Ans,
+			PageIdx = (u64)Menu.page_no,
+			PageSize = (u64)Menu.page_size,
+			IsLastPage = Menu.is_last_page != RimeUtil.False,
+			HighlightedIndex = Menu.highlighted_candidate_index,
+		};
 	}
 
 	/// <summary>

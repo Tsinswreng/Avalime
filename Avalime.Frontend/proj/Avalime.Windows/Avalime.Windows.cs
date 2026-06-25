@@ -39,7 +39,6 @@ sealed class Program{
 			ISvcIme
 		>();
 
-		services.AddSingleton<RimeConnectionState>();
 		services.AddSingleton<RimeLogBuffer>();
 		services.AddTransient<VmIme>();
 		services.AddTransient<VmToolBar>();

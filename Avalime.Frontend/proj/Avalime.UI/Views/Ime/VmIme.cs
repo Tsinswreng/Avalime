@@ -9,7 +9,6 @@ public class VmIme : ViewModelBase
 	, IDisposable
 {
 	public ISvcIme ImeState { get; }
-	public RimeConnectionState RimeConnection { get; }
 	public ImeUiState UiState { get; }
 
 	public bool IsComposing{
@@ -36,10 +35,10 @@ public class VmIme : ViewModelBase
 	readonly PropertyChangedEventHandler _propertyChangedHandler;
 	readonly EventHandler<IEnumerable<IKeyEvent>> _afterInputHandler;
 	readonly PropertyChangedEventHandler _uiStatePropertyChangedHandler;
+	readonly PropertyChangedEventHandler _imePropertyChangedHandler;
 
-	public VmIme(ISvcIme ImeState, RimeConnectionState RimeConnection, ImeUiState UiState){
+	public VmIme(ISvcIme ImeState, ImeUiState UiState){
 		this.ImeState = ImeState;
-		this.RimeConnection = RimeConnection;
 		this.UiState = UiState;
 		_propertyChangedHandler = (_, e) => {
 			if(e.PropertyName is nameof(IsComposing) or nameof(HasPreedit)){
@@ -68,21 +67,22 @@ public class VmIme : ViewModelBase
 
 		_afterInputHandler = (_, _) => RefreshCompositionState();
 		ImeState.AfterInput += _afterInputHandler;
-		RimeConnection.PropertyChanged += OnRimeConnectionPropertyChanged;
+		_imePropertyChangedHandler = OnImePropertyChanged;
+		ImeState.PropertyChanged += _imePropertyChangedHandler;
 		SyncRimeLogVisibility();
-		_ = RimeConnection.ConnectAsy();
+		_ = ImeState.ConnectAsy();
 	}
 
-	void OnRimeConnectionPropertyChanged(object? sender, PropertyChangedEventArgs e)
+	void OnImePropertyChanged(object? sender, PropertyChangedEventArgs e)
 	{
-		if(e.PropertyName is nameof(RimeConnectionState.IsConnecting) or nameof(RimeConnectionState.IsConnected)){
+		if(e.PropertyName is nameof(ISvcIme.IsConnecting) or nameof(ISvcIme.IsConnected)){
 			SyncRimeLogVisibility();
 		}
 	}
 
 	void SyncRimeLogVisibility()
 	{
-		if(RimeConnection.IsConnecting || !RimeConnection.IsConnected){
+		if(ImeState.IsConnecting || !ImeState.IsConnected){
 			UiState.IsRimeLogVisible = true;
 		}
 	}
@@ -101,6 +101,6 @@ public class VmIme : ViewModelBase
 		PropertyChanged -= _propertyChangedHandler;
 		UiState.PropertyChanged -= _uiStatePropertyChangedHandler;
 		ImeState.AfterInput -= _afterInputHandler;
-		RimeConnection.PropertyChanged -= OnRimeConnectionPropertyChanged;
+		ImeState.PropertyChanged -= _imePropertyChangedHandler;
 	}
 }

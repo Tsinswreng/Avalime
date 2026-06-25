@@ -21,7 +21,6 @@ public static class DiWindows{
 		ISvcIme
 	>();
 
-	z.AddSingleton<RimeConnectionState>();
 	z.AddSingleton<RimeLogBuffer>();
 	return z;
 		}

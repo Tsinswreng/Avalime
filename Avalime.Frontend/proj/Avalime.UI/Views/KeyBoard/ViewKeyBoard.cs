@@ -21,12 +21,12 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 {
 	readonly List<IDisposable> _disposables = [];
 	readonly List<PropertyChangedEventHandler> _ctxHandlers = [];
-	readonly RimeConnectionState _rimeConnection;
+	readonly ISvcIme _imeState;
 	readonly IKeyboardHost _keyboardHost;
 
 	public ViewKeyBoard(){
 		Ctx = Di.DiOrMk<Ctx>();
-		_rimeConnection = Di.GetRSvc<RimeConnectionState>();
+		_imeState = Di.GetRSvc<ISvcIme>();
 		_keyboardHost = Di.GetRSvc<IKeyboardHost>();
 		Render();
 	}
@@ -118,7 +118,7 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 	}
 
 	KeyView KView(KeyCfg cfg){
-		var vm = new KeyVm(_rimeConnection);
+		var vm = new KeyVm(Ctx.ImeState);
 		_disposables.Add(vm);
 		vm.Key_Click = cfg.Key;
 		vm.Click = MkSendKey(cfg.Key);
@@ -156,7 +156,7 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 	}
 
 	KeyView MkActionKey(str label, Action onClick, str? hint = null){
-		var vm = new KeyVm(_rimeConnection);
+		var vm = new KeyVm(Ctx.ImeState);
 		_disposables.Add(vm);
 		vm.Label = label;
 		vm.FontSize = UiCfg.Inst.ActionKeyFontSize;
@@ -211,7 +211,7 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 	};
 
 	Func<zero> MkToggleAsciiMode() => () => {
-		_rimeConnection.ToggleAsciiMode();
+		_ = _imeState.ToggleAsciiModeAsy();
 		return 0;
 	};
 

@@ -26,7 +26,8 @@ public partial class VmCandidatesBar : ViewModelBase
 			var sw = System.Diagnostics.Stopwatch.StartNew();
 			AppLog.Debug($"[Perf] VmCandidatesBar.AfterInput start: {sw.ElapsedMilliseconds}ms");
 			var newList = new ObservableCollection<VmCandidate>();
-			var candidates = ImeState.Candidates;
+			var candidates = ImeState.Candidates.Data;
+			if(candidates is null){return;}
 			for(var index = 0; index < candidates.Count; index++){
 				var vm = ToCand(candidates[index], index, false);
 				newList.Add(vm);

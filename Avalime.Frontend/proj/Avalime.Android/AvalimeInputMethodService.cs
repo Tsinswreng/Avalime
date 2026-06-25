@@ -93,7 +93,6 @@ public class AvalimeInputMethodService : InputMethodService {
 		services.AddSingleton<IClipboardService, AndroidClipboardService>();
 		services.AddSingleton<ImeUiState>();
 		services.AddSingleton<ISvcIme, AndroidRimeImeService>();
-		services.AddSingleton<RimeConnectionState>();
 		services.AddSingleton<RimeLogBuffer>();
 		services.AddTransient<VmIme>();
 		services.AddTransient<VmToolBar>();

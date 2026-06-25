@@ -1,3 +1,4 @@
+using Avalime.Core.Keys;
 using Avalime.ViewModels;
 using System.ComponentModel;
 
@@ -7,25 +8,25 @@ public class VmToolBar : ViewModelBase
 	, IDisposable
 {
 	public ImeUiState UiState { get; }
-	public RimeConnectionState RimeConnection { get; }
+	public ISvcIme ImeState { get; }
 
-	public str HanLabel => RimeConnection.IsSimplification ? "汉" : "漢";
+	public str HanLabel => ImeState.IsSimplification ? "汉" : "漢";
 
-	readonly PropertyChangedEventHandler _rimeConnectionPropertyChangedHandler;
+	readonly PropertyChangedEventHandler _imePropertyChangedHandler;
 
-	public VmToolBar(ImeUiState UiState, RimeConnectionState RimeConnection){
+	public VmToolBar(ImeUiState UiState, ISvcIme ImeState){
 		this.UiState = UiState;
-		this.RimeConnection = RimeConnection;
-		_rimeConnectionPropertyChangedHandler = (_, e) => {
-			if(e.PropertyName == nameof(RimeConnectionState.IsSimplification)){
+		this.ImeState = ImeState;
+		_imePropertyChangedHandler = (_, e) => {
+			if(e.PropertyName == nameof(ISvcIme.IsSimplification)){
 				OnPropertyChanged(nameof(HanLabel));
 			}
 		};
-		RimeConnection.PropertyChanged += _rimeConnectionPropertyChangedHandler;
+		ImeState.PropertyChanged += _imePropertyChangedHandler;
 	}
 
 	public void ToggleSimplification(){
-		RimeConnection.ToggleSimplification();
+		_ = ImeState.ToggleSimplificationAsy();
 	}
 
 	public void ToggleClipboard(){
@@ -38,7 +39,6 @@ public class VmToolBar : ViewModelBase
 
 	public void Dispose()
 	{
-		RimeConnection.PropertyChanged -= _rimeConnectionPropertyChangedHandler;
+		ImeState.PropertyChanged -= _imePropertyChangedHandler;
 	}
 }
-
