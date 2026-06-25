@@ -23,6 +23,7 @@ public class KeysCfg{
 			public static ICfgNode _R = Mk(Keyboard._R, [nameof(Font)]);
 			public static ICfgNode<str?> Path = Mk(_R, [nameof(Path)], (str?)null);
 			public static ICfgNode<str?> Family = Mk(_R, [nameof(Family)], (str?)null);
+			public static ICfgNode<f64> BaseFontSize = Mk(_R, [nameof(BaseFontSize)], 32.0);
 		}
 
 	}

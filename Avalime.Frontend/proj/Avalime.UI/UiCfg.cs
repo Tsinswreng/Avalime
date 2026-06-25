@@ -5,7 +5,7 @@ using Avalonia.Media;
 using Avalonia.Media.Fonts;
 using System.Text;
 using Tsinswreng.CsCfg;
-
+using Tsinswreng.CsCore;
 namespace Avalime.UI;
 
 public partial class UiCfg
@@ -13,6 +13,7 @@ public partial class UiCfg
 	protected static UiCfg? _inst = null;
 	public static UiCfg Inst => _inst ??= new UiCfg();
 
+	[Doc(@$"#See[{nameof(KeysCfg.Keyboard.Font.BaseFontSize)}]")]
 	public double BaseFontSize { get; set; } = 30.0;
 	public double KeyFontSize => BaseFontSize * 0.9;
 	public double CandidateFontSize => BaseFontSize * 0.9;
