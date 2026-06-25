@@ -1,4 +1,5 @@
 namespace Avalime.Core.Keys;
+using System.Threading.Channels;
 using Avalime.Core.Infra.Log;
 using Avalime.Core.Ime;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -85,27 +86,50 @@ public class ISvcIme
 		set => SetProperty(ref field, value);
 	} = new();
 
+	readonly Channel<IEnumerable<IKeyEvent>> _KeyChannel = Channel.CreateUnbounded<IEnumerable<IKeyEvent>>();
+	readonly CancellationTokenSource _ChannelCts = new();
+
 	public ISvcIme(IOsKeyProcessor osKeyProcessor, IImeKeyProcessor imeKeyProcessor) {
 		this.OsKeyProcessor = osKeyProcessor;
 		this.ImeKeyProcessor = imeKeyProcessor;
+		_InitChannelConsumer();
 	}
 
 	public ISvcIme(IOsKeyProcessor osKeyProcessor) {
 		this.OsKeyProcessor = osKeyProcessor;
+		_InitChannelConsumer();
 	}
 
 	public ISvcIme() {
+		_InitChannelConsumer();
 	}
 
 	public void InputSafely(IEnumerable<IKeyEvent> keyEvents, Action<Exception>? onError = null){
-		_ = Task.Run(async () => {
-			try{
-				await Input(keyEvents, default);
-			}catch(Exception ex){
-				AppLog.Error(ex, "[ImeState] InputSafely error");
-				onError?.Invoke(ex);
+		if(!_KeyChannel.Writer.TryWrite(keyEvents)){
+			var ex = new InvalidOperationException("[ImeState] Key channel is closed");
+			AppLog.Error(ex, "");
+			onError?.Invoke(ex);
+		}
+	}
+
+	void _InitChannelConsumer(){
+		_ = ConsumeKeysLoop();
+	}
+
+	async Task ConsumeKeysLoop(){
+		try{
+			await foreach(var keyEvents in _KeyChannel.Reader.ReadAllAsync(_ChannelCts.Token)){
+				try{
+					await Input(keyEvents, _ChannelCts.Token);
+				}catch(OperationCanceledException){
+					break;
+				}catch(Exception ex){
+					AppLog.Error(ex, "[ImeState] Channel consumer Input error");
+				}
 			}
-		});
+		}catch(OperationCanceledException){
+			// 通道取消，正常退出
+		}
 	}
 
 	public async Task<RespInput> Input(IEnumerable<IKeyEvent> keyEvents, CT Ct){
