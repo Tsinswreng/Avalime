@@ -1,0 +1,17 @@
+{
+	"Librime": {
+		"AutoLinkDll": false,
+		"DllPath": "D:\\ENV\\Rime\\weasel-0.15.0\\rime.dll",
+		"RimeTraits": {
+			"user_data_dir": "D:\\Program Files\\Rime\\User_Data",
+			"app_name": "Avalime.Windows"
+		}
+	},
+	"Keyboard": {
+		"Font": {
+			"Path": "",
+			"Family": "孤鹜 筑紫明朝",
+			"BaseFontSize": 32.0
+		}
+	}
+}

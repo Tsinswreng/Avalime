@@ -35,19 +35,17 @@ public class ViewIme : AppViewBase<Ctx>
 	}
 
 	void Render(){
-		var preeditHeight = UiCfg.Inst.PreeditHeight;
 		var topBarHeight = GetTopBarHeight();
 		this.SetContent(Root.Grid);
 		_topBarRow = new(topBarHeight, GUT.Pixel);
 		Root.SetRowDefs([
-			new(preeditHeight, GUT.Pixel),
+			new(1, GUT.Auto),
 			_topBarRow,
 			new(1, GUT.Star),
 		]);
 
 		var preedit = new ViewPreeditControl();
 		_preedit = preedit;
-		preedit.Height = preeditHeight;
 
 		var toolbar = new ViewToolBarControl();
 		_toolbar = toolbar;

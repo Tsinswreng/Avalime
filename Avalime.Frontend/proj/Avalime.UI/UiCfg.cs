@@ -24,7 +24,7 @@ public partial class UiCfg{
 	public f64 CandidateTextHeight => TopBarHeight - CandidateCommentHeight;
 	public f64 TopBarHeightNoComment => CandidateTextHeight;
 	public f64 PreeditHeight => BaseFontSize * 1.12;
-	public f64 PreeditFontSize => BaseFontSize * 0.5;
+	public f64 PreeditFontSize => BaseFontSize * 0.6;
 	public f64 ActionKeyFontSize => BaseFontSize * 0.72;
 	public f64 HintFontSize => BaseFontSize * 0.46;
 	public f64 TopBarHeight => BaseFontSize * 1.66;

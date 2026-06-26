@@ -21,16 +21,16 @@ public class ViewInput : AppViewBase<Ctx>
 		var keyboardFont = UiCfg.Inst.KeyboardFontFamily;
 		this.SetContent(Root.Grid);
 		Root.Grid.Background = Brushes.Black;
-		Root.Grid.Height = UiCfg.Inst.PreeditHeight;
 		Root
 		.A(new WrapPanel(), wp=>{
 			wp.Background = Brushes.Black;
 			wp.VerticalAlignment = VAlign.Center;
+			wp.Margin = new (0);
 			wp.A(new TextBlock(), o=>{
 				if(keyboardFont is not null) o.FontFamily = keyboardFont;
 				o.Foreground = Brushes.White;
 				o.FontSize = UiCfg.Inst.PreeditFontSize;
-				o.Margin = new(4, 0, 0, 0);
+				o.Margin = new(4, 1, 0, 1);
 				o.VerticalAlignment = VAlign.Center;
 				Ctx.Bind(o, x=>x.Text, x=>x.Text, Mode: BindingMode.TwoWay);
 			});
