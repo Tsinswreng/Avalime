@@ -3,6 +3,7 @@ using Avalime.UI.Infra;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
+using System.ComponentModel;
 
 namespace Avalime.UI.Views.ToolBar;
 using Ctx = VmToolBar;
@@ -11,16 +12,19 @@ public class ViewToolBar : AppViewBase<Ctx>
 	, IDisposable
 {
 	GridStack Root = new(IsRow: false);
+	readonly ImeUiState _uiState;
+	PropertyChangedEventHandler? _uiStatePropertyChangedHandler;
 
 	public ViewToolBar(){
 		Ctx = Di.DiOrMk<Ctx>();
+		_uiState = Di.DiOrMk<ImeUiState>();
 		Render();
 	}
 
 	void Render(){
 		this.SetContent(Root.Grid);
 		Root.Grid.Background = Brushes.Black;
-		Root.Grid.Height = UiCfg.Inst.TopBarHeight;
+		Root.Grid.Height = GetTopBarHeight();
 		Root.SetColDefs([
 			new(1, GUT.Star),
 			new(1, GUT.Star),
@@ -51,6 +55,20 @@ public class ViewToolBar : AppViewBase<Ctx>
 		.A(MkBtn(), b=>{
 			b.PointerPressed += (_, e) => {
 				e.Handled = true;
+				Ctx?.ToggleCandidateComment();
+			};
+			b.SetChild(new TextBlock(), o=>{
+				o.Foreground = Brushes.White;
+				o.VerticalAlignment = VAlign.Center;
+				o.HorizontalAlignment = HAlign.Center;
+				o.FontSize = UiCfg.Inst.TopBarFontSize;
+				o.Text = "註";
+				Ctx.Bind(o, TextBlock.ForegroundProperty, x => x.CandidateCommentForeground);
+			});
+		})
+		.A(MkBtn(), b=>{
+			b.PointerPressed += (_, e) => {
+				e.Handled = true;
 				Ctx?.ToggleClipboard();
 			};
 			b.SetChild(Avalime.UI.Icons.Icons.Clipboard(), o=>{
@@ -69,6 +87,23 @@ public class ViewToolBar : AppViewBase<Ctx>
 			});
 		})
 		;
+		_uiStatePropertyChangedHandler = (_, e) => {
+			if(e.PropertyName == nameof(ImeUiState.IsCandidateCommentVisible)){
+				SyncHeight();
+			}
+		};
+		_uiState.PropertyChanged += _uiStatePropertyChangedHandler;
+	}
+
+	double GetTopBarHeight() => _uiState.IsCandidateCommentVisible
+		? UiCfg.Inst.TopBarHeight
+		: UiCfg.Inst.TopBarHeightNoComment;
+
+	void SyncHeight()
+	{
+		var height = GetTopBarHeight();
+		Root.Grid.Height = height;
+		this.Height = height;
 	}
 
 	static Border MkBtn(){
@@ -85,6 +120,9 @@ public class ViewToolBar : AppViewBase<Ctx>
 
 	public void Dispose()
 	{
+		if(_uiStatePropertyChangedHandler is not null){
+			_uiState.PropertyChanged -= _uiStatePropertyChangedHandler;
+		}
 		(Ctx as IDisposable)?.Dispose();
 	}
 }

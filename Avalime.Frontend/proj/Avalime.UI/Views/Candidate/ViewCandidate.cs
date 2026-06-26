@@ -6,15 +6,25 @@ using Avalonia.Media;
 using Avalonia.Styling;
 using Avalime.Core.Infra.Log;
 using Avalime.UI.Infra;
+using System.ComponentModel;
 using Ctx = VmCandidate;
+using Avalime.Core.Infra;
 
 public class ViewCandidate : AppViewBase<Ctx>
+	, IDisposable
 {
 	Border _border = default!;
 	bool _isPressedInside;
+	readonly ImeUiState _uiState;
+	RowDefinition? _commentRow;
+	RowDefinition? _textRow;
+	TextBlock? _commentTextBlock;
+	TextBlock? _textTextBlock;
+	PropertyChangedEventHandler? _uiStatePropertyChangedHandler;
 
 	public ViewCandidate(){
 		Ctx = Ctx.Mk();
+		_uiState = Di.DiOrMk<ImeUiState>();
 		Style();
 		Render();
 	}
@@ -91,14 +101,17 @@ public class ViewCandidate : AppViewBase<Ctx>
 		};
 
 		this.SetContent(border);
-		Root.Grid.Height = UiCfg.Inst.TopBarHeight;
+		Root.Grid.Height = GetTopBarHeight();
+		_commentRow = new(UiCfg.Inst.CandidateCommentHeight, GUT.Pixel);
+		_textRow = new(UiCfg.Inst.CandidateTextHeight, GUT.Pixel);
 		Root.SetRowDefs([
-			new(UiCfg.Inst.CandidateCommentHeight, GUT.Pixel),
-			new(UiCfg.Inst.CandidateTextHeight, GUT.Pixel),
+			_commentRow,
+			_textRow,
 		]);
 
 		Root
 		.A(new TextBlock(), o=>{
+			_commentTextBlock = o;
 			o.Classes.Add(Cls.Comment);
 			if(keyboardFont is not null) o.FontFamily = keyboardFont;
 			o.VerticalAlignment = VAlign.Top;
@@ -115,9 +128,10 @@ public class ViewCandidate : AppViewBase<Ctx>
 			row.HorizontalAlignment = HAlign.Stretch;
 			row.Margin = new Thickness(0);
 			row.A(new TextBlock(), o=>{
+				_textTextBlock = o;
 				o.Classes.Add(Cls.Text);
 				if(keyboardFont is not null) o.FontFamily = keyboardFont;
-				o.VerticalAlignment = VAlign.Bottom;
+				o.VerticalAlignment = VAlign.Center;
 				o.HorizontalAlignment = HAlign.Center;
 				o.TextAlignment = TxtAlign.Center;
 				o.Margin = new(0);
@@ -127,12 +141,48 @@ public class ViewCandidate : AppViewBase<Ctx>
 			});
 		})
 		;
+		_uiStatePropertyChangedHandler = (_, e) => {
+			if(e.PropertyName == nameof(ImeUiState.IsCandidateCommentVisible)){
+				SyncCommentState();
+			}
+		};
+		_uiState.PropertyChanged += _uiStatePropertyChangedHandler;
+		SyncCommentState();
 	}
 
 	bool IsPointerInside(Point p)
 	{
 		return p.X >= 0 && p.X <= _border.Bounds.Width
 			&& p.Y >= 0 && p.Y <= _border.Bounds.Height;
+	}
+
+	double GetTopBarHeight() => _uiState.IsCandidateCommentVisible
+		? UiCfg.Inst.TopBarHeight
+		: UiCfg.Inst.TopBarHeightNoComment;
+
+	void SyncCommentState()
+	{
+		var isVisible = _uiState.IsCandidateCommentVisible;
+		Root.Grid.Height = GetTopBarHeight();
+		if(_commentRow is not null){
+			_commentRow.Height = new GridLength(isVisible ? UiCfg.Inst.CandidateCommentHeight : 0, GridUnitType.Pixel);
+		}
+		if(_textRow is not null){
+			_textRow.Height = new GridLength(UiCfg.Inst.CandidateTextHeight, GridUnitType.Pixel);
+		}
+		if(_commentTextBlock is not null){
+			_commentTextBlock.IsVisible = isVisible;
+		}
+		if(_textTextBlock is not null){
+			_textTextBlock.VerticalAlignment = isVisible ? VAlign.Bottom : VAlign.Center;
+		}
+	}
+
+	public void Dispose()
+	{
+		if(_uiStatePropertyChangedHandler is not null){
+			_uiState.PropertyChanged -= _uiStatePropertyChangedHandler;
+		}
 	}
 }
 

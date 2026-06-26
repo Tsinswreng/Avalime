@@ -23,9 +23,11 @@ public class ViewIme : AppViewBase<Ctx>
 	ViewClipboardControl? _clipboard;
 	ViewRimeLogControl? _rimeLog;
 	PropertyChangedEventHandler? _ctxPropertyChangedHandler;
+	PropertyChangedEventHandler? _uiStatePropertyChangedHandler;
 	GridStack Root = new(IsRow: true);
 	Grid? _topBarOverlay;
 	Grid? _bodyOverlay;
+	RowDefinition? _topBarRow;
 
 	public ViewIme(){
 		Ctx = Di.DiOrMk<Ctx>();
@@ -34,11 +36,12 @@ public class ViewIme : AppViewBase<Ctx>
 
 	void Render(){
 		var preeditHeight = UiCfg.Inst.PreeditHeight;
-		var topBarHeight = UiCfg.Inst.TopBarHeight;
+		var topBarHeight = GetTopBarHeight();
 		this.SetContent(Root.Grid);
+		_topBarRow = new(topBarHeight, GUT.Pixel);
 		Root.SetRowDefs([
 			new(preeditHeight, GUT.Pixel),
-			new(topBarHeight, GUT.Pixel),
+			_topBarRow,
 			new(1, GUT.Star),
 		]);
 
@@ -96,6 +99,12 @@ public class ViewIme : AppViewBase<Ctx>
 			}
 		};
 		Ctx.PropertyChanged += _ctxPropertyChangedHandler;
+		_uiStatePropertyChangedHandler = (_, e) => {
+			if(e.PropertyName == nameof(ImeUiState.IsCandidateCommentVisible)){
+				SyncTopBarHeight();
+			}
+		};
+		Ctx.UiState.PropertyChanged += _uiStatePropertyChangedHandler;
 		SyncVisible();
 
 		Root
@@ -114,10 +123,34 @@ public class ViewIme : AppViewBase<Ctx>
 		});
 	}
 
+	double GetTopBarHeight() => Ctx!.UiState.IsCandidateCommentVisible
+		? UiCfg.Inst.TopBarHeight
+		: UiCfg.Inst.TopBarHeightNoComment;
+
+	void SyncTopBarHeight()
+	{
+		var height = GetTopBarHeight();
+		if(_topBarRow is not null){
+			_topBarRow.Height = new GridLength(height, GridUnitType.Pixel);
+		}
+		if(_topBarOverlay is not null){
+			_topBarOverlay.Height = height;
+		}
+		if(_toolbar is not null){
+			_toolbar.Height = height;
+		}
+		if(_candidates is not null){
+			_candidates.Height = height;
+		}
+	}
+
 	public void Dispose()
 	{
 		if(_ctxPropertyChangedHandler is not null && Ctx is not null){
 			Ctx.PropertyChanged -= _ctxPropertyChangedHandler;
+		}
+		if(_uiStatePropertyChangedHandler is not null && Ctx is not null){
+			Ctx.UiState.PropertyChanged -= _uiStatePropertyChangedHandler;
 		}
 		(_preedit as IDisposable)?.Dispose();
 		(_toolbar as IDisposable)?.Dispose();

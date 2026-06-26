@@ -5,6 +5,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using Avalonia.Layout;
 using Avalonia.Media;
+using System.ComponentModel;
 using ViewCandidateControl = Avalime.UI.Views.Candidate.ViewCandidate;
 using VmCandidateCtx = Avalime.UI.Views.Candidate.VmCandidate;
 
@@ -14,8 +15,12 @@ using Ctx = VmCandidatesBar;
 public class ViewCandidatesBar : AppViewBase<Ctx>
 	, IDisposable
 {
+	readonly ImeUiState _uiState;
+	PropertyChangedEventHandler? _uiStatePropertyChangedHandler;
+
 	public ViewCandidatesBar(){
 		Ctx = Di.DiOrMk<Ctx>();
+		_uiState = Di.DiOrMk<ImeUiState>();
 		Render();
 	}
 
@@ -24,10 +29,16 @@ public class ViewCandidatesBar : AppViewBase<Ctx>
 
 	void Render(){
 		Root.Grid.Background = Brushes.Black;
-		Root.Grid.Height = UiCfg.Inst.TopBarHeight;
+		Root.Grid.Height = GetTopBarHeight();
 		this.SetContent(Root.Grid);
 		var items = MkItems();
 		Root.A(items);
+		_uiStatePropertyChangedHandler = (_, e) => {
+			if(e.PropertyName == nameof(ImeUiState.IsCandidateCommentVisible)){
+				SyncHeight();
+			}
+		};
+		_uiState.PropertyChanged += _uiStatePropertyChangedHandler;
 		this.LayoutUpdated += (_, _) => {
 			var width = this.Bounds.Width;
 			var cnt = Ctx.CandVms.Count;
@@ -51,6 +62,17 @@ public class ViewCandidatesBar : AppViewBase<Ctx>
 		};
 	}
 
+	double GetTopBarHeight() => _uiState.IsCandidateCommentVisible
+		? UiCfg.Inst.TopBarHeight
+		: UiCfg.Inst.TopBarHeightNoComment;
+
+	void SyncHeight()
+	{
+		var height = GetTopBarHeight();
+		Root.Grid.Height = height;
+		this.Height = height;
+	}
+
 	ItemsControl MkItems(){
 		var ans = new ItemsControl();
 		ans.VerticalAlignment = VAlign.Stretch;
@@ -69,6 +91,9 @@ public class ViewCandidatesBar : AppViewBase<Ctx>
 
 	public void Dispose()
 	{
+		if(_uiStatePropertyChangedHandler is not null){
+			_uiState.PropertyChanged -= _uiStatePropertyChangedHandler;
+		}
 		(Ctx as IDisposable)?.Dispose();
 	}
 }
