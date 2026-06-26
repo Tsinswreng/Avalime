@@ -1,4 +1,5 @@
 using Avalime.Core.Infra;
+using Avalime.Core.Infra.Log;
 using Avalime.UI.Infra;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
@@ -18,6 +19,8 @@ public class ViewCandidatesBar : AppViewBase<Ctx>
 	}
 
 	GridStack Root = new(IsRow: true);
+	double _cachedMinWidth;
+	readonly List<ViewCandidateControl> _candViews = [];
 
 	void Render(){
 		Root.Grid.Background = Brushes.Black;
@@ -25,6 +28,26 @@ public class ViewCandidatesBar : AppViewBase<Ctx>
 		this.SetContent(Root.Grid);
 		var items = MkItems();
 		Root.A(items);
+		this.LayoutUpdated += (_, _) => {
+			var width = this.Bounds.Width;
+			var cnt = Ctx.CandVms.Count;
+			if(width <= 0){
+				AppLog.Debug($"[CandMinWidth] SKIP width={width}");
+				return;
+			}
+			var minWidth = Math.Max(0, (width - 18.0) / 10.0);
+			AppLog.Debug($"[CandMinWidth] width={width:F1} cnt={cnt} minWidth={minWidth:F1} cached={_cachedMinWidth:F1}");
+			//寬度沒變 且 VM們已經有正確值 才跳過
+			if(Math.Abs(minWidth - _cachedMinWidth) < 0.5 && cnt > 0
+				&& Math.Abs(Ctx.CandVms[0].MinWidth - minWidth) < 0.5){
+				return;
+			}
+			_cachedMinWidth = minWidth;
+			AppLog.Debug($"[CandMinWidth] SET MinWidth={minWidth:F1} on {cnt} VMs");
+			foreach(var vm in Ctx.CandVms){
+				vm.MinWidth = minWidth;
+			}
+		};
 	}
 
 	ItemsControl MkItems(){
@@ -43,4 +66,3 @@ public class ViewCandidatesBar : AppViewBase<Ctx>
 		return ans;
 	}
 }
-

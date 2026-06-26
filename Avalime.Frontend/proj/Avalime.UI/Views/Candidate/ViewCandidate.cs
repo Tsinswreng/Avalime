@@ -4,6 +4,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.Styling;
+using Avalime.Core.Infra.Log;
 using Avalime.UI.Infra;
 using Ctx = VmCandidate;
 
@@ -59,6 +60,18 @@ public class ViewCandidate : AppViewBase<Ctx>
 		};
 		_border = border;
 		Ctx.Bind(border, Border.BackgroundProperty, x=>x.Background);
+		try{
+			var minWProp = this.Prop(x => x.MinWidth);
+			AppLog.Debug($"[CandMinWidth] Prop resolved: {minWProp?.Name} Owner={minWProp?.OwnerType?.Name}");
+			Ctx.Bind(this, x=>x.MinWidth, x=>x.MinWidth);
+			AppLog.Debug($"[CandMinWidth] Bind OK, MinWidth={this.MinWidth}");
+			var minWProp2 = this.Prop(x => x.MinWidth);
+			this.GetObservable(minWProp2).Subscribe(v => {
+				AppLog.Debug($"[CandMinWidth] ViewCandidate.MinWidth => {v}");
+			});
+		}catch(Exception ex){
+			AppLog.Error(ex, "[CandMinWidth] Bind ERROR");
+		}
 		border.PointerPressed += (_, e) => {
 			_isPressedInside = true;
 			e.Pointer.Capture(border);

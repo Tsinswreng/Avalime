@@ -37,5 +37,10 @@ public class VmCandidate : ViewModelBase
 		get => field;
 		set => SetProperty(ref field, value);
 	} = Brushes.White;
+
+	public double MinWidth{
+		get => field;
+		set => SetProperty(ref field, value);
+	}
 }
 

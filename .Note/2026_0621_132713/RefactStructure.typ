@@ -13,3 +13,16 @@ Core抽象層
 
 
 
+2026_0626_105213[
+我正在緟構Avalime項目
+E:\_code\CsRime\Avalime\Avalime.Core\proj\Avalime.Core\Keys\SvcIme.cs
+SvcIme應當充當底層rime引擎的適配和封裝
+
+但我又看到有
+E:\_code\CsRime\Avalime\Avalime.Frontend\proj\Avalime.Android\AndroidRimeImeService.cs
+
+我認爲AndroidRimeImeService 完全不應該存在 全都應該使用 SvcIme這一個實現類
+你覺得呢
+
+
+]
