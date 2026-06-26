@@ -20,7 +20,6 @@ public class ViewCandidatesBar : AppViewBase<Ctx>
 
 	GridStack Root = new(IsRow: true);
 	double _cachedMinWidth;
-	readonly List<ViewCandidateControl> _candViews = [];
 
 	void Render(){
 		Root.Grid.Background = Brushes.Black;
@@ -35,7 +34,8 @@ public class ViewCandidatesBar : AppViewBase<Ctx>
 				AppLog.Debug($"[CandMinWidth] SKIP width={width}");
 				return;
 			}
-			var minWidth = Math.Max(0, (width - 18.0) / 10.0);
+			// 間隔由 BorderThickness 提供(與鍵盤一致)，MinWidth = 容器寬度 / 10
+			var minWidth = Math.Max(0, width / 10.0);
 			AppLog.Debug($"[CandMinWidth] width={width:F1} cnt={cnt} minWidth={minWidth:F1} cached={_cachedMinWidth:F1}");
 			//寬度沒變 且 VM們已經有正確值 才跳過
 			if(Math.Abs(minWidth - _cachedMinWidth) < 0.5 && cnt > 0
@@ -59,7 +59,7 @@ public class ViewCandidatesBar : AppViewBase<Ctx>
 			return view;
 		}).SetItemsPanel(()=>new StackPanel{
 			Orientation = Orientation.Horizontal,
-			Spacing = 2.0,
+			Spacing = 0, // 間隔由 BorderThickness(0.5×2) 提供，與鍵盤一致
 			VerticalAlignment = VAlign.Stretch,
 		});
 		Ctx.Bind(ans, ItemsControl.ItemsSourceProperty, x=>x.CandVms);

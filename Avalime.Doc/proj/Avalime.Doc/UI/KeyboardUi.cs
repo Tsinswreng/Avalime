@@ -19,6 +19,11 @@ using Tsinswreng.CsCore;
 	- `ViewKeyBoard`
 
 	`ViewKeyBoard` 現在只負責純鍵盤按鍵區。
+
+	按鍵之間不能有無法點擊的縫隙。分隔線僅是視覺上的作用，邏輯上每個按鍵都緊密相連。
+	鍵盤使用 `Grid` 星號列佈局，按鍵間無 `Margin`/`Spacing`，視覺分隔完全由 `BorderThickness = 0.5` 的邊框線實現。
+	這樣確保點擊兩個按鍵交界處時不會因間隔而丟失點擊。
+
 	`VmIme` 是總控狀態：
 	- 自動異步連接 Rime
 	- 根據 `RimeStatus.is_composing` 決定顯示工具欄還是候選欄

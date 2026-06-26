@@ -60,11 +60,17 @@ using Tsinswreng.CsCore;
 	`ViewCandidate` 通過 `Ctx.Bind(this, x=>x.MinWidth, x=>x.MinWidth)` 將自身的 `MinWidth` 綁定到 `VmCandidate.MinWidth`。
 ]
 
-#H[候選詞最小寬度][
-	為使單字候選與鍵盤按鍵寬度對齊，`ViewCandidatesBar` 在 `LayoutUpdated` 中動態計算候選詞的最小寬度。
+#H[候選詞最小寬度與間隔][
+	候選詞間隔與鍵盤按鍵採用相同原則：不能有無法點擊的縫隙，分隔線僅是視覺作用。
 
-	公式：`MinWidth = (容器寬度 - Spacing × 9) / 10`
-	其中 10 對應鍵盤每行 10 列，9 為 10 個候選間的 StackPanel Spacing 數量。
+	- `StackPanel` 的 `Spacing = 0`，候選之間無實際間距
+	- 視覺分隔完全由 `ViewCandidate` 內 `Border` 的 `BorderThickness = 0.5` 實現
+	- 兩個相鄰候選的邊框重疊（0.5 + 0.5 = 1px 視覺分隔），與鍵盤按鍵一致
+
+	為使單字候選與鍵盤按鍵嚴格對齊，`ViewCandidatesBar` 在 `LayoutUpdated` 中動態計算候選詞的最小寬度。
+
+	公式：`MinWidth = 容器寬度 / 10`
+	其中 10 對應鍵盤每行 10 列。間隔已由邊框提供，公式中不扣減 Spacing。
 
 	計算後通過 `VmCandidate.MinWidth` 屬性（`INotifyPropertyChanged`）通知到 `ViewCandidate` 的綁定。
 

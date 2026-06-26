@@ -28,8 +28,9 @@ public partial class VmCandidatesBar : ViewModelBase
 			var newList = new ObservableCollection<VmCandidate>();
 			var candidates = ImeState.Candidates.Data;
 			if(candidates is null){return;}
+			var highlightedIndex = ImeState.Candidates.HighlightedIndex;
 			for(var index = 0; index < candidates.Count; index++){
-				var vm = ToCand(candidates[index], index, false);
+				var vm = ToCand(candidates[index], index, index == highlightedIndex);
 				newList.Add(vm);
 			}
 			Dispatcher.UIThread.Post(() => CandVms = newList);
