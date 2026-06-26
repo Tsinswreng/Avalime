@@ -163,7 +163,7 @@ unsafe public class SvcIme : ISvcIme
 			};
 			if(Rime.get_context(SessionId, &Context) != RimeUtil.False){
 				try{
-					ReplacePreedit(ToolCStr.ToCsStr(Context.composition.preedit) ?? "");
+					ReplacePreedit(MkDisplayedPreedit(Context.composition));
 					ReplaceCandidates(ReadCandidates(&Context));
 				}finally{
 					Rime.free_context(&Context);
@@ -173,6 +173,27 @@ unsafe public class SvcIme : ISvcIme
 				ReplaceCandidates(new());
 			}
 		}
+	}
+
+	/// <summary>
+	/// 先按 librime 的 soft cursor 思路，把 composition.preedit 與 cursor_pos 組裝成當前要顯示的 preedit。
+	/// 目前先插入 U+2038 `‸`，優先補齊 Avalime 缺失的輸入游標顯示。
+	/// </summary>
+	str MkDisplayedPreedit(RimeComposition composition) {
+		var preedit = ToolCStr.ToCsStr(composition.preedit) ?? "";
+		if(preedit.Length <= 0){
+			return preedit;
+		}
+
+		const str Caret = "\u2038";
+		var cursorPos = composition.cursor_pos;
+		if(cursorPos < 0){
+			cursorPos = 0;
+		}
+		if(cursorPos > preedit.Length){
+			cursorPos = preedit.Length;
+		}
+		return preedit.Insert(cursorPos, Caret);
 	}
 
 	/// <summary>

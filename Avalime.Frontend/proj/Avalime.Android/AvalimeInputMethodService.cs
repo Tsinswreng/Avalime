@@ -46,10 +46,8 @@ public class AvalimeInputMethodService : InputMethodService {
 		return screenHeight > 0 ? screenHeight / 2 : ViewGroup.LayoutParams.WrapContent;
 	}
 
-	/// <summary>
 	/// IME 視圖只創建一次，後續複用同一個 AvaloniaView。
 	/// 這樣可避免 hide/show 之間反覆重建整棵 UI 樹，減少黑屏與狀態丟失。
-	/// </summary>
 	LoggingAvaloniaView EnsureInputView() {
 		if(InputView is not null){
 			return InputView;
@@ -65,11 +63,9 @@ public class AvalimeInputMethodService : InputMethodService {
 		return InputView;
 	}
 
-	/// <summary>
 	/// 同一個輸入框重新顯示 IME 時，Android 可能只把窗口拉回來，
 	/// 但不會重新創建 input view。這裡主動把複用的 view 從舊父節點摘下，
 	/// 再交回 InputMethodService 重掛，盡量避免窗口回來但內容發黑的情況。
-	/// </summary>
 	void ReattachInputView() {
 		var inputView = EnsureInputView();
 		if(inputView.Parent is ViewGroup parent){
@@ -116,10 +112,8 @@ public class AvalimeInputMethodService : InputMethodService {
 		return EnsureInputView();
 	}
 
-	/// <summary>
 	/// 請求 Android 隱藏當前輸入法窗口。
 	/// 這裡不再把 hide 綁定到“下次重建整個輸入視圖”，而是保留同一個 view 複用。
-	/// </summary>
 	public void HideKeyboard() {
 		AppLog.Info("[IME] HideKeyboard requested");
 		RequestHideSelf(0);
