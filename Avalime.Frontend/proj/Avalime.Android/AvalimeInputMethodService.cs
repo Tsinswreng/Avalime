@@ -40,20 +40,57 @@ public class AvalimeInputMethodService : InputMethodService {
 	LoggingAvaloniaView? _inputView{get;set;}
 	bool _shouldRecreateInputView;
 
+	/// <summary>
+	/// 取得螢幕高度的一半，用於設定輸入法視窗高度。
+	/// 若無法取得螢幕尺寸則回傳 <see cref="ViewGroup.LayoutParams.WrapContent"/>。
+	/// </summary>
 	int GetHalfScreenHeight() {
 		var screenHeight = Resources?.DisplayMetrics?.HeightPixels ?? 0;
 		return screenHeight > 0 ? screenHeight / 2 : ViewGroup.LayoutParams.WrapContent;
 	}
 
+	/// <summary>
+	/// 評估當前是否應進入全螢幕輸入模式。
+	/// Android 輸入法在橫屏等場景下預設會切換為全螢幕模式（佔滿整個螢幕、隱藏應用內容）。
+	/// </summary>
+	/// <returns>永遠回傳 <c>false</c>，強制禁用全螢幕模式，始終以嵌入式鍵盤視窗顯示。</returns>
+	/// <remarks>
+	/// 此方法在輸入法視窗即將顯示時被系統調用。
+	/// 回傳 <c>false</c> 可確保鍵盤不會遮擋整個螢幕，保持與普通軟鍵盤一致的行為。
+	/// </remarks>
 	public override bool OnEvaluateFullscreenMode() {
 		return false;
 	}
 
+	/// <summary>
+	/// 配置輸入法視窗的佈局屬性。
+	/// </summary>
+	/// <param name="win">輸入法視窗。可能是候選窗 (<c>isCandidatesOnly=true</c>) 或完整輸入視窗。</param>
+	/// <param name="isFullscreen">是否為全螢幕模式。<see cref="OnEvaluateFullscreenMode"/> 已強制回傳 <c>false</c>，故此處始終為 <c>false</c>。</param>
+	/// <param name="isCandidatesOnly">是否僅顯示候選詞視窗（不包含鍵盤）。</param>
+	/// <remarks>
+	/// 將視窗寬度設為 <see cref="ViewGroup.LayoutParams.MatchParent"/>（填滿螢幕寬度），
+	/// 高度設為螢幕的一半（通過 <see cref="GetHalfScreenHeight"/>），確保鍵盤區域合理可視。
+	/// </remarks>
 	public override void OnConfigureWindow(Window? win, bool isFullscreen, bool isCandidatesOnly) {
 		base.OnConfigureWindow(win, false, isCandidatesOnly);
 		win?.SetLayout(ViewGroup.LayoutParams.MatchParent, GetHalfScreenHeight());
 	}
 
+	/// <summary>
+	/// 創建輸入法的主輸入視圖（鍵盤 + 候選欄等 UI）。
+	/// 此方法是輸入法 UI 的入口，返回的 <see cref="global::Android.Views.View"/> 會嵌入到系統輸入法視窗中。
+	/// </summary>
+	/// <returns>包含 Avalonia 內容的 <see cref="LoggingAvaloniaView"/>，作為輸入法 UI 的根視圖。</returns>
+	/// <remarks>
+	/// <para><b>調用時機：</b>系統在需要顯示輸入法鍵盤區域時調用。</para>
+	/// <para><b>緩存邏輯：</b>
+	///   若 <c>_inputView</c> 已存在且 <c>_shouldRecreateInputView</c> 為 <c>false</c>，則複用現有視圖，避免重複創建。
+	///   若需要重建（例如橫豎屏切換後），會先 Dispose 舊的 Avalonia Content，再創建新實例。
+	/// </para>
+	/// <para><b>視圖內容：</b><see cref="MainView"/> 是 Avalime 的頂層 UI 組件，包含鍵盤、候選欄、工具欄等。</para>
+	/// <para><b>佈局：</b>寬度填滿螢幕、高度為螢幕的一半。</para>
+	/// </remarks>
 	public override global::Android.Views.View OnCreateInputView() {
 		AppLog.Info("[IME] OnCreateInputView");
 
@@ -75,11 +112,39 @@ public class AvalimeInputMethodService : InputMethodService {
 		return _inputView;
 	}
 
+	/// <summary>
+	/// 離開當前輸入視窗時請求隱藏鍵盤，並標記下次顯示時重建輸入視圖。
+	/// 用於語言切換等場景 — 強制下次 <see cref="OnCreateInputView"/> 重新構建 UI，
+	/// 以確保不同語言的鍵盤佈局被正確載入。
+	/// </summary>
 	public void HideKeyboardAndRecreateInputViewOnNextShow() {
 		AppLog.Info("[IME] HideKeyboard requested");
 		RequestHideSelf(0);
 	}
 
+	/// <summary>
+	/// 輸入法服務創建時的回調。
+	/// 在 Android 系統首次綁定輸入法服務時調用，是整個輸入法生命週期的起點。
+	/// </summary>
+	/// <remarks>
+	/// <para><b>執行順序：</b></para>
+	/// <list type="number">
+	/// <item>設定輸入法主題樣式（<c>MyTheme_Ime</c>）。</item>
+	/// <item>構建 DI 容器，註冊所有服務：
+	///   <list type="bullet">
+	///     <item><see cref="IImeKeyProcessor"/> → <see cref="RimeKeyProcessor"/>（Rime 按鍵處理）</item>
+	///     <item><see cref="IOsKeyProcessor"/> → <see cref="AndroidStubOsKeyProcessor"/>（stub，後續替換為 <see cref="AndroidOsKeyProcessor"/>）</item>
+	///     <item><see cref="IKeyboardHost"/> → <see cref="AndroidKeyboardHost"/>（鍵盤宿主）</item>
+	///     <item><see cref="IClipboardService"/> → <see cref="AndroidClipboardService"/>（剪貼簿）</item>
+	///     <item><see cref="ISvcIme"/> → <c>Avalime.Rime.SvcIme</c>（Rime 引擎實例）</item>
+	///     <item>各 ViewModel（VmIme、VmToolBar、VmKeyBoard 等）</item>
+	///   </list>
+	/// </item>
+	/// <item>初始化 <see cref="ISvcIme"/>，設置狀態文字為 "正在連接 Rime"。</item>
+	/// <item>配置 <see cref="IOsKeyProcessor"/> 為 <see cref="AndroidOsKeyProcessor"/>，將 Rime 未處理的按鍵轉發到 <see cref="InputMethodService.CurrentInputConnection"/>。</item>
+	/// <item>訂閱 <see cref="ISvcIme.OnCommit"/>，在 main looper 上調用 <c>InputConnection.CommitText</c> 將 Rime commit 的文字上屏。</item>
+	/// </list>
+	/// </remarks>
 	public override void OnCreate() {
 		SetTheme(Resource.Style.MyTheme_Ime);
 		base.OnCreate();
@@ -127,6 +192,19 @@ public class AvalimeInputMethodService : InputMethodService {
 		};
 	}
 
+	/// <summary>
+	/// 輸入視圖即將顯示時的回調。
+	/// 在編輯框獲得焦點、輸入法鍵盤即將彈出時由系統調用。
+	/// </summary>
+	/// <param name="info">當前編輯框的 <see cref="EditorInfo"/>，包含輸入類型、IME 選項等訊息。可為 <c>null</c>。</param>
+	/// <param name="restarting">
+	/// 是否為重啟場景。<c>true</c> 表示輸入法在同一編輯框中重新開始輸入（例如輸入類型切換），
+	/// <c>false</c> 表示全新開始（例如焦點從一個編輯框移到另一個）。
+	/// </param>
+	/// <remarks>
+	/// 若 <c>_shouldRecreateInputView</c> 為 <c>true</c>（由 <see cref="OnFinishInputView"/> 或 <see cref="HideKeyboardAndRecreateInputViewOnNextShow"/> 設置），
+	/// 則在此時重建輸入視圖。此延遲重建確保新視圖在正確的時機被系統接受。
+	/// </remarks>
 	public override void OnStartInputView(EditorInfo? info, bool restarting) {
 		base.OnStartInputView(info, restarting);
 		if (_shouldRecreateInputView) {
@@ -135,16 +213,40 @@ public class AvalimeInputMethodService : InputMethodService {
 		AppLog.Info("[IME] OnStartInputView");
 	}
 
+	/// <summary>
+	/// 輸入法視窗已顯示時的回調。
+	/// 在輸入法視窗對用戶可見後由系統調用，通常在動畫結束後觸發。
+	/// </summary>
+	/// <remarks>
+	/// 記錄當前 <c>_inputView</c> 是否為 <c>null</c> 及 <c>_shouldRecreateInputView</c> 標記的狀態，
+	/// 用於調試視窗顯示異常（如空白鍵盤）問題。
+	/// </remarks>
 	public override void OnWindowShown() {
 		base.OnWindowShown();
 		AppLog.Info($"[IME] OnWindowShown inputViewNull={_inputView is null} shouldRecreate={_shouldRecreateInputView}");
 	}
 
+	/// <summary>
+	/// 輸入法視窗已隱藏時的回調。
+	/// 在輸入法視窗完全不可見後由系統調用（例如用戶切換到其他 App、按下返回鍵隱藏鍵盤）。
+	/// </summary>
+	/// <remarks>
+	/// 視窗隱藏時不會立即銷毀輸入視圖，<c>_inputView</c> 會被保留以便下次快速顯示。
+	/// </remarks>
 	public override void OnWindowHidden() {
 		base.OnWindowHidden();
 		AppLog.Info("[IME] OnWindowHidden");
 	}
 
+	/// <summary>
+	/// 在 main looper 上向當前輸入連接提交文字（上屏）。
+	/// 與 <see cref="ISvcIme.OnCommit"/> 訂閱不同，此方法是提供給外部（如 ViewModel）直接調用的提交入口。
+	/// </summary>
+	/// <param name="text">要上屏的文字。</param>
+	/// <remarks>
+	/// 必須在主執行緒上操作 <see cref="InputMethodService.CurrentInputConnection"/>，
+	/// 因此通過 <see cref="Handler"/> Post 到 <see cref="Looper.MainLooper"/>。
+	/// </remarks>
 	public void CommitText(str text) {
 		var mainHandler = new Handler(Looper.MainLooper!);
 		mainHandler.Post(() => {
@@ -155,12 +257,33 @@ public class AvalimeInputMethodService : InputMethodService {
 		});
 	}
 
+	/// <summary>
+	/// 輸入視圖結束時的回調。
+	/// 在編輯框失去焦點或輸入法鍵盤即將隱藏時由系統調用。
+	/// </summary>
+	/// <param name="finishingInput">
+	/// <c>true</c> 表示本次輸入會話完全結束（焦點離開編輯框、切換到其他 App）；
+	/// <c>false</c> 表示僅是暫時隱藏或過渡狀態。
+	/// </param>
+	/// <remarks>
+	/// 設置 <c>_shouldRecreateInputView = true</c>，確保下次 <see cref="OnStartInputView"/> 時重建輸入視圖。
+	/// 這樣做是為了應對 Android 系統在某些場景下會銷毀舊 View 的行為，
+	/// 避免下次顯示時出現已失效的視圖引用導致空白或崩潰。
+	/// </remarks>
 	public override void OnFinishInputView(bool finishingInput) {
 		base.OnFinishInputView(finishingInput);
 		_shouldRecreateInputView = true;
 		AppLog.Info("[IME] OnFinishInputView");
 	}
 
+	/// <summary>
+	/// 輸入法服務銷毀時的回調。
+	/// 在 Android 系統終止輸入法服務時調用（如用戶卸載 App、系統回收記憶體、或進程被殺死）。
+	/// </summary>
+	/// <remarks>
+	/// 此為生命週期的最後一站。目前主要記錄日誌用於追蹤服務生命週期。
+	/// 若需要在銷毀前釋放 Rime 引擎資源（如 <c>rime_finalize()</c>），應在此處添加清理邏輯。
+	/// </remarks>
 	public override void OnDestroy() {
 		base.OnDestroy();
 		AppLog.Info("[IME] OnDestroy");
