@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Controls;
 using Avalime.ViewModels;
 using Avalime.UI.Views;
 using Avalonia.Markup.Xaml;
@@ -17,13 +18,16 @@ public partial class App : Application
 // #if DEBUG
 // 			this.AttachDeveloperTools();
 // #endif
+			// Windows 桌面端保持標準系統窗口，保留標題欄與拖動能力。
 			desktop.MainWindow = new MainWindow{
 				DataContext = new MainViewModel(),
+				Title = "Avalime",
 				Width = 1920/4,
 				MinWidth = 0,
 				Height = 1080/4,
 				MinHeight = 0,
-				ExtendClientAreaToDecorationsHint = true
+				WindowDecorations = WindowDecorations.Full,
+				ExtendClientAreaToDecorationsHint = false
 			};
 		}
 		else if(ApplicationLifetime is IActivityApplicationLifetime activityLifetime){
