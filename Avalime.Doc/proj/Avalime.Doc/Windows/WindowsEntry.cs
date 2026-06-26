@@ -9,10 +9,12 @@ using Tsinswreng.CsCore;
 
 #H[入口行為][
 	`Program.Main()`：
-	- 註冊 `I_OsKeyProcessor`
-	- 註冊桌面 stub：`IImeKeyProcessor`、`IKeyboardHost`、`IClipboardService`
-	- 註冊 `ImeState`
-	- 註冊 `RimeConnectionState`
+	- 註冊 `RimeSetup.Inst`，讓桌面端 `SvcIme` 和 `RimeKeyProcessor` 共用同一個 Rime session
+	- 註冊 `IOsKeyProcessor`
+	- 註冊桌面宿主 `IKeyboardHost`、`IClipboardService`
+	- 註冊 `IImeKeyProcessor -> RimeKeyProcessor`
+	- 註冊 `ImeUiState`
+	- 註冊 `ISvcIme -> Avalime.Rime.SvcIme`
 	- `Di.SvcP = provider`
 	- `StartWithClassicDesktopLifetime(...)`
 ]

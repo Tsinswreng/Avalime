@@ -26,16 +26,19 @@ sealed class Program{
 	public static void Main(string[] args){
 		AppLog.Inst.InnerLogger = NullLogger.Instance;
 		var services = new ServiceCollection();
+		// Windows 桌面端也直接走 Rime 真實實現，避免 UI 啟動後再落回無法工作的 stub 組合。
+		services.AddSingleton<RimeSetup>(_ => RimeSetup.Inst);
 		services.AddSingleton<
 			IOsKeyProcessor
 			, WindowsKeyProcessor
 		>();
-		services.AddSingleton<IImeKeyProcessor, StubImeKeyProcessor>();
+		services.AddSingleton<IImeKeyProcessor, RimeKeyProcessor>();
 		services.AddSingleton<IKeyboardHost, StubKeyboardHost>();
 		services.AddSingleton<IClipboardService, StubClipboardService>();
 		services.AddSingleton<ImeUiState>();
 		services.AddSingleton<ILogger>(_ => AppLog.Inst);
 
+		// SvcIme 依賴 RimeSetup 與 IImeKeyProcessor；兩者都要在 desktop 入口顯式註冊。
 		services.AddSingleton<
 			ISvcIme
 				, SvcIme

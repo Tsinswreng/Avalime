@@ -29,7 +29,7 @@ public class ViewInput : AppViewBase<Ctx>
 			wp.A(new TextBlock(), o=>{
 				if(keyboardFont is not null) o.FontFamily = keyboardFont;
 				o.Foreground = Brushes.White;
-				o.FontSize = UiCfg.Inst.TopBarFontSize;
+				o.FontSize = UiCfg.Inst.PreeditFontSize;
 				o.Margin = new(4, 0, 0, 0);
 				o.VerticalAlignment = VAlign.Center;
 				Ctx.Bind(o, x=>x.Text, x=>x.Text, Mode: BindingMode.TwoWay);
