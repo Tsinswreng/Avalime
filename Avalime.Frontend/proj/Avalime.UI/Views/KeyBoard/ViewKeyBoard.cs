@@ -68,7 +68,7 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 
 	Grid MkKeysGrid(bool isNum){
 		var root = new GridStack();
-		root.Grid.Background = SolidColorBrush.Parse("#253238");
+		root.Grid.Background = UiCfg.Inst.GapLineBrush;
 		root.SetRowDefs([
 			new(0.8, GUT.Star),
 			new(1, GUT.Star),

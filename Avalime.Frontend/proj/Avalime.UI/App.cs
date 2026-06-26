@@ -14,9 +14,9 @@ public partial class App : Application
 
 	public override void OnFrameworkInitializationCompleted(){
 		if(ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop){
-#if DEBUG
-			this.AttachDeveloperTools();
-#endif
+// #if DEBUG
+// 			this.AttachDeveloperTools();
+// #endif
 			desktop.MainWindow = new MainWindow{
 				DataContext = new MainViewModel(),
 				Width = 1920/4,

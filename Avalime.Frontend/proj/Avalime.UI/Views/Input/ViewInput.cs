@@ -8,6 +8,7 @@ namespace Avalime.UI.Views.Input;
 using Ctx = VmInput;
 
 public class ViewInput : AppViewBase<Ctx>
+	, IDisposable
 {
 	public ViewInput(){
 		Ctx = Di.DiOrMk<Ctx>();
@@ -35,5 +36,9 @@ public class ViewInput : AppViewBase<Ctx>
 			});
 		});
 	}
-}
 
+	public void Dispose()
+	{
+		(Ctx as IDisposable)?.Dispose();
+	}
+}

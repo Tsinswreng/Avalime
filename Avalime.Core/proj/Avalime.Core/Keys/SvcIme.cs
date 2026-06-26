@@ -70,6 +70,7 @@ public abstract class ISvcIme
 		set => SetProperty(ref field, value);
 	}
 
+	[Obsolete("不應出現在此層")]
 	public str StatusText{
 		get;
 		set => SetProperty(ref field, value);

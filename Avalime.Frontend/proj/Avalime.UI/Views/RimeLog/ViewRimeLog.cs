@@ -11,6 +11,7 @@ namespace Avalime.UI.Views.RimeLog;
 using Ctx = VmRimeLog;
 
 public class ViewRimeLog : AppViewBase<Ctx>
+	, IDisposable
 {
 	public ViewRimeLog()
 	{
@@ -41,5 +42,9 @@ public class ViewRimeLog : AppViewBase<Ctx>
 			o.SetContent(items);
 		});
 	}
-}
 
+	public void Dispose()
+	{
+		(Ctx as IDisposable)?.Dispose();
+	}
+}

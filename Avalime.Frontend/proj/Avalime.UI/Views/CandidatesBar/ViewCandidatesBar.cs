@@ -12,6 +12,7 @@ namespace Avalime.UI.Views.CandidatesBar;
 using Ctx = VmCandidatesBar;
 
 public class ViewCandidatesBar : AppViewBase<Ctx>
+	, IDisposable
 {
 	public ViewCandidatesBar(){
 		Ctx = Di.DiOrMk<Ctx>();
@@ -64,5 +65,10 @@ public class ViewCandidatesBar : AppViewBase<Ctx>
 		});
 		Ctx.Bind(ans, ItemsControl.ItemsSourceProperty, x=>x.CandVms);
 		return ans;
+	}
+
+	public void Dispose()
+	{
+		(Ctx as IDisposable)?.Dispose();
 	}
 }

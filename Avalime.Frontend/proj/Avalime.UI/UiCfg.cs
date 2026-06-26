@@ -31,6 +31,8 @@ public partial class UiCfg{
 	public IBrush MainColor { get; set; } = SolidColorBrush.Parse("#4DB6AC");
 	public IBrush KeyBgColor { get; set; } = SolidColorBrush.Parse("#000000");
 	public IBrush CandidateBgColor { get; set; } = SolidColorBrush.Parse("#1E2A32");
+	public IBrush GapLineBrush { get; set; } = SolidColorBrush.Parse("#253238");
+	public IBrush CandidateGapBrush { get; set; } = SolidColorBrush.Parse("#ffffff");
 	static readonly Uri KeyboardFontCollectionKey = new("fonts:keyboard");
 
 	string? _cachedFontPath;

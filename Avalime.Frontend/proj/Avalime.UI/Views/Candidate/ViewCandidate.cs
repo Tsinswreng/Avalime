@@ -55,8 +55,8 @@ public class ViewCandidate : AppViewBase<Ctx>
 		var border = new Border{
 			Child = Root.Grid,
 			Background = UiCfg.Inst.CandidateBgColor,
-			BorderThickness = new Thickness(0.5),
-			BorderBrush = SolidColorBrush.Parse("#253238"),
+			BorderThickness = new Thickness(right: 0.5, left:0, top:0,bottom:0),
+			BorderBrush = UiCfg.Inst.CandidateGapBrush,
 		};
 		_border = border;
 		Ctx.Bind(border, Border.BackgroundProperty, x=>x.Background);

@@ -30,14 +30,14 @@ namespace Avalime.Android;
 	Label = "Avalime",
 	Permission = global::Android.Manifest.Permission.BindInputMethod,
 	Exported = true)]
-[IntentFilter(new[] { "android.view.InputMethod" })]
+[IntentFilter(["android.view.InputMethod"])]
 [MetaData("android.view.im", Resource = "@xml/ime_method")]
 public class AvalimeInputMethodService : InputMethodService {
 	public AvalimeInputMethodService() { }
 	public AvalimeInputMethodService(nint javaReference, JniHandleOwnership transfer)
 		: base(javaReference, transfer) { }
 
-	LoggingAvaloniaView? _inputView;
+	LoggingAvaloniaView? _inputView{get;set;}
 	bool _shouldRecreateInputView;
 
 	int GetHalfScreenHeight() {

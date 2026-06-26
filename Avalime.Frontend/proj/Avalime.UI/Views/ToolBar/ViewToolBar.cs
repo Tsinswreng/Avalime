@@ -8,6 +8,7 @@ namespace Avalime.UI.Views.ToolBar;
 using Ctx = VmToolBar;
 
 public class ViewToolBar : AppViewBase<Ctx>
+	, IDisposable
 {
 	GridStack Root = new(IsRow: false);
 
@@ -73,7 +74,7 @@ public class ViewToolBar : AppViewBase<Ctx>
 	static Border MkBtn(){
 		return new Border{
 			Background = Brushes.Black,
-			BorderBrush = SolidColorBrush.Parse("#253238"),
+			BorderBrush = UiCfg.Inst.GapLineBrush,
 			BorderThickness = new(0.5),
 			CornerRadius = new(0),
 			Padding = new(0),
@@ -81,5 +82,9 @@ public class ViewToolBar : AppViewBase<Ctx>
 			VerticalAlignment = VAlign.Stretch,
 		};
 	}
-}
 
+	public void Dispose()
+	{
+		(Ctx as IDisposable)?.Dispose();
+	}
+}

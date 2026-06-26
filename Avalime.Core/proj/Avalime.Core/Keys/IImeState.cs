@@ -4,6 +4,7 @@ public class RespInput{
 
 }
 
+[Obsolete(@$"use {nameof(ISvcIme)}")]
 public interface IImeState{
 
 	public IDictionary<object, object?> Cfg{get;set;}

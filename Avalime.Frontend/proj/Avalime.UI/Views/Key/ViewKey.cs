@@ -27,7 +27,7 @@ public class ViewKey : AppViewBase<Ctx>
 
 	static class TswG{
 		public static readonly SolidColorBrush KeyText = Brush("#E0E0E0");
-		public static readonly SolidColorBrush GapLine = Brush("#253238");
+		public static SolidColorBrush GapLine => (SolidColorBrush)UiCfg.Inst.GapLineBrush;
 		public static readonly SolidColorBrush HintText = Brush("#BDBDBD");
 		public static readonly CornerRadius Round = new(0);
 		public static readonly Thickness KeyMargin = new(0);

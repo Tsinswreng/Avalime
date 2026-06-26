@@ -9,6 +9,7 @@ namespace Avalime.UI.Views.Clipboard;
 using Ctx = VmClipboard;
 
 public class ViewClipboard : AppViewBase<Ctx>
+	, IDisposable
 {
 	public ViewClipboard(){
 		Ctx = Di.DiOrMk<Ctx>();
@@ -22,7 +23,7 @@ public class ViewClipboard : AppViewBase<Ctx>
 				Background = Brushes.Black,
 				Foreground = Brushes.White,
 				CornerRadius = new(0),
-				BorderBrush = SolidColorBrush.Parse("#253238"),
+				BorderBrush = UiCfg.Inst.GapLineBrush,
 				BorderThickness = new(0.5),
 				HorizontalAlignment = HorizontalAlignment.Stretch,
 				HorizontalContentAlignment = HorizontalAlignment.Left,
@@ -42,5 +43,9 @@ public class ViewClipboard : AppViewBase<Ctx>
 			o.SetContent(items);
 		});
 	}
-}
 
+	public void Dispose()
+	{
+		(Ctx as IDisposable)?.Dispose();
+	}
+}
