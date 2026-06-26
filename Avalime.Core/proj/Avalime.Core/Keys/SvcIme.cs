@@ -24,12 +24,11 @@ public class CandidatePage:IPage<ICandidate>{
 
 
 [Doc(@$"輸入法引擎抽象與適配。
-外部訪問其API當由{nameof(ISvcIme)}引用而非{nameof(SvcIme)}。
-暫時定義爲class 後續會改成interface。
+外部訪問其API當由{nameof(ISvcIme)}引用。
+提供按鍵管線、狀態屬性與事件；具體的 Rime 引擎連接與狀態同步由 Avalime.Rime.SvcIme 實現。
 ")]
-public class ISvcIme
+public abstract class ISvcIme
 	:ObservableObject
-	//:I_ImeState //TODO 先叶後抽象
 {
 	public IDictionary<object, object?> Cfg{
 		get;
@@ -89,18 +88,18 @@ public class ISvcIme
 	readonly Channel<IEnumerable<IKeyEvent>> _KeyChannel = Channel.CreateUnbounded<IEnumerable<IKeyEvent>>();
 	readonly CancellationTokenSource _ChannelCts = new();
 
-	public ISvcIme(IOsKeyProcessor osKeyProcessor, IImeKeyProcessor imeKeyProcessor) {
+	protected ISvcIme(IOsKeyProcessor osKeyProcessor, IImeKeyProcessor imeKeyProcessor) {
 		this.OsKeyProcessor = osKeyProcessor;
 		this.ImeKeyProcessor = imeKeyProcessor;
 		_InitChannelConsumer();
 	}
 
-	public ISvcIme(IOsKeyProcessor osKeyProcessor) {
+	protected ISvcIme(IOsKeyProcessor osKeyProcessor) {
 		this.OsKeyProcessor = osKeyProcessor;
 		_InitChannelConsumer();
 	}
 
-	public ISvcIme() {
+	protected ISvcIme() {
 		_InitChannelConsumer();
 	}
 
@@ -195,11 +194,5 @@ public class ISvcIme
 
 	/// 當 Rime 引擎 commit 文字時觸發。參數為 commit 的文字內容。
 	public event EventHandler<string>? OnCommit;
-
-}
-
-
-[Doc(@$"實現類")]
-public class SvcIme:ISvcIme{
 
 }

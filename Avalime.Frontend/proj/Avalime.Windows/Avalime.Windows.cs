@@ -4,6 +4,7 @@ using System;
 using Avalime.Core.Infra;
 using Avalime.Core.Infra.Log;
 using Avalime.Core.Keys;
+using Avalime.Rime;
 using Avalime.UI;
 using Avalime.UI.Views.CandidatesBar;
 using Avalime.UI.Views.Clipboard;
@@ -37,6 +38,7 @@ sealed class Program{
 
 		services.AddSingleton<
 			ISvcIme
+				, SvcIme
 		>();
 
 		services.AddSingleton<RimeLogBuffer>();

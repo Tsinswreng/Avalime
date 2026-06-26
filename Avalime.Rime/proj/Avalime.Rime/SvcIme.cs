@@ -1,27 +1,24 @@
 using Avalime.Core.Ime;
 using Avalime.Core.Infra.Log;
 using Avalime.Core.Keys;
-using Avalime.Rime;
 using Rime.Api;
+using Rime.Api.Types;
 using Tsinswreng.CsInterop;
 
-namespace Avalime.Android;
+namespace Avalime.Rime;
 
 /// <summary>
-/// Android 入口層的具體輸入法服務。
-/// UI 只依賴 Core 抽象；這裡負責把 Rime 引擎狀態回填到 Core 狀態模型。
+/// ISvcIme 的 Rime 引擎實現。
+/// 負責把 Rime 引擎狀態回填到 Core 狀態模型。
 /// </summary>
-unsafe public class AndroidRimeImeService : ISvcIme
+unsafe public class SvcIme : ISvcIme
 {
 	readonly RimeSetup _RimeSetup;
 	readonly Lock _StateLock = new();
 	i32 _IsTogglingAscii;
 	i32 _IsTogglingSimplification;
 
-	/// <summary>
-	/// 由 Android 入口層組裝具體依賴。
-	/// </summary>
-	public AndroidRimeImeService(
+	public SvcIme(
 		IOsKeyProcessor OsKeyProcessor
 		, IImeKeyProcessor ImeKeyProcessor
 		, RimeSetup RimeSetup
@@ -32,7 +29,7 @@ unsafe public class AndroidRimeImeService : ISvcIme
 	}
 
 	/// <summary>
-	/// 真正建立 Core 與 Rime session 的連通狀態，避免假連接。
+	/// 真正建立 Core 與 Rime session 的連通狀態。
 	/// </summary>
 	public override Task ConnectAsy(CT Ct = default){
 		Ct.ThrowIfCancellationRequested();
@@ -54,7 +51,7 @@ unsafe public class AndroidRimeImeService : ISvcIme
 	}
 
 	/// <summary>
-	/// 所有 option 切換都經 Core 抽象，由 Android 層調 Rime。
+	/// 通過 Rime API 切換 ascii_mode。
 	/// </summary>
 	public override Task ToggleAsciiModeAsy(CT Ct = default){
 		if(Interlocked.Exchange(ref _IsTogglingAscii, 1) != 0){
@@ -79,7 +76,7 @@ unsafe public class AndroidRimeImeService : ISvcIme
 	}
 
 	/// <summary>
-	/// 所有 option 切換都經 Core 抽象，由 Android 層調 Rime。
+	/// 通過 Rime API 切換 simplification。
 	/// </summary>
 	public override Task ToggleSimplificationAsy(CT Ct = default){
 		if(Interlocked.Exchange(ref _IsTogglingSimplification, 1) != 0){
@@ -179,7 +176,7 @@ unsafe public class AndroidRimeImeService : ISvcIme
 	}
 
 	/// <summary>
-	/// 在 native context 有效期間把候選詞複製成 Core DTO，包含分頁訊息，之後即可安全釋放 context。
+	/// 在 native context 有效期間把候選詞複製成 Core DTO，包含分頁訊息。
 	/// </summary>
 	CandidatePage ReadCandidates(RimeContext* Context){
 		var Ans = new List<ICandidate>();

@@ -154,7 +154,7 @@ public class Application : AvaloniaAndroidApplication<App>
 		services.AddSingleton<IKeyboardHost, ActivityKeyboardHost>();
 		services.AddSingleton<IClipboardService, AndroidClipboardService>();
 		services.AddSingleton<ImeUiState>();
-		services.AddSingleton<ISvcIme, AndroidRimeImeService>();
+		services.AddSingleton<ISvcIme, SvcIme>();
 		services.AddSingleton<RimeLogBuffer>();
 		services.AddTransient<VmIme>();
 		services.AddTransient<VmToolBar>();

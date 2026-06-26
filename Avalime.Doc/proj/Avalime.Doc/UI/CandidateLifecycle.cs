@@ -56,6 +56,19 @@ using Tsinswreng.CsCore;
 	- 下方主文字
 	- 高亮/普通前景色
 	- 背景色與邊框
+
+	`ViewCandidate` 通過 `Ctx.Bind(this, x=>x.MinWidth, x=>x.MinWidth)` 將自身的 `MinWidth` 綁定到 `VmCandidate.MinWidth`。
+]
+
+#H[候選詞最小寬度][
+	為使單字候選與鍵盤按鍵寬度對齊，`ViewCandidatesBar` 在 `LayoutUpdated` 中動態計算候選詞的最小寬度。
+
+	公式：`MinWidth = (容器寬度 - Spacing × 9) / 10`
+	其中 10 對應鍵盤每行 10 列，9 為 10 個候選間的 StackPanel Spacing 數量。
+
+	計算後通過 `VmCandidate.MinWidth` 屬性（`INotifyPropertyChanged`）通知到 `ViewCandidate` 的綁定。
+
+	Guard 條件：容器寬度變化 或 當前 VM 們的 MinWidth 尚未等於目標值時才更新，避免無效重複設定。
 ]
 
 #H[反向鏈路: 點擊候選詞 -> 數字選詞 -> commit 上屏][

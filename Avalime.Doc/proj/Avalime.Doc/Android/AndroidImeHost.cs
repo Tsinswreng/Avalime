@@ -47,8 +47,8 @@ using Tsinswreng.CsCore;
 #H[依賴注入與日誌][
 	Android 端在 `InputMethodService.OnCreate()` 組裝 `ServiceCollection`，並寫入全局 `Di.SvcProvider`。
 	`Di` 是當前全局 DI 中心；UI / Core 側若拿服務，統一通過 `Di.GetRSvc<T>()`。
-	`ISvcIme` 在 Android 端不再直接使用空殼基類，而是註冊 `AndroidRimeImeService`。
-	這樣 `Avalime.UI` 仍只依賴 `Avalime.Core`，但真正的 Rime 連接、狀態同步與 option 切換由 Android 入口層實現。
+	`ISvcIme` 在 Android 端不再直接使用空殼基類，而是註冊 `Avalime.Rime.SvcIme`。
+	這樣 `Avalime.UI` 仍只依賴 `Avalime.Core`，但真正的 Rime 連接、狀態同步與 option 切換由 `Avalime.Rime` 層實現。
 	`ILogger` 也註冊爲 `AppLog.Inst`，方便不便注入的地方與可注入的地方共用同一條日誌出口。
 	`AppLog.Inst.InnerLogger` 在 Android `Application` 啟動時切到 `AndroidLogger`，Release 也可直接進 logcat。
 ]
