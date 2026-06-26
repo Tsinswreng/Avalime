@@ -37,14 +37,47 @@ public class AvalimeInputMethodService : InputMethodService {
 	public AvalimeInputMethodService(nint javaReference, JniHandleOwnership transfer)
 		: base(javaReference, transfer) { }
 
-	LoggingAvaloniaView? _inputView{get;set;}
-	bool _shouldRecreateInputView;
+	public LoggingAvaloniaView? InputView{get;set;}
 
 	/// 取得螢幕高度的一半，用於設定輸入法視窗高度。
 	/// 若無法取得螢幕尺寸則回傳 <see cref="ViewGroup.LayoutParams.WrapContent"/>。
 	int GetHalfScreenHeight() {
 		var screenHeight = Resources?.DisplayMetrics?.HeightPixels ?? 0;
 		return screenHeight > 0 ? screenHeight / 2 : ViewGroup.LayoutParams.WrapContent;
+	}
+
+	/// <summary>
+	/// IME 視圖只創建一次，後續複用同一個 AvaloniaView。
+	/// 這樣可避免 hide/show 之間反覆重建整棵 UI 樹，減少黑屏與狀態丟失。
+	/// </summary>
+	LoggingAvaloniaView EnsureInputView() {
+		if(InputView is not null){
+			return InputView;
+		}
+
+		InputView = new LoggingAvaloniaView(this) {
+			Content = new MainView()
+		};
+		InputView.LayoutParameters = new ViewGroup.LayoutParams(
+			ViewGroup.LayoutParams.MatchParent,
+			GetHalfScreenHeight()
+		);
+		return InputView;
+	}
+
+	/// <summary>
+	/// 同一個輸入框重新顯示 IME 時，Android 可能只把窗口拉回來，
+	/// 但不會重新創建 input view。這裡主動把複用的 view 從舊父節點摘下，
+	/// 再交回 InputMethodService 重掛，盡量避免窗口回來但內容發黑的情況。
+	/// </summary>
+	void ReattachInputView() {
+		var inputView = EnsureInputView();
+		if(inputView.Parent is ViewGroup parent){
+			parent.RemoveView(inputView);
+		}
+		SetInputView(inputView);
+		inputView.RequestLayout();
+		inputView.Invalidate();
 	}
 
 	/// 評估當前是否應進入全螢幕輸入模式。
@@ -72,36 +105,22 @@ public class AvalimeInputMethodService : InputMethodService {
 	/// <returns>包含 Avalonia 內容的 <see cref="LoggingAvaloniaView"/>，作為輸入法 UI 的根視圖。</returns>
 	/// <para><b>調用時機：</b>系統在需要顯示輸入法鍵盤區域時調用。</para>
 	/// <para><b>緩存邏輯：</b>
-	///   若 <c>_inputView</c> 已存在且 <c>_shouldRecreateInputView</c> 為 <c>false</c>，則複用現有視圖，避免重複創建。
-	///   若需要重建（例如橫豎屏切換後），會先 Dispose 舊的 Avalonia Content，再創建新實例。
+	///   只創建一次 <see cref="InputView"/>，後續持續複用同一個視圖實例。
+	///   每次顯示前透過 <see cref="ReattachInputView"/> 重新掛回 IME window，
+	///   避免同焦點 editor 下窗口重顯示時內容樹沒有正確回到窗口。
 	/// </para>
 	/// <para><b>視圖內容：</b><see cref="MainView"/> 是 Avalime 的頂層 UI 組件，包含鍵盤、候選欄、工具欄等。</para>
 	/// <para><b>佈局：</b>寬度填滿螢幕、高度為螢幕的一半。</para>
 	public override global::Android.Views.View OnCreateInputView() {
 		AppLog.Info("[IME] OnCreateInputView");
-
-		if (_inputView != null && !_shouldRecreateInputView)
-			return _inputView;
-
-		if (_inputView?.Content is IDisposable disposableContent) {
-			disposableContent.Dispose();
-		}
-
-		_inputView = new LoggingAvaloniaView(this) {
-			Content = new MainView()
-		};
-		_inputView.LayoutParameters = new ViewGroup.LayoutParams(
-			ViewGroup.LayoutParams.MatchParent,
-			GetHalfScreenHeight());
-		_shouldRecreateInputView = false;
-
-		return _inputView;
+		return EnsureInputView();
 	}
 
-	/// 離開當前輸入視窗時請求隱藏鍵盤，並標記下次顯示時重建輸入視圖。
-	/// 用於語言切換等場景 — 強制下次 <see cref="OnCreateInputView"/> 重新構建 UI，
-	/// 以確保不同語言的鍵盤佈局被正確載入。
-	public void HideKeyboardAndRecreateInputViewOnNextShow() {
+	/// <summary>
+	/// 請求 Android 隱藏當前輸入法窗口。
+	/// 這裡不再把 hide 綁定到“下次重建整個輸入視圖”，而是保留同一個 view 複用。
+	/// </summary>
+	public void HideKeyboard() {
 		AppLog.Info("[IME] HideKeyboard requested");
 		RequestHideSelf(0);
 	}
@@ -179,23 +198,21 @@ public class AvalimeInputMethodService : InputMethodService {
 	/// 是否為重啟場景。<c>true</c> 表示輸入法在同一編輯框中重新開始輸入（例如輸入類型切換），
 	/// <c>false</c> 表示全新開始（例如焦點從一個編輯框移到另一個）。
 	/// </param>
-	/// 若 <c>_shouldRecreateInputView</c> 為 <c>true</c>（由 <see cref="OnFinishInputView"/> 或 <see cref="HideKeyboardAndRecreateInputViewOnNextShow"/> 設置），
-	/// 則在此時重建輸入視圖。此延遲重建確保新視圖在正確的時機被系統接受。
+	/// 每次開始顯示輸入視圖時，都主動重掛複用的 <see cref="InputView"/>。
+	/// 這一層專門覆蓋“同一個 editor 焦點未丟，但 IME window 被隱藏後又重新顯示”的場景。
 	public override void OnStartInputView(EditorInfo? info, bool restarting) {
 		base.OnStartInputView(info, restarting);
-		if (_shouldRecreateInputView) {
-			SetInputView(OnCreateInputView());
-		}
+		ReattachInputView();
 		AppLog.Info("[IME] OnStartInputView");
 	}
 
 	/// 輸入法視窗已顯示時的回調。
 	/// 在輸入法視窗對用戶可見後由系統調用，通常在動畫結束後觸發。
-	/// 記錄當前 <c>_inputView</c> 是否為 <c>null</c> 及 <c>_shouldRecreateInputView</c> 標記的狀態，
-	/// 用於調試視窗顯示異常（如空白鍵盤）問題。
+	/// 這裡再補一次重掛與重繪，盡量讓窗口與複用的 AvaloniaView 保持同步。
 	public override void OnWindowShown() {
 		base.OnWindowShown();
-		AppLog.Info($"[IME] OnWindowShown inputViewNull={_inputView is null} shouldRecreate={_shouldRecreateInputView}");
+		ReattachInputView();
+		AppLog.Info($"[IME] OnWindowShown inputViewNull={InputView is null}");
 	}
 
 	/// 輸入法視窗已隱藏時的回調。
@@ -227,12 +244,11 @@ public class AvalimeInputMethodService : InputMethodService {
 	/// <c>true</c> 表示本次輸入會話完全結束（焦點離開編輯框、切換到其他 App）；
 	/// <c>false</c> 表示僅是暫時隱藏或過渡狀態。
 	/// </param>
-	/// 設置 <c>_shouldRecreateInputView = true</c>，確保下次 <see cref="OnStartInputView"/> 時重建輸入視圖。
-	/// 這樣做是為了應對 Android 系統在某些場景下會銷毀舊 View 的行為，
-	/// 避免下次顯示時出現已失效的視圖引用導致空白或崩潰。
+	/// 這裡不再在 hide 後強制重建整棵 UI 樹。
+	/// 實際驗證表明，多次創建 Avalonia IME 視圖更容易把問題變成“重新顯示後黑屏或狀態亂掉”。
+	/// 因此改為保留單例 view，真正的重掛工作放在 <see cref="OnStartInputView"/> / <see cref="OnWindowShown"/>。
 	public override void OnFinishInputView(bool finishingInput) {
 		base.OnFinishInputView(finishingInput);
-		_shouldRecreateInputView = true;
 		AppLog.Info("[IME] OnFinishInputView");
 	}
 

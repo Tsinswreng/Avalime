@@ -16,7 +16,7 @@ public class AndroidKeyboardHost : Avalime.UI.IKeyboardHost
 			return;
 		}
 		var handler = new Handler(Looper.MainLooper!);
-		handler.Post(ime.HideKeyboardAndRecreateInputViewOnNextShow);
+		handler.Post(ime.HideKeyboard);
 	}
 
 	public void CommitText(str text){

@@ -21,10 +21,15 @@ using Tsinswreng.CsCore;
 	`OnConfigureWindow()` 把高度限制成半屏。
 	輸入法服務顯式使用 `MyTheme.Ime`，避免沿用 Activity 的透明窗口配置。
 	隱藏鍵盤時仍只調 `RequestHideSelf(0)`；
-	但因爲 Android 13 上復用同一棵 `AvaloniaView` 在再次顯示後容易出現「可點擊但整體發黑」的黑屏，
-	現在會在 `OnFinishInputView()` 把 `_shouldRecreateInputView` 置爲 `true`，
-	並在下次 `OnStartInputView()` 時通過 `SetInputView(OnCreateInputView())` 重建整個 `AvaloniaView` 宿主。
-	`OnCreateInputView()` 重建前還會先嘗試 `Dispose` 舊 `Content`，避免舊 UI 樹殘留訂閱。
+	IME 宿主現在改爲仿照 `AvlnImeDemo` 的方案：
+	- `OnCreateInputView()` 只創建一次 `LoggingAvaloniaView`
+	- 後續 hide/show 都複用同一個 view，不再反覆重建整棵 Avalonia UI
+	- `OnStartInputView()` / `OnWindowShown()` 會先把該 view 從舊父節點摘下，再 `SetInputView(...)` 重掛回窗口
+	- 重掛後再 `RequestLayout()` / `Invalidate()`，盡量避免窗口回來但內容樹沒有同步、導致黑屏
+
+	這條路徑的出發點是：
+	相比“每次 hide 後強制重建整棵 view”，單例複用 + 重掛更接近系統原生輸入法窗口的生命週期，
+	也更符合已驗證過的 `AvlnImeDemo` 行爲。
 ]
 
 #H[默認字體][

@@ -54,6 +54,10 @@ using Tsinswreng.CsCore;
 	`VmKey` 負責按鍵、長按與滑動動作。
 	`KeyCfg.IsRepeat` 控制長按後是否持續重複：長按 400ms 後首次觸發 `LongPress`，之後每 50ms 觸發一次 `Click`。
 	退格鍵（`Backspace`）設了 `IsRepeat=true`，長按可連續刪除。
+	退格鍵原本還試過「上滑隱藏輸入法」；
+	目前已在 `ViewKeyBoard` 用 `#if false` 編譯期關掉。
+	原因是 Android IME 從鍵盤內部主動 hide 之後，再次 show 的生命周期與“點空白失焦”或“系統返回鍵收起”不等價，
+	此前已反覆導致黑屏與狀態異常，所以先保留代碼入口但不把它掛回正式手勢。
 	`KeyCfg.SwipeLeftAction` 支援自訂滑動動作（不限於發送按鍵），用於 Y 鍵左滑切換 ASCII 模式等場景。
 	`VmCandidatesBar` 和 `VmInput` 都依賴 `ImeState.AfterInput`。
 	`VmIme` 也依賴 `ImeState.AfterInput`，並通過 `get_status` 讀 `is_composing`。
@@ -85,11 +89,11 @@ using Tsinswreng.CsCore;
 ]
 
 #H[重建與釋放][
-	Android IME 宿主現在在每次 hide 後，會於下次 show 前重建整棵 `AvaloniaView`。
-	因此 UI 端不能再假定整個鍵盤只會初始化一次；凡是掛在全局狀態上的事件都必須可解除。
+	Android IME 宿主現在改爲複用單例 `AvaloniaView`，hide/show 之間不再重建整棵 UI。
+	但這不表示 UI 可以忽略釋放問題：
+	一旦未來又因爲配置切換、宿主重建或調試手動重建視圖，舊樹上的事件訂閱仍然會洩漏。
 
-	目前釋放鏈是：
-	- `AvalimeInputMethodService.OnCreateInputView()` 重建前先 `Dispose` 舊 `MainView`
+	目前釋放鏈仍然保留：
 	- `MainView.Dispose()` 轉交給 `ViewIme.Dispose()`
 	- `ViewIme.Dispose()` 再向下釋放 `ViewKeyBoard`、`VmIme` 與各子模塊
 
@@ -102,7 +106,7 @@ using Tsinswreng.CsCore;
 
 	這一層文檔的約束是：
 	- 以後若再新增掛在 `ImeState` / `RimeConnectionState` / 其他長生命週期單例上的事件訂閱，必須同步補 `Dispose`
-	- 否則 IME 每次 hide/show 重建 UI 後，舊樹仍會收到事件，最終表現爲越來越卡、甚至崩潰
+	- 否則一旦宿主或調試流程再次重建 UI，舊樹仍會收到事件，最終表現爲越來越卡、甚至崩潰
 ]
 
 #H[快捷鍵][

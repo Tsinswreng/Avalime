@@ -225,6 +225,20 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 		return 0;
 	};
 
+	/// <summary>
+	/// 退格鍵上滑隱藏輸入法先保留爲編譯期關閉的實驗入口。
+	/// 原因是 Android IME 內部主動 hide 之後，再次 show 時的 lifecycle
+	/// 與“點空白失焦”/“系統返回鍵收起”不等價，之前已反覆引出黑屏與狀態異常。
+	/// 在宿主完全證明這條 hide 路徑穩定前，先不要把它掛回正式手勢。
+	/// </summary>
+	Func<zero>? MkBackspaceSwipeUpHideKeyboardOrNull() {
+#if false
+		return MkHideKeyboard();
+#else
+		return null;
+#endif
+	}
+
 	Func<zero> MkSendCtrlKey(IKeyChar key) => () => {
 		Ctx.ImeState.InputSafely(MkCtrlComboKeyEvents(key));
 		return 0;
@@ -346,7 +360,7 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 		.A(KView(new(){Key=Space, Label="", SwipeLeft=Left, SwipeRight=Right}))
 		.A(KView(new(){Key=Right, Label="→", Hint="⇥"}))
 		.A(KView(new(){Key=Dollar, Label="$", Hint="⇪", SwipeUpAction=MkToggleShiftLock()}))
-		.A(KView(new(){Key=Backspace, Label="⌫", LongClick=Backspace, SwipeUpAction=MkHideKeyboard(), IsRepeat=true}))
+		.A(KView(new(){Key=Backspace, Label="⌫", LongClick=Backspace, SwipeUpAction=MkBackspaceSwipeUpHideKeyboardOrNull(), IsRepeat=true}))
 		;
 		return root.Grid;
 	}
@@ -465,7 +479,7 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 		.A(KView(new(){Key=D0}))
 		.A(KView(new(){Key=Space, Label="", SwipeLeft=Left, SwipeRight=Right}))
 		.A(KView(new(){Key=Period, Label=".", Hint=">", SwipeUp=Greater}))
-		.A(KView(new(){Key=Backspace, Label="⌫", LongClick=Backspace, SwipeUpAction=MkHideKeyboard(), IsRepeat=true}))
+		.A(KView(new(){Key=Backspace, Label="⌫", LongClick=Backspace, SwipeUpAction=MkBackspaceSwipeUpHideKeyboardOrNull(), IsRepeat=true}))
 		;
 		return root.Grid;
 	}
