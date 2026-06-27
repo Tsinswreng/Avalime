@@ -24,8 +24,9 @@ using Tsinswreng.CsCore;
 	IME 宿主現在改爲仿照 `AvlnImeDemo` 的方案：
 	- `OnCreateInputView()` 只創建一次 `LoggingAvaloniaView`
 	- 後續 hide/show 都複用同一個 view，不再反覆重建整棵 Avalonia UI
-	- `OnStartInputView()` / `OnWindowShown()` 會先把該 view 從舊父節點摘下，再 `SetInputView(...)` 重掛回窗口
-	- 重掛後再 `RequestLayout()` / `Invalidate()`，盡量避免窗口回來但內容樹沒有同步、導致黑屏
+	- 在 `OnCreateInputView()` 與 `OnConfigurationChanged()` 前，宿主都會先把複用 view 從舊父節點摘下；這是爲了避免橫豎屏切換後 `InputMethodService` 內部重新 `setInputView(...)` 時因“child already has a parent”而崩潰
+	- `OnStartInputView()` 會先把該 view 從舊父節點摘下，再 `SetInputView(...)` 重掛回窗口
+	- `OnWindowShown()` 只補 `RequestLayout()` / `Invalidate()` 的輕量刷新，不再二次重掛；這是爲了減少橫豎屏切換後首次彈出時的額外 surface 重建成本
 	- `Application` 與 `InputMethodService.OnCreate()` 都會觸發一次後台 `RimeWarmup`，把 librime 初始化儘量前移到“鍵盤真正顯示之前”
 	- 另外會啓動一個常駐前台通知；若偶發黑屏且無法自行恢復，用戶可點通知觸發“強制恢復”
 	- “強制恢復”路徑不改動默認 hide 行爲，而是丟棄當前 `LoggingAvaloniaView`、重建新的 `MainView` 與 `AvaloniaView`，再重掛回 IME window

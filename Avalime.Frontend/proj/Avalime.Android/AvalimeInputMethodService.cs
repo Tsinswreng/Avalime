@@ -23,6 +23,7 @@ using Avalonia.Android;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.ComponentModel;
+using System.Diagnostics;
 using Handler = Android.OS.Handler;
 using Looper = Android.OS.Looper;
 
@@ -48,6 +49,44 @@ public class AvalimeInputMethodService : InputMethodService {
 	SplitKeyboardOverlayManager? _splitOverlayManager;
 	ImeUiState? _uiState;
 	PropertyChangedEventHandler? _uiStatePropertyChangedHandler;
+	i32 _showSeq = 0;
+	long _activeShowSeq = 0;
+	long _activeShowStartTick = 0;
+
+	/// 把一次“鍵盤顯示流程”標成遞增序號，便於在 logcat 裡串起同一輪 show 的多個回調。
+	long BeginShowTrace() {
+		var seq = Interlocked.Increment(ref _showSeq);
+		_activeShowSeq = seq;
+		_activeShowStartTick = Stopwatch.GetTimestamp();
+		return seq;
+	}
+
+	/// 對當前 show 序列記錄階段性耗時。
+	/// 旋轉後首次彈出若很慢，可直接從這組日誌看出是“回調本身來得晚”還是“某個回調內部執行慢”。
+	void LogShowTrace(str Stage, long Seq, Stopwatch Sw) {
+		var totalMs = GetShowElapsedMilliseconds(Seq);
+		AppLog.Info($"[Perf][Show:{Seq}] {Stage} self={Sw.ElapsedMilliseconds}ms total={totalMs}ms");
+	}
+
+	long GetShowElapsedMilliseconds(long Seq) {
+		if(_activeShowSeq != Seq || _activeShowStartTick == 0){
+			return -1;
+		}
+		var elapsedTicks = Stopwatch.GetTimestamp() - _activeShowStartTick;
+		return elapsedTicks * 1000 / Stopwatch.Frequency;
+	}
+
+	static str FormatOrientation(global::Android.Content.Res.Configuration? Cfg) {
+		if(Cfg is null){
+			return "null";
+		}
+		return Cfg.Orientation switch {
+			global::Android.Content.Res.Orientation.Landscape => "landscape",
+			global::Android.Content.Res.Orientation.Portrait => "portrait",
+			global::Android.Content.Res.Orientation.Square => "square",
+			_ => $"unknown({(i32)Cfg.Orientation})"
+		};
+	}
 
 	/// 取得螢幕高度的一半，用於設定輸入法視窗高度。
 	/// 若無法取得螢幕尺寸則回傳 <see cref="ViewGroup.LayoutParams.WrapContent"/>。
@@ -132,11 +171,30 @@ public class AvalimeInputMethodService : InputMethodService {
 		inputView.Invalidate();
 	}
 
+	/// 輸入法窗口已經可見後，只做輕量 layout / draw 刷新。
+	/// 避免同一次 show 流程內再次 detach/attach AvaloniaView，
+	/// 尤其在橫豎屏切換後首次彈出時，二次重掛更容易放大 surface 重建成本。
+	void RefreshVisibleInputView() {
+		var inputView = EnsureInputView();
+		inputView.RequestLayout();
+		inputView.Invalidate();
+	}
+
 	/// 把輸入視圖從舊父節點摘下，避免後續丟棄 / 重建時殘留在舊窗口樹中。
 	void DetachInputViewFromParent(global::Android.Views.View? inputView) {
 		if(inputView?.Parent is ViewGroup parent){
 			parent.RemoveView(inputView);
 		}
+	}
+
+	/// 系統自己調用 `setInputView(...)` 前，也要確保複用 view 已經脫離舊父節點。
+	/// 否則旋轉後首次 show 或 configuration reset 時，
+	/// `InputMethodService` 內部再次 addView 會直接崩成
+	/// “The specified child already has a parent”。
+	global::Android.Views.View PrepareInputViewForSystemAttach() {
+		var inputView = EnsureInputView();
+		DetachInputViewFromParent(inputView);
+		return inputView;
 	}
 
 	/// 丟棄當前複用的 AvaloniaView。
@@ -237,6 +295,17 @@ public class AvalimeInputMethodService : InputMethodService {
 		return false;
 	}
 
+	/// 記錄配置切換到達 IME service 的時機。
+	/// 若旋轉後第一次彈鍵盤明顯變慢，這裡可先確認 service 是否已經及時收到 orientation 變更。
+	public override void OnConfigurationChanged(global::Android.Content.Res.Configuration? newConfig) {
+		// base 內部會走 resetStateForNewConfiguration / showWindow，
+		// 其中可能再次把當前 input view 掛回 IME window。
+		// 若舊 view 還殘留在前一個父節點上，這裡就會因重複 addView 直接崩潰。
+		DetachInputViewFromParent(InputView);
+		base.OnConfigurationChanged(newConfig);
+		AppLog.Info($"[Perf][Cfg] orientation={FormatOrientation(newConfig)} size={Resources?.DisplayMetrics?.WidthPixels}x{Resources?.DisplayMetrics?.HeightPixels}");
+	}
+
 	/// 配置輸入法視窗的佈局屬性。
 	/// <param name="win">輸入法視窗。可能是候選窗 (<c>isCandidatesOnly=true</c>) 或完整輸入視窗。</param>
 	/// <param name="isFullscreen">是否為全螢幕模式。<see cref="OnEvaluateFullscreenMode"/> 已強制回傳 <c>false</c>，故此處始終為 <c>false</c>。</param>
@@ -244,8 +313,10 @@ public class AvalimeInputMethodService : InputMethodService {
 	/// 將視窗寬度設為 <see cref="ViewGroup.LayoutParams.MatchParent"/>（填滿螢幕寬度），
 	/// 高度設為螢幕的一半（通過 <see cref="GetHalfScreenHeight"/>），確保鍵盤區域合理可視。
 	public override void OnConfigureWindow(Window? win, bool isFullscreen, bool isCandidatesOnly) {
+		var sw = Stopwatch.StartNew();
 		base.OnConfigureWindow(win, false, isCandidatesOnly);
 		win?.SetLayout(ViewGroup.LayoutParams.MatchParent, GetCurrentInputWindowHeight());
+		AppLog.Info($"[Perf][Window] OnConfigureWindow self={sw.ElapsedMilliseconds}ms fullscreen={isFullscreen} candidatesOnly={isCandidatesOnly} height={GetCurrentInputWindowHeight()} orientation={FormatOrientation(Resources?.Configuration)}");
 	}
 
 	/// 創建輸入法的主輸入視圖（鍵盤 + 候選欄等 UI）。
@@ -260,8 +331,10 @@ public class AvalimeInputMethodService : InputMethodService {
 	/// <para><b>視圖內容：</b><see cref="MainView"/> 是 Avalime 的頂層 UI 組件，包含鍵盤、候選欄、工具欄等。</para>
 	/// <para><b>佈局：</b>寬度填滿螢幕、高度為螢幕的一半。</para>
 	public override global::Android.Views.View OnCreateInputView() {
-		AppLog.Info("[IME] OnCreateInputView");
-		return EnsureInputView();
+		var sw = Stopwatch.StartNew();
+		var inputView = PrepareInputViewForSystemAttach();
+		AppLog.Info($"[IME] OnCreateInputView self={sw.ElapsedMilliseconds}ms orientation={FormatOrientation(Resources?.Configuration)} inputViewType={inputView.GetType().Name}");
+		return inputView;
 	}
 
 	/// 請求 Android 隱藏當前輸入法窗口。
@@ -370,20 +443,26 @@ public class AvalimeInputMethodService : InputMethodService {
 	/// 每次開始顯示輸入視圖時，都主動重掛複用的 <see cref="InputView"/>。
 	/// 這一層專門覆蓋“同一個 editor 焦點未丟，但 IME window 被隱藏後又重新顯示”的場景。
 	public override void OnStartInputView(EditorInfo? info, bool restarting) {
+		var seq = BeginShowTrace();
+		var sw = Stopwatch.StartNew();
 		base.OnStartInputView(info, restarting);
 		SyncSplitKeyboardPresentation();
 		ReattachInputView();
-		AppLog.Info("[IME] OnStartInputView");
+		LogShowTrace($"OnStartInputView restarting={restarting} orientation={FormatOrientation(Resources?.Configuration)}", seq, sw);
 	}
 
 	/// 輸入法視窗已顯示時的回調。
 	/// 在輸入法視窗對用戶可見後由系統調用，通常在動畫結束後觸發。
-	/// 這裡再補一次重掛與重繪，盡量讓窗口與複用的 AvaloniaView 保持同步。
+	/// 這裡只做輕量重繪，不再重掛複用 view。
+	/// 同一次顯示流程裡若在 <see cref="OnStartInputView"/> 之後再次 detach/attach，
+	/// 旋轉後首次顯示更容易把 Avalonia surface 的重建成本放大成肉眼可見卡頓。
 	public override void OnWindowShown() {
+		var seq = _activeShowSeq == 0 ? BeginShowTrace() : _activeShowSeq;
+		var sw = Stopwatch.StartNew();
 		base.OnWindowShown();
 		SyncSplitKeyboardPresentation();
-		ReattachInputView();
-		AppLog.Info($"[IME] OnWindowShown inputViewNull={InputView is null}");
+		RefreshVisibleInputView();
+		LogShowTrace($"OnWindowShown inputViewNull={InputView is null} orientation={FormatOrientation(Resources?.Configuration)}", seq, sw);
 	}
 
 	/// 輸入法視窗已隱藏時的回調。
