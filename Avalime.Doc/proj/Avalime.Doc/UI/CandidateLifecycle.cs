@@ -90,9 +90,10 @@ using Tsinswreng.CsCore;
 		- 9 -> `D0`
 	6. 然後再次調 `ImeState.InputSafely(...)`，發送這個數字鍵的 down/up 事件。
 	7. Rime 收到數字鍵後，將當前候選項選中；若該次選中導致 commit，則 `ImeKeyProcessor` 會把 commit 文字放進 `RespOnKeyEvent.Commits`。
-	8. `ImeState.Input(...)` 在 `AfterInput` 之後遍歷 `Commits`，逐個觸發 `ImeState.OnCommit`。
+	8. `ImeState.Input(...)` 先遍歷 `Commits`，逐個觸發 `ImeState.OnCommit`。
 	9. Android 端 `AvalimeInputMethodService` 訂閱 `OnCommit`，切回主線程後調 `CurrentInputConnection.CommitText(...)`。
-	10. 因此從“點擊候選詞”到“文字真正上屏”，中間仍然經過完整的 `ImeState -> Rime -> OnCommit -> Android InputConnection` 鏈路，而不是 UI 直接插文字。
+	10. 之後 `ImeState.Input(...)` 才觸發 `AfterInput`，讓 Avalime 自己刷新 preedit / 候選詞。
+	11. 因此從“點擊候選詞”到“文字真正上屏”，中間仍然經過完整的 `ImeState -> Rime -> OnCommit -> Android InputConnection` 鏈路，而不是 UI 直接插文字。
 ]
 
 #H[候選欄顯隱條件][

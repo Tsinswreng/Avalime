@@ -13,8 +13,8 @@ using Tsinswreng.CsCore;
 	- `InputSafely(IEnumerable<IKeyEvent>, Action<Exception>?)`
 	- `BeforeInput`
 	- `ImeKeyProcessor.OnKeyEventsAsy(...)` → 返回 `RespOnKeyEvent`（含 `Commits`、`UnhandledKeys`）
-	- `AfterInput`
 	- 若有 commit 文字，逐一觸發 `OnCommit`
+	- `AfterInput`
 	- 若有未處理按鍵，轉發給 `OsKeyProcessor.OnKeyEventsAsy`
 ]
 
@@ -28,7 +28,7 @@ using Tsinswreng.CsCore;
 ]
 
 #H[Commit 機制][
-	`OnCommit` 事件在 `AfterInput` 之後觸發。
+	`OnCommit` 事件在 `AfterInput` 之前觸發。
 	它接收 Rime 引擎 commit 的文字（由 `RimeKeyProcessor` 通過 `get_commit` 取得），
 	並通知平台層將文字輸出到 OS 輸入框。
 	每個 commit 文字會單獨觸發一次事件。

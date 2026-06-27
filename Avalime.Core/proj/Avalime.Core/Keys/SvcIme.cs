@@ -142,16 +142,18 @@ public abstract class ISvcIme
 			resp = await ImeKeyProcessor.OnKeyEvents(keyEvents, Ct);
 			AppLog.Debug($"[Perf] ImeState.Input OnKeyEventsAsy done: {swProc.ElapsedMilliseconds}ms");
 		}
-		var swAfter = System.Diagnostics.Stopwatch.StartNew();
-		AfterInput?.Invoke(this, keyEvents);
-		AppLog.Debug($"[Perf] ImeState.Input AfterInput done: {swAfter.ElapsedMilliseconds}ms");
-
-		// 觸發 commit 事件
+		// 先把 commit 文字交給宿主上屏，再回填 Avalime 自己的狀態與候選。
+		// 否則空格選詞後，宿主上屏會被 AfterInput 里的同步狀態抓取拖後，
+		// 體感上就會變成「上屏」和「新的聯想候選彈出」幾乎同時發生。
 		if(resp?.Commits is not null){
 			foreach(var commitText in resp.Commits){
 				OnCommit?.Invoke(this, commitText);
 			}
 		}
+
+		var swAfter = System.Diagnostics.Stopwatch.StartNew();
+		AfterInput?.Invoke(this, keyEvents);
+		AppLog.Debug($"[Perf] ImeState.Input AfterInput done: {swAfter.ElapsedMilliseconds}ms");
 
 		// 未處理按鍵轉發給 OS
 		if(resp?.UnhandledKeys is not null && resp.UnhandledKeys.Count > 0 && OsKeyProcessor is not null){
