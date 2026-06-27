@@ -8,17 +8,17 @@ public class KeyEventRemapper
 	: IKeyEventRemapper
 {
 	readonly Func<bool> _IsEnabled;
-	readonly IReadOnlyList<IKeyEventRemapRule> _Rules;
+	readonly IReadOnlyDictionary<str, IKeyEventRemapRule> _RulesBySourceKeyName;
 
 	public KeyEventRemapper(Func<bool> IsEnabled, IEnumerable<IKeyEventRemapRule> Rules)
 	{
 		_IsEnabled = IsEnabled;
-		_Rules = [.. Rules];
+		_RulesBySourceKeyName = Rules.ToDictionary(x => x.SourceKeyName);
 	}
 
 	/// <summary>
-	/// 逐個事件套用第一條命中的規則。
-	/// 這樣每個事件在同一輪映射裡只會被替換一次，規則優先級也明確由列表順序決定。
+	/// 開關打開後，先按來源鍵名做 O(1) 索引，再交給對應規則完成映射。
+	/// 因此單個事件不再線性掃描整張規則表。
 	/// </summary>
 	public IEnumerable<IKeyEvent> Remap(IEnumerable<IKeyEvent> KeyEvents)
 	{
@@ -32,22 +32,15 @@ public class KeyEventRemapper
 	IEnumerable<IKeyEvent> RemapCore(IEnumerable<IKeyEvent> KeyEvents)
 	{
 		foreach(var keyEvent in KeyEvents){
-			var remapped = false;
-			foreach(var rule in _Rules){
-				if(!rule.TryRemap(keyEvent, out var remappedEvents)){
-					continue;
-				}
-
+			if(_RulesBySourceKeyName.TryGetValue(keyEvent.KeyChar.Name, out var rule)
+				&& rule.TryRemap(keyEvent, out var remappedEvents)){
 				foreach(var remappedEvent in remappedEvents){
 					yield return remappedEvent;
 				}
-				remapped = true;
-				break;
+				continue;
 			}
 
-			if(!remapped){
-				yield return keyEvent;
-			}
+			yield return keyEvent;
 		}
 	}
 }

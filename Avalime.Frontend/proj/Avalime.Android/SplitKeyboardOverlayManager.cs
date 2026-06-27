@@ -218,7 +218,9 @@ public class SplitKeyboardOverlayManager
 	static i32 GetTopKeyboardSeamPx(DisplayMetrics? Metrics)
 	{
 		var density = Metrics?.Density ?? 1f;
-		return Math.Max(1, (i32)Math.Round(density));
+		// 之前只留約 1dp 的縫，在部分機型上仍會出現頂欄下沿壓住數字行上沿 1~幾 px。
+		// 這裡在原基礎上再抬高 1 個物理像素，優先消除覆蓋。
+		return Math.Max(2, (i32)Math.Ceiling(density + 1f));
 	}
 
 	static WindowManagerTypes GetOverlayWindowType()

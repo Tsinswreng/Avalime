@@ -9,6 +9,7 @@ public class KeyRemapRule
 {
 	public IKeyChar SourceKey { get; }
 	public IKeyChar TargetKey { get; }
+	public str SourceKeyName => SourceKey.Name;
 
 	public KeyRemapRule(IKeyChar SourceKey, IKeyChar TargetKey)
 	{
@@ -21,7 +22,7 @@ public class KeyRemapRule
 	/// </summary>
 	public bool TryRemap(IKeyEvent SourceEvent, out IEnumerable<IKeyEvent> RemappedEvents)
 	{
-		if(SourceEvent.KeyChar.Name != SourceKey.Name){
+		if(SourceEvent.KeyChar.Name != SourceKeyName){
 			RemappedEvents = [];
 			return false;
 		}

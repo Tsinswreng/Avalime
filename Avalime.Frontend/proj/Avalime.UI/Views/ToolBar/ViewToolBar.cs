@@ -1,11 +1,9 @@
 using Avalime.Core.Infra;
 using Avalime.UI.Infra;
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
 using System.ComponentModel;
-using Avalime.Core.Infra.Log;
 
 namespace Avalime.UI.Views.ToolBar;
 using Ctx = VmToolBar;
@@ -15,9 +13,6 @@ public class ViewToolBar : AppViewBase<Ctx>
 {
 	GridStack Root = new(IsRow: false);
 	readonly ImeUiState _uiState;
-	Border? _splitButton;
-	Rect _lastLoggedRootBounds;
-	Rect _lastLoggedSplitBounds;
 	PropertyChangedEventHandler? _uiStatePropertyChangedHandler;
 
 	public ViewToolBar(){
@@ -33,7 +28,6 @@ public class ViewToolBar : AppViewBase<Ctx>
 		Root.Grid.ClipToBounds = true;
 		ClipToBounds = true;
 		Root.SetColDefs([
-			new(1, GUT.Star),
 			new(1, GUT.Star),
 			new(1, GUT.Star),
 			new(1, GUT.Star),
@@ -95,24 +89,11 @@ public class ViewToolBar : AppViewBase<Ctx>
 			});
 		})
 		.A(MkBtn(), b=>{
-			_splitButton = b;
 			b.PointerPressed += (_, e) => {
-				var localPos = e.GetPosition(b);
-				var rootPos = e.GetPosition(Root.Grid);
-				var inside = localPos.X >= 0
-					&& localPos.Y >= 0
-					&& localPos.X <= b.Bounds.Width
-					&& localPos.Y <= b.Bounds.Height;
-				AppLog.Info($"[SplitTouch] Toolbar Split button PointerPressed local={localPos} root={rootPos} btnBounds={b.Bounds} rootBounds={Root.Grid.Bounds} inside={inside}");
-				if(!inside){
-					e.Handled = true;
-					return;
-				}
 				e.Handled = true;
 				Ctx?.ToggleSplitKeyboard();
 			};
 			b.SetChild(new TextBlock(), o=>{
-				o.IsHitTestVisible = false;
 				o.Foreground = Brushes.White;
 				o.VerticalAlignment = VAlign.Center;
 				o.HorizontalAlignment = HAlign.Center;
@@ -136,7 +117,6 @@ public class ViewToolBar : AppViewBase<Ctx>
 			});
 		})
 		;
-		LayoutUpdated += OnLayoutUpdated;
 		_uiStatePropertyChangedHandler = (_, e) => {
 			if(e.PropertyName == nameof(ImeUiState.IsCandidateCommentVisible)){
 				SyncHeight();
@@ -156,20 +136,8 @@ public class ViewToolBar : AppViewBase<Ctx>
 		this.Height = height;
 	}
 
-	void OnLayoutUpdated(object? Sender, EventArgs E)
-	{
-		var rootBounds = Root.Grid.Bounds;
-		var splitBounds = _splitButton?.Bounds ?? default;
-		if(rootBounds == _lastLoggedRootBounds && splitBounds == _lastLoggedSplitBounds){
-			return;
-		}
-		_lastLoggedRootBounds = rootBounds;
-		_lastLoggedSplitBounds = splitBounds;
-		AppLog.Info($"[SplitLayout] Toolbar root={rootBounds} splitBtn={splitBounds}");
-	}
-
 	static Border MkBtn(){
-		var ans = new Border{
+		return new Border{
 			Background = Brushes.Black,
 			BorderBrush = UiCfg.Inst.GapLineBrush,
 			BorderThickness = new(0.5),
@@ -179,15 +147,10 @@ public class ViewToolBar : AppViewBase<Ctx>
 			VerticalAlignment = VAlign.Stretch,
 			ClipToBounds = true,
 		};
-		ans.PointerPressed += (_, _) => {
-			AppLog.Debug("[SplitTouch] Toolbar cell PointerPressed");
-		};
-		return ans;
 	}
 
 	public void Dispose()
 	{
-		LayoutUpdated -= OnLayoutUpdated;
 		if(_uiStatePropertyChangedHandler is not null){
 			_uiState.PropertyChanged -= _uiStatePropertyChangedHandler;
 		}
