@@ -56,10 +56,11 @@ public class LoggingAvaloniaView : AvaloniaView
 
 	void LogLifecycle(string message)
 	{
+		var tag = Tag?.ToString() ?? "untagged";
 		AppLog.Inst.Log(
 			LogLevel.Information,
 			new EventId(0, "ImeView"),
-			$"[ImeView] {message}; attached={IsAttachedToWindow}; shown={IsShown}; visibility={Visibility}; alpha={Alpha}; size={Width}x{Height}",
+			$"[ImeView:{tag}] {message}; attached={IsAttachedToWindow}; shown={IsShown}; visibility={Visibility}; alpha={Alpha}; size={Width}x{Height}",
 			null,
 			static (state, _) => state
 		);

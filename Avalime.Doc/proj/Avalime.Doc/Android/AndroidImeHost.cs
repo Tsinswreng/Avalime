@@ -40,6 +40,7 @@ using Tsinswreng.CsCore;
 	- 用戶在工具欄手動點擊分體按鈕後，狀態持久化保存
 	- 若開啓分體，IME 主窗口不再承載整塊鍵盤，而是縮成極薄佔位 view
 	- 左右兩半鍵盤與中間窄頂條改走 `TYPE_APPLICATION_OVERLAY`
+	- 宿主會在 service 建立後預先創建 split overlay 的 Avalonia 內容樹，將首次切換分體時的 view 構造成本前移
 	- 這樣中間 50% 區域不屬於 IME 視窗，可把點擊交回底下 App
 	- 缺少 overlay 權限時，宿主會跳轉系統設置頁，並回退到普通整體鍵盤，避免進入不可用狀態
 ]

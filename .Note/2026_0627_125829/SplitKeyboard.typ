@@ -37,6 +37,7 @@ zxcvbnm,.'
 ]
 
 #[
+
 ````md
 **結論**
 
@@ -199,4 +200,176 @@ zxcvbnm,.'
 然後開啓分體或關閉分體時仍然非常卡頓
 開啓分體之後 只有最後一排按鍵了 其他地方全都是黑的
 中間空出來了沒問題
+]
+
+
+
+2026_0627_172520[
+
+我現在要實現分體鍵盤模式
+
+看avalime
+現在我想爲橫屏鍵盤做適配。
+
+	原本合體鍵盤是
+```
+1234567890
+qwertuiopy
+asdfghjkl;
+zxcvbnm,.'
+```
+這樣的
+
+工具欄中加一個分體鍵盤的按鈕
+點擊按鈕後 鍵盤沿中線被分成兩半
+
+在安卓端、
+兩半鍵盤各靠手指兩邊方便按、高度佔屏幕80% 寬度每邊佔25%
+
+在桌面端、可以就直接拆成兩個獨立的window 每邊一半
+現在優先要實現安卓端的
+
+
+補充一下需求
+分體就是
+兩半鍵盤各靠手指兩邊、高度佔屏幕80% 寬度每邊佔25%
+input欄 工具欄 候選欄也要被分開
+
+輸入法記錄狀態
+我手動點分體纔分
+不點就不分
+在豎屏狀態下也能點 反正點了你就走同樣的邏輯
+剛剛漏強調一點東西了、就是 分體後、左右各佔屏幕50%寬度、中間剩50%是留出來顯示原來的內容的、不要遮擋
+
+我希望的中間不遮擋是
+真正不蓋住、不攔截中間區域
+也就是中間那 50% 不是 IME 視窗的一部分，底下 App 真正可見、可點、可互動。
+
+目前是按浮動鍵盤的方式做
+把鍵盤弄成兩個懸浮窗 一左一右
+
+現在問題是
+一 開啓分體之後、只有工具欄和鍵盤最後一排按鍵顯示了、
+鍵盤其他地方都是黑的 無法點擊
+二是 分體模式 開啓和關閉都特別卡 延遲特別大
+
+下面是上一任AI對話的交接文檔 僅供參考 要按我說的爲準
+
+
+````md
+
+1. 分體開關很卡
+2. 分體後大面積發黑，出現只剩最後一排可見
+3. 普通模式絕不能再被分體邏輯污染
+
+
+- 不要再把普通模式改壞
+
+**已確認的事**
+- Android 宿主窗口普通模式目前仍是半屏，不是 80%
+- 問題不太像“窗口高度被改成 80% 還殘留”，更像“普通模式內容 view 自己量測/裁剪錯了”
+- 橫屏不分體有最後一排，豎屏不分體沒有，說明鍵位結構本身還在
+- 分體黑屏/只剩最後一排，像是 split overlay 裏的測量或裁剪問題
+
+**本輪剛做的修改**
+改了：
+- [AvalimeInputMethodService.cs](/E:/_code/CsRime/Avalime/Avalime.Frontend/proj/Avalime.Android/AvalimeInputMethodService.cs)
+
+核心修改：
+- 新增 `GetCurrentInputViewHeight()`
+- 普通模式下，`AvaloniaView` 高度不再硬設為 `GetHalfScreenHeight()`，改為 `MatchParent`
+- IME 窗口本身仍然維持半屏
+- `UpdateInputWindowLayout()` 裏把“窗口高度”和“InputView 高度”分開：
+  - 窗口高度：普通模式半屏；分體模式 1px placeholder
+  - InputView 高度：普通模式 `MatchParent`；分體模式 placeholder 高度
+
+我的判斷：
+- 這是爲了避免 Android 實際分給 IME 內容區的高度小於 raw `DisplayMetrics.HeightPixels / 2`，而子 view 又硬塞半屏像素，導致豎屏最後一排被裁掉
+
+**這一版是否已驗證**
+沒有。只完成了編譯，還沒拿到用戶的實機反饋。
+
+**編譯結果**
+已通過：
+```powershell
+dotnet build E:\_code\CsRime\Avalime\Avalime.Frontend\proj\Avalime.Android\Avalime.Android.csproj
+```
+
+**和本問題直接相關的關鍵文件**
+普通模式 / 宿主：
+- [AvalimeInputMethodService.cs](/E:/_code/CsRime/Avalime/Avalime.Frontend/proj/Avalime.Android/AvalimeInputMethodService.cs)
+- [ViewIme.cs](/E:/_code/CsRime/Avalime/Avalime.Frontend/proj/Avalime.UI/Views/Ime/ViewIme.cs)
+- [ViewKeyBoard.cs](/E:/_code/CsRime/Avalime/Avalime.Frontend/proj/Avalime.UI/Views/KeyBoard/ViewKeyBoard.cs)
+- [ViewKey.cs](/E:/_code/CsRime/Avalime/Avalime.Frontend/proj/Avalime.UI/Views/Key/ViewKey.cs)
+- [UiCfg.cs](/E:/_code/CsRime/Avalime/Avalime.Frontend/proj/Avalime.UI/UiCfg.cs)
+- [ViewToolBar.cs](/E:/_code/CsRime/Avalime/Avalime.Frontend/proj/Avalime.UI/Views/ToolBar/ViewToolBar.cs)
+- [ViewCandidatesBar.cs](/E:/_code/CsRime/Avalime/Avalime.Frontend/proj/Avalime.UI/Views/CandidatesBar/ViewCandidatesBar.cs)
+
+分體相關：
+- [SplitKeyboardOverlayManager.cs](/E:/_code/CsRime/Avalime/Avalime.Frontend/proj/Avalime.Android/SplitKeyboardOverlayManager.cs)
+- [ViewSplitKeyboardHalf.cs](/E:/_code/CsRime/Avalime/Avalime.Frontend/proj/Avalime.UI/Views/SplitKeyboard/ViewSplitKeyboardHalf.cs)
+- [ViewSplitTopOverlay.cs](/E:/_code/CsRime/Avalime/Avalime.Frontend/proj/Avalime.UI/Views/SplitKeyboard/ViewSplitTopOverlay.cs)
+- [ViewSplitTopHalf.cs](/E:/_code/CsRime/Avalime/Avalime.Frontend/proj/Avalime.UI/Views/SplitKeyboard/ViewSplitTopHalf.cs)
+- [ImeUiState.cs](/E:/_code/CsRime/Avalime/Avalime.Frontend/proj/Avalime.UI/ImeUiState.cs)
+
+**文檔**
+已讀的對應文檔：
+- [Catalog.cs](/E:/_code/CsRime/avalime/Avalime.Doc/proj/Avalime.Doc/Catalog.cs)
+- [AndroidImeHost.cs](/E:/_code/CsRime/avalime/Avalime.Doc/proj/Avalime.Doc/Android/AndroidImeHost.cs)
+- [KeyboardUi.cs](/E:/_code/CsRime/avalime/Avalime.Doc/proj/Avalime.Doc/UI/KeyboardUi.cs)
+
+注意：
+- 文檔裏已經記了分體 overlay 方案，但當前運行表現仍不穩，後續如果實現變了需要同步修正文檔
+
+**git / 工作樹狀態注意**
+repo 路徑大小寫有混用：
+- 實際用過的路徑有 `E:\_code\CsRime\Avalime` 和 `E:\_code\CsRime\avalime`
+- `git` 需要帶 safe.directory，否則會報 dubious ownership
+
+可用命令樣式：
+```powershell
+git -C E:\_code\CsRime\Avalime -c safe.directory=E:/_code/CsRime/Avalime status --short
+```
+
+當時看到的變更狀態大致有：
+- `Avalime.Frontend/proj/Avalime.Android/AvalimeInputMethodService.cs`
+- `Avalime.Frontend/proj/Avalime.Android/SplitKeyboardOverlayManager.cs`
+- `Avalime.Frontend/proj/Avalime.UI/Views/SplitKeyboard/ViewSplitKeyboardHalf.cs`
+- `Avalime.Frontend/proj/Avalime.UI/Views/SplitKeyboard/ViewSplitTopHalf.cs`
+- 以及一個筆記文件 `.Note/.../SplitKeyboard.typ`
+
+不要誤回退用戶已有更改。
+
+**下一會話建議第一步**
+先讓用戶驗證我剛改的兩個場景：
+1. 豎屏不分體最後一排是否恢復
+2. 橫屏不分體是否仍正常
+
+**如果豎屏普通模式還沒好**
+優先繼續查這三件事：
+1. `ViewIme` 的 `preedit + topbar + body` 總高度是否超過普通模式窗口
+2. `ViewKeyBoard` / `ViewKey` 是否存在最小高度把最後一排擠掉
+3. Android IME 實際內容區高度是否比窗口高度更小，需要進一步打印 layout/bounds 日誌
+
+**如果普通模式好了**
+再單獨做分體，順序建議：
+1. 修分體黑屏 / 只剩最後一排
+2. 再查分體切換卡頓
+3. 最後處理工具欄和候選欄是否拆成左右兩邊
+
+**對分體黑屏的當前懷疑**
+- `ViewSplitKeyboardHalf` 的裁剪/寬高同步有問題
+- overlay 裏完整 `ViewKeyBoard` 被裁得只剩底部
+- 分體 top overlay 和 side overlay 的高度同步可能不一致
+
+**對分體卡頓的當前懷疑**
+- 開關分體時仍有重掛 / detach / attach 成本
+- overlay show/hide 和 Avalonia surface 重建成本過高
+- 早前版本在 `IsSplitKeyboardEnabled` 切換時有 `ResetInputViewInstance()`，這很容易放大延遲；目前那段已被去掉，不要輕易加回去
+
+**用戶溝通風格提醒**
+- 用戶現在很不滿，回覆要直接、技術化
+- 沒有把握不要說“已修好”
+- 一旦對設計或路徑有疑問，要停下來問，不要硬推進
+````
 ]

@@ -261,6 +261,7 @@ public class AvalimeInputMethodService : InputMethodService {
 
 	void SyncSplitKeyboardPresentation()
 	{
+		AppLog.Info($"[IME] SyncSplitKeyboardPresentation active={IsSplitKeyboardActive()} inputView={InputView?.GetType().Name ?? "null"}");
 		UpdateInputWindowLayout();
 		if(!IsSplitKeyboardActive()){
 			_splitOverlayManager?.Hide();
@@ -280,10 +281,43 @@ public class AvalimeInputMethodService : InputMethodService {
 		}
 	}
 
+	/// <summary>
+	/// 分體開關切換時，只在 input view 實例需要切換時才重掛 IME 視圖。
+	/// 若仍是同一個實例，則只刷新 layout，避免無意義的 detach/attach 放大卡頓。
+	/// </summary>
+	void ApplySplitKeyboardToggle()
+	{
+		var desiredInputView = GetDesiredInputView();
+		var needsReattach = !ReferenceEquals(InputView, desiredInputView);
+		AppLog.Info($"[IME] ApplySplitKeyboardToggle desired={desiredInputView.GetType().Name} current={InputView?.GetType().Name ?? "null"} reattach={needsReattach}");
+		SyncSplitKeyboardPresentation();
+		if(needsReattach){
+			ReattachInputView();
+			return;
+		}
+		RefreshVisibleInputView();
+	}
+
+	/// <summary>
+	/// 預先創建 split overlay 內容樹，把首次切到分體時的 Avalonia 構造成本前移。
+	/// 僅創建 view，不 add 到 WindowManager，因此不會提前攔截畫面。
+	/// </summary>
+	void WarmSplitOverlayIfPossible()
+	{
+		if(!AvalimeOverlayPermission.CanDraw(this)){
+			AppLog.Info("[IME] WarmSplitOverlayIfPossible skipped: no permission");
+			return;
+		}
+		_splitOverlayManager ??= new SplitKeyboardOverlayManager(this);
+		_splitOverlayManager.EnsureCreated();
+		AppLog.Info("[IME] WarmSplitOverlayIfPossible created");
+	}
+
 	void UpdateInputWindowLayout()
 	{
 		var windowHeight = GetCurrentInputWindowHeight();
 		var inputViewHeight = GetCurrentInputViewHeight();
+		AppLog.Info($"[IME] UpdateInputWindowLayout windowHeight={windowHeight} inputViewHeight={inputViewHeight} inputView={InputView?.GetType().Name ?? "null"}");
 		if(InputView?.LayoutParameters is ViewGroup.LayoutParams lp){
 			lp.Width = ViewGroup.LayoutParams.MatchParent;
 			lp.Height = inputViewHeight;
@@ -455,11 +489,12 @@ public class AvalimeInputMethodService : InputMethodService {
 			}
 			var mainHandler = new Handler(Looper.MainLooper!);
 			mainHandler.Post(() => {
-				SyncSplitKeyboardPresentation();
-				ReattachInputView();
+				ApplySplitKeyboardToggle();
 			});
 		};
 		_uiState.PropertyChanged += _uiStatePropertyChangedHandler;
+		var warmHandler = new Handler(Looper.MainLooper!);
+		warmHandler.Post(WarmSplitOverlayIfPossible);
 	}
 
 	/// 輸入視圖即將顯示時的回調。

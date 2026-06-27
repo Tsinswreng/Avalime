@@ -1,5 +1,6 @@
 using Android.Content;
 using Android.Graphics;
+using Android.Util;
 using Android.Runtime;
 using Android.Views;
 using Avalime.Core.Infra.Log;
@@ -46,11 +47,18 @@ public class SplitKeyboardOverlayManager
 
 		try{
 			EnsureOverlayViews();
-
-			_viewManager.AddView(_leftView, BuildSideLayoutParams(isLeft: true));
-			_viewManager.AddView(_rightView, BuildSideLayoutParams(isLeft: false));
-			_viewManager.AddView(_leftTopView, BuildTopLayoutParams(isLeft: true));
-			_viewManager.AddView(_rightTopView, BuildTopLayoutParams(isLeft: false));
+			var leftLp = BuildSideLayoutParams(isLeft: true);
+			var rightLp = BuildSideLayoutParams(isLeft: false);
+			var leftTopLp = BuildTopLayoutParams(isLeft: true);
+			var rightTopLp = BuildTopLayoutParams(isLeft: false);
+			LogLayout("Add-left", leftLp);
+			LogLayout("Add-right", rightLp);
+			LogLayout("Add-top-left", leftTopLp);
+			LogLayout("Add-top-right", rightTopLp);
+			_viewManager.AddView(_leftView, leftLp);
+			_viewManager.AddView(_rightView, rightLp);
+			_viewManager.AddView(_leftTopView, leftTopLp);
+			_viewManager.AddView(_rightTopView, rightTopLp);
 			_isShown = true;
 			AppLog.Info("[SplitOverlay] shown");
 			return true;
@@ -77,16 +85,24 @@ public class SplitKeyboardOverlayManager
 		}
 		try{
 			if(_leftView is not null){
-				_viewManager.UpdateViewLayout(_leftView, BuildSideLayoutParams(isLeft: true));
+				var lp = BuildSideLayoutParams(isLeft: true);
+				LogLayout("Update-left", lp);
+				_viewManager.UpdateViewLayout(_leftView, lp);
 			}
 			if(_rightView is not null){
-				_viewManager.UpdateViewLayout(_rightView, BuildSideLayoutParams(isLeft: false));
+				var lp = BuildSideLayoutParams(isLeft: false);
+				LogLayout("Update-right", lp);
+				_viewManager.UpdateViewLayout(_rightView, lp);
 			}
 			if(_leftTopView is not null){
-				_viewManager.UpdateViewLayout(_leftTopView, BuildTopLayoutParams(isLeft: true));
+				var lp = BuildTopLayoutParams(isLeft: true);
+				LogLayout("Update-top-left", lp);
+				_viewManager.UpdateViewLayout(_leftTopView, lp);
 			}
 			if(_rightTopView is not null){
-				_viewManager.UpdateViewLayout(_rightTopView, BuildTopLayoutParams(isLeft: false));
+				var lp = BuildTopLayoutParams(isLeft: false);
+				LogLayout("Update-top-right", lp);
+				_viewManager.UpdateViewLayout(_rightTopView, lp);
 			}
 		}catch(Exception Ex){
 			AppLog.Error(Ex, "[SplitOverlay] UpdateLayout failed");
@@ -115,6 +131,11 @@ public class SplitKeyboardOverlayManager
 	LoggingAvaloniaView CreateKeyboardOverlayView(SplitKeyboardSide Side)
 	{
 		var view = new LoggingAvaloniaView(_context);
+		view.Tag = $"SplitKeyboard:{Side}";
+		view.LayoutParameters = new ViewGroup.LayoutParams(
+			ViewGroup.LayoutParams.MatchParent,
+			ViewGroup.LayoutParams.MatchParent
+		);
 		view.Content = new ViewSplitKeyboardHalf(Side);
 		return view;
 	}
@@ -122,6 +143,11 @@ public class SplitKeyboardOverlayManager
 	LoggingAvaloniaView CreateTopOverlayView(SplitKeyboardSide Side)
 	{
 		var view = new LoggingAvaloniaView(_context);
+		view.Tag = $"SplitTop:{Side}";
+		view.LayoutParameters = new ViewGroup.LayoutParams(
+			ViewGroup.LayoutParams.MatchParent,
+			ViewGroup.LayoutParams.MatchParent
+		);
 		view.Content = new ViewSplitTopHalf(Side);
 		return view;
 	}
@@ -155,13 +181,13 @@ public class SplitKeyboardOverlayManager
 		var screenWidth = metrics?.WidthPixels ?? 0;
 		var screenHeight = metrics?.HeightPixels ?? 0;
 		var keyboardHeight = Math.Max(1, (i32)(screenHeight * 0.8));
-		var width = Math.Max(1, screenWidth / 2);
+		var topHeight = GetTopOverlayHeightPx(metrics);
 		var gravity = isLeft
 			? GravityFlags.Left | GravityFlags.Bottom
 			: GravityFlags.Right | GravityFlags.Bottom;
 		return new WindowManagerLayoutParams(
 			Math.Max(1, screenWidth / 4),
-			ViewGroup.LayoutParams.WrapContent,
+			topHeight,
 			GetOverlayWindowType(),
 			GetCommonFlags(),
 			Format.Translucent
@@ -170,6 +196,18 @@ public class SplitKeyboardOverlayManager
 			X = 0,
 			Y = keyboardHeight
 		};
+	}
+
+	/// <summary>
+	/// split 頂條只應承擔「預編輯 + 工具欄/候選欄」的高度。
+	/// 不能讓 Android 以 WrapContent 讓整棵 Avalonia 樹自由膨脹，
+	/// 否則 overlay 會把中間應留給底下 App 的區域整塊蓋黑。
+	/// </summary>
+	static i32 GetTopOverlayHeightPx(DisplayMetrics? Metrics)
+	{
+		var density = Metrics?.Density ?? 1f;
+		var logicalHeight = UiCfg.Inst.PreeditHeight + UiCfg.Inst.TopBarHeight;
+		return Math.Max(1, (i32)Math.Ceiling(logicalHeight * density));
 	}
 
 	static WindowManagerTypes GetOverlayWindowType()
@@ -197,6 +235,13 @@ public class SplitKeyboardOverlayManager
 		}catch(Exception Ex){
 			AppLog.Error(Ex, "[SplitOverlay] RemoveView failed");
 		}
+	}
+
+	static void LogLayout(str Name, WindowManagerLayoutParams Lp)
+	{
+		AppLog.Info(
+			$"[SplitOverlay] {Name} width={Lp.Width} height={Lp.Height} x={Lp.X} y={Lp.Y} gravity={Lp.Gravity} flags={Lp.Flags} type={Lp.Type}"
+		);
 	}
 
 	static void DisposeOverlayView(ref LoggingAvaloniaView? View)
