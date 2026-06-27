@@ -95,6 +95,13 @@ public class AvalimeInputMethodService : InputMethodService {
 		return screenHeight > 0 ? screenHeight / 2 : ViewGroup.LayoutParams.WrapContent;
 	}
 
+	int GetNormalInputWindowHeight()
+	{
+		// 普通鍵盤先完全恢復成原來的半屏行爲，
+		// 分體功能不得再污染這條已驗證穩定的宿主路徑。
+		return GetHalfScreenHeight();
+	}
+
 	/// <summary>
 	/// 分體模式下，IME 主窗口本身只保留極薄佔位，真正可見鍵盤走 overlay。
 	/// 這樣中間 50% 不再屬於 IME 視窗，可把交互還給底下 App。
@@ -109,7 +116,20 @@ public class AvalimeInputMethodService : InputMethodService {
 		if(IsSplitKeyboardActive()){
 			return GetSplitPlaceholderHeight();
 		}
-		return GetHalfScreenHeight();
+		return GetNormalInputWindowHeight();
+	}
+
+	/// <summary>
+	/// 普通鍵盤讓 AvaloniaView 跟隨 IME 窗口實際可用高度。
+	/// Android 可能不會把整個 raw display half-height 都真正分給內容區；
+	/// 若子 view 也硬塞同一個像素高度，豎屏下就更容易把最後一排裁掉。
+	/// </summary>
+	int GetCurrentInputViewHeight()
+	{
+		if(IsSplitKeyboardActive()){
+			return GetSplitPlaceholderHeight();
+		}
+		return ViewGroup.LayoutParams.MatchParent;
 	}
 
 	bool IsSplitKeyboardActive()
@@ -125,7 +145,7 @@ public class AvalimeInputMethodService : InputMethodService {
 		};
 		inputView.LayoutParameters = new ViewGroup.LayoutParams(
 			ViewGroup.LayoutParams.MatchParent,
-			GetHalfScreenHeight()
+			GetCurrentInputViewHeight()
 		);
 		return inputView;
 	}
@@ -143,30 +163,36 @@ public class AvalimeInputMethodService : InputMethodService {
 
 	/// IME 視圖只創建一次，後續複用同一個 AvaloniaView。
 	/// 這樣可避免 hide/show 之間反覆重建整棵 UI 樹，減少黑屏與狀態丟失。
-	global::Android.Views.View EnsureInputView() {
-		if(InputView is not null){
-			return InputView;
-		}
+	LoggingAvaloniaView EnsureAvaloniaInputView()
+	{
+		AvaloniaInputView ??= CreateInputView();
+		return AvaloniaInputView;
+	}
 
+	global::Android.Views.View EnsureSplitPlaceholderView()
+	{
+		SplitPlaceholderInputView ??= CreateSplitPlaceholderView();
+		return SplitPlaceholderInputView;
+	}
+
+	global::Android.Views.View GetDesiredInputView()
+	{
 		if(IsSplitKeyboardActive()){
-			SplitPlaceholderInputView = CreateSplitPlaceholderView();
-			InputView = SplitPlaceholderInputView;
-			return InputView;
+			return EnsureSplitPlaceholderView();
 		}
-		AvaloniaInputView = CreateInputView();
-		InputView = AvaloniaInputView;
-		return InputView;
+		return EnsureAvaloniaInputView();
 	}
 
 	/// 同一個輸入框重新顯示 IME 時，Android 可能只把窗口拉回來，
 	/// 但不會重新創建 input view。這裡主動把複用的 view 從舊父節點摘下，
 	/// 再交回 InputMethodService 重掛，盡量避免窗口回來但內容發黑的情況。
 	void ReattachInputView() {
-		var inputView = EnsureInputView();
+		var inputView = GetDesiredInputView();
 		if(inputView.Parent is ViewGroup parent){
 			parent.RemoveView(inputView);
 		}
 		SetInputView(inputView);
+		InputView = inputView;
 		inputView.RequestLayout();
 		inputView.Invalidate();
 	}
@@ -175,7 +201,8 @@ public class AvalimeInputMethodService : InputMethodService {
 	/// 避免同一次 show 流程內再次 detach/attach AvaloniaView，
 	/// 尤其在橫豎屏切換後首次彈出時，二次重掛更容易放大 surface 重建成本。
 	void RefreshVisibleInputView() {
-		var inputView = EnsureInputView();
+		var inputView = GetDesiredInputView();
+		InputView = inputView;
 		inputView.RequestLayout();
 		inputView.Invalidate();
 	}
@@ -192,8 +219,9 @@ public class AvalimeInputMethodService : InputMethodService {
 	/// `InputMethodService` 內部再次 addView 會直接崩成
 	/// “The specified child already has a parent”。
 	global::Android.Views.View PrepareInputViewForSystemAttach() {
-		var inputView = EnsureInputView();
+		var inputView = GetDesiredInputView();
 		DetachInputViewFromParent(inputView);
+		InputView = inputView;
 		return inputView;
 	}
 
@@ -213,7 +241,7 @@ public class AvalimeInputMethodService : InputMethodService {
 			AvaloniaInputView.Content = null;
 			AvaloniaInputView.Dispose();
 		}else{
-			oldInputView.Dispose();
+			SplitPlaceholderInputView?.Dispose();
 		}
 		InputView = null;
 		AvaloniaInputView = null;
@@ -247,20 +275,22 @@ public class AvalimeInputMethodService : InputMethodService {
 			return;
 		}
 		_splitOverlayManager ??= new SplitKeyboardOverlayManager(this);
-		_splitOverlayManager.Show();
-		_splitOverlayManager.UpdateLayout();
+		if(_splitOverlayManager.Show()){
+			_splitOverlayManager.UpdateLayout();
+		}
 	}
 
 	void UpdateInputWindowLayout()
 	{
-		var height = GetCurrentInputWindowHeight();
+		var windowHeight = GetCurrentInputWindowHeight();
+		var inputViewHeight = GetCurrentInputViewHeight();
 		if(InputView?.LayoutParameters is ViewGroup.LayoutParams lp){
 			lp.Width = ViewGroup.LayoutParams.MatchParent;
-			lp.Height = height;
+			lp.Height = inputViewHeight;
 			InputView.LayoutParameters = lp;
 			InputView.RequestLayout();
 		}
-		Window?.Window?.SetLayout(ViewGroup.LayoutParams.MatchParent, height);
+		Window?.Window?.SetLayout(ViewGroup.LayoutParams.MatchParent, windowHeight);
 	}
 
 	/// 安卓 9+ 可以明確請求重新顯示 IME。
@@ -425,7 +455,6 @@ public class AvalimeInputMethodService : InputMethodService {
 			}
 			var mainHandler = new Handler(Looper.MainLooper!);
 			mainHandler.Post(() => {
-				ResetInputViewInstance();
 				SyncSplitKeyboardPresentation();
 				ReattachInputView();
 			});

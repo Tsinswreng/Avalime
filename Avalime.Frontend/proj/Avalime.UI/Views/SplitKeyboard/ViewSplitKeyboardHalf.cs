@@ -39,10 +39,16 @@ public class ViewSplitKeyboardHalf : UserControl
 	void OnLayoutUpdated(object? Sender, EventArgs E)
 	{
 		var width = Bounds.Width;
+		var height = Bounds.Height;
 		if(width <= 0){
 			return;
 		}
 		_keyboard.Width = width * 2;
+		if(height > 0){
+			// `ViewKeyBoard` 內部使用星號行高；
+			// overlay 場景下若外層不給明確高度，Avalonia 量測時可能只留下最後一排可見區域。
+			_keyboard.Height = height;
+		}
 		_keyboard.HorizontalAlignment = _side == SplitKeyboardSide.Left
 			? HorizontalAlignment.Left
 			: HorizontalAlignment.Right;

@@ -10,7 +10,7 @@ namespace Avalime.Android;
 
 /// <summary>
 /// 管理 Android 端分體鍵盤的三個 overlay window：
-/// 左半鍵盤、右半鍵盤，以及中間窄頂條。
+/// 左半鍵盤、右半鍵盤，以及左右兩側頂條。
 /// IME 輸入鏈仍由 InputMethodService 持有；overlay 只承擔顯示與觸摸輸入。
 /// </summary>
 public class SplitKeyboardOverlayManager
@@ -20,7 +20,8 @@ public class SplitKeyboardOverlayManager
 	readonly IViewManager? _viewManager;
 	LoggingAvaloniaView? _leftView;
 	LoggingAvaloniaView? _rightView;
-	LoggingAvaloniaView? _centerView;
+	LoggingAvaloniaView? _leftTopView;
+	LoggingAvaloniaView? _rightTopView;
 	bool _isShown;
 
 	public SplitKeyboardOverlayManager(Context Context){
@@ -44,13 +45,12 @@ public class SplitKeyboardOverlayManager
 		}
 
 		try{
-			_leftView = CreateKeyboardOverlayView(SplitKeyboardSide.Left);
-			_rightView = CreateKeyboardOverlayView(SplitKeyboardSide.Right);
-			_centerView = CreateCenterOverlayView();
+			EnsureOverlayViews();
 
 			_viewManager.AddView(_leftView, BuildSideLayoutParams(isLeft: true));
 			_viewManager.AddView(_rightView, BuildSideLayoutParams(isLeft: false));
-			_viewManager.AddView(_centerView, BuildCenterLayoutParams());
+			_viewManager.AddView(_leftTopView, BuildTopLayoutParams(isLeft: true));
+			_viewManager.AddView(_rightTopView, BuildTopLayoutParams(isLeft: false));
 			_isShown = true;
 			AppLog.Info("[SplitOverlay] shown");
 			return true;
@@ -59,6 +59,15 @@ public class SplitKeyboardOverlayManager
 			Hide();
 			return false;
 		}
+	}
+
+	/// <summary>
+	/// 預先構造 overlay 內容樹，把首次分體切換的 Avalonia 視圖創建成本前移。
+	/// 不立即 add 到 WindowManager，因此不會提前攔截畫面。
+	/// </summary>
+	public void EnsureCreated()
+	{
+		EnsureOverlayViews();
 	}
 
 	public void UpdateLayout()
@@ -73,8 +82,11 @@ public class SplitKeyboardOverlayManager
 			if(_rightView is not null){
 				_viewManager.UpdateViewLayout(_rightView, BuildSideLayoutParams(isLeft: false));
 			}
-			if(_centerView is not null){
-				_viewManager.UpdateViewLayout(_centerView, BuildCenterLayoutParams());
+			if(_leftTopView is not null){
+				_viewManager.UpdateViewLayout(_leftTopView, BuildTopLayoutParams(isLeft: true));
+			}
+			if(_rightTopView is not null){
+				_viewManager.UpdateViewLayout(_rightTopView, BuildTopLayoutParams(isLeft: false));
 			}
 		}catch(Exception Ex){
 			AppLog.Error(Ex, "[SplitOverlay] UpdateLayout failed");
@@ -86,12 +98,18 @@ public class SplitKeyboardOverlayManager
 		if(_viewManager is not null){
 			RemoveOverlayView(_leftView);
 			RemoveOverlayView(_rightView);
-			RemoveOverlayView(_centerView);
+			RemoveOverlayView(_leftTopView);
+			RemoveOverlayView(_rightTopView);
 		}
-		DisposeOverlayView(ref _leftView);
-		DisposeOverlayView(ref _rightView);
-		DisposeOverlayView(ref _centerView);
 		_isShown = false;
+	}
+
+	void EnsureOverlayViews()
+	{
+		_leftView ??= CreateKeyboardOverlayView(SplitKeyboardSide.Left);
+		_rightView ??= CreateKeyboardOverlayView(SplitKeyboardSide.Right);
+		_leftTopView ??= CreateTopOverlayView(SplitKeyboardSide.Left);
+		_rightTopView ??= CreateTopOverlayView(SplitKeyboardSide.Right);
 	}
 
 	LoggingAvaloniaView CreateKeyboardOverlayView(SplitKeyboardSide Side)
@@ -101,10 +119,10 @@ public class SplitKeyboardOverlayManager
 		return view;
 	}
 
-	LoggingAvaloniaView CreateCenterOverlayView()
+	LoggingAvaloniaView CreateTopOverlayView(SplitKeyboardSide Side)
 	{
 		var view = new LoggingAvaloniaView(_context);
-		view.Content = new ViewSplitTopOverlay();
+		view.Content = new ViewSplitTopHalf(Side);
 		return view;
 	}
 
@@ -131,21 +149,24 @@ public class SplitKeyboardOverlayManager
 		};
 	}
 
-	WindowManagerLayoutParams BuildCenterLayoutParams()
+	WindowManagerLayoutParams BuildTopLayoutParams(bool isLeft)
 	{
 		var metrics = _context.Resources?.DisplayMetrics;
 		var screenWidth = metrics?.WidthPixels ?? 0;
 		var screenHeight = metrics?.HeightPixels ?? 0;
 		var keyboardHeight = Math.Max(1, (i32)(screenHeight * 0.8));
 		var width = Math.Max(1, screenWidth / 2);
+		var gravity = isLeft
+			? GravityFlags.Left | GravityFlags.Bottom
+			: GravityFlags.Right | GravityFlags.Bottom;
 		return new WindowManagerLayoutParams(
-			width,
+			Math.Max(1, screenWidth / 4),
 			ViewGroup.LayoutParams.WrapContent,
 			GetOverlayWindowType(),
 			GetCommonFlags(),
 			Format.Translucent
 		){
-			Gravity = GravityFlags.CenterHorizontal | GravityFlags.Bottom,
+			Gravity = gravity,
 			X = 0,
 			Y = keyboardHeight
 		};
@@ -193,5 +214,9 @@ public class SplitKeyboardOverlayManager
 	public void Dispose()
 	{
 		Hide();
+		DisposeOverlayView(ref _leftView);
+		DisposeOverlayView(ref _rightView);
+		DisposeOverlayView(ref _leftTopView);
+		DisposeOverlayView(ref _rightTopView);
 	}
 }
