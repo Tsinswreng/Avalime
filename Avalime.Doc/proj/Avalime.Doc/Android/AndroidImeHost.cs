@@ -26,6 +26,9 @@ using Tsinswreng.CsCore;
 	- 後續 hide/show 都複用同一個 view，不再反覆重建整棵 Avalonia UI
 	- `OnStartInputView()` / `OnWindowShown()` 會先把該 view 從舊父節點摘下，再 `SetInputView(...)` 重掛回窗口
 	- 重掛後再 `RequestLayout()` / `Invalidate()`，盡量避免窗口回來但內容樹沒有同步、導致黑屏
+	- 另外會啓動一個常駐前台通知；若偶發黑屏且無法自行恢復，用戶可點通知觸發“強制恢復”
+	- “強制恢復”路徑不改動默認 hide 行爲，而是丟棄當前 `LoggingAvaloniaView`、重建新的 `MainView` 與 `AvaloniaView`，再重掛回 IME window
+	- Android 9+ 還會額外調 `RequestShowSelf(ShowFlags.Forced)`，嘗試把重建後的鍵盤重新拉回可見狀態
 
 	這條路徑的出發點是：
 	相比“每次 hide 後強制重建整棵 view”，單例複用 + 重掛更接近系統原生輸入法窗口的生命週期，

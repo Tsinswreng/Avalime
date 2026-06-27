@@ -1,6 +1,7 @@
 using Android.App;
 using Android.Content;
 using Android.InputMethodServices;
+using Android.OS;
 using Android.Runtime;
 using Android.Views;
 using Android.Views.InputMethods;
@@ -33,6 +34,9 @@ namespace Avalime.Android;
 [IntentFilter(["android.view.InputMethod"])]
 [MetaData("android.view.im", Resource = "@xml/ime_method")]
 public class AvalimeInputMethodService : InputMethodService {
+	/// 把當前活躍的 IME service 暴露給通知恢復入口使用。
+	static WeakReference<AvalimeInputMethodService?> ActiveServiceRef = new(null);
+
 	public AvalimeInputMethodService() { }
 	public AvalimeInputMethodService(nint javaReference, JniHandleOwnership transfer)
 		: base(javaReference, transfer) { }
@@ -46,6 +50,19 @@ public class AvalimeInputMethodService : InputMethodService {
 		return screenHeight > 0 ? screenHeight / 2 : ViewGroup.LayoutParams.WrapContent;
 	}
 
+	/// 創建新的 Avalonia IME 根視圖。
+	/// 通知恢復路徑會丟棄舊 view，再調這裡生成全新視圖實例。
+	LoggingAvaloniaView CreateInputView() {
+		var inputView = new LoggingAvaloniaView(this) {
+			Content = new MainView()
+		};
+		inputView.LayoutParameters = new ViewGroup.LayoutParams(
+			ViewGroup.LayoutParams.MatchParent,
+			GetHalfScreenHeight()
+		);
+		return inputView;
+	}
+
 	/// IME 視圖只創建一次，後續複用同一個 AvaloniaView。
 	/// 這樣可避免 hide/show 之間反覆重建整棵 UI 樹，減少黑屏與狀態丟失。
 	LoggingAvaloniaView EnsureInputView() {
@@ -53,13 +70,7 @@ public class AvalimeInputMethodService : InputMethodService {
 			return InputView;
 		}
 
-		InputView = new LoggingAvaloniaView(this) {
-			Content = new MainView()
-		};
-		InputView.LayoutParameters = new ViewGroup.LayoutParams(
-			ViewGroup.LayoutParams.MatchParent,
-			GetHalfScreenHeight()
-		);
+		InputView = CreateInputView();
 		return InputView;
 	}
 
@@ -74,6 +85,60 @@ public class AvalimeInputMethodService : InputMethodService {
 		SetInputView(inputView);
 		inputView.RequestLayout();
 		inputView.Invalidate();
+	}
+
+	/// 把輸入視圖從舊父節點摘下，避免後續丟棄 / 重建時殘留在舊窗口樹中。
+	void DetachInputViewFromParent(LoggingAvaloniaView? inputView) {
+		if(inputView?.Parent is ViewGroup parent){
+			parent.RemoveView(inputView);
+		}
+	}
+
+	/// 丟棄當前複用的 AvaloniaView。
+	/// 這是通知“強制恢復”路徑的核心：一旦黑屏不可恢復，就不要再信任舊 surface。
+	void ResetInputViewInstance() {
+		var oldInputView = InputView;
+		if(oldInputView is null){
+			return;
+		}
+
+		DetachInputViewFromParent(oldInputView);
+		oldInputView.Content = null;
+		oldInputView.Dispose();
+		InputView = null;
+	}
+
+	/// 真正執行通知恢復：丟棄舊 view、創建新 view、重新掛回 IME window，
+	/// 最後主動請求系統再次顯示輸入法，盡量把已黑屏的鍵盤拉回可用狀態。
+	void ForceRecoverImeView() {
+		AppLog.Info("[IME] ForceRecoverImeView begin");
+		ResetInputViewInstance();
+		ReattachInputView();
+		RequestShowSelfCompat();
+		AppLog.Info($"[IME] ForceRecoverImeView end inputViewNull={InputView is null}");
+	}
+
+	/// 安卓 9+ 可以明確請求重新顯示 IME。
+	/// 更低版本上缺少這個 API，則退化為只做 view 重建與重掛。
+	void RequestShowSelfCompat() {
+		if(OperatingSystem.IsAndroidVersionAtLeast(28)){
+			RequestShowSelf(ShowFlags.Forced);
+			return;
+		}
+
+		AppLog.Info("[IME] RequestShowSelf skipped: Android < 28");
+	}
+
+	/// 從通知廣播進來後，統一切回主線程執行恢復。
+	/// IME view 的摘掛與重建都屬於 UI 操作，不能在廣播線程直接做。
+	internal static void TryRecoverFromNotification() {
+		if(!ActiveServiceRef.TryGetTarget(out var service) || service is null){
+			AppLog.Warn("[IME] Recover notification ignored: no active service");
+			return;
+		}
+
+		var mainHandler = new Handler(Looper.MainLooper!);
+		mainHandler.Post(service.ForceRecoverImeView);
 	}
 
 	/// 評估當前是否應進入全螢幕輸入模式。
@@ -142,6 +207,7 @@ public class AvalimeInputMethodService : InputMethodService {
 		SetTheme(Resource.Style.MyTheme_Ime);
 		base.OnCreate();
 		AppLog.Info("[IME] OnCreate");
+		ActiveServiceRef.SetTarget(this);
 
 		var services = new ServiceCollection();
 		services.AddSingleton<RimeSetup>(_ => RimeSetup.Inst);
@@ -251,8 +317,25 @@ public class AvalimeInputMethodService : InputMethodService {
 	/// 此為生命週期的最後一站。目前主要記錄日誌用於追蹤服務生命週期。
 	/// 若需要在銷毀前釋放 Rime 引擎資源（如 <c>rime_finalize()</c>），應在此處添加清理邏輯。
 	public override void OnDestroy() {
+		ActiveServiceRef.SetTarget(null);
+		ResetInputViewInstance();
 		base.OnDestroy();
 		AppLog.Info("[IME] OnDestroy");
+	}
+}
+
+/// 通知點擊後的恢復廣播接收器。
+/// 它本身不持有 UI 狀態，只負責把“請求恢復”轉交給當前活躍的 IME service。
+[BroadcastReceiver(Enabled = true, Exported = false)]
+[IntentFilter([AvalimeRecoveryNotification.ActionRecoverIme])]
+public class AvalimeImeRecoveryReceiver : BroadcastReceiver {
+	public override void OnReceive(Context? context, Intent? intent) {
+		if(intent?.Action != AvalimeRecoveryNotification.ActionRecoverIme){
+			return;
+		}
+
+		AppLog.Info("[IME] Recovery notification clicked");
+		AvalimeInputMethodService.TryRecoverFromNotification();
 	}
 }
 
