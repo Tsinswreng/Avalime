@@ -193,6 +193,11 @@ public class AvalimeInputMethodService : InputMethodService {
 		}
 		SetInputView(inputView);
 		InputView = inputView;
+		// 某些 split -> normal 回切場景下，新的普通 AvaloniaView 掛回去時，
+		// 宿主窗口仍可能暫時保留上一輪 placeholder 的佈局狀態。
+		// 這裡在實例真正掛上後立刻再同步一次窗口與內容高度，避免內容樹被錯誤裁成只剩一條。
+		UpdateInputWindowLayout();
+		AppLog.Info($"[IME] ReattachInputView attached={inputView.IsAttachedToWindow} lpH={inputView.LayoutParameters?.Height} view={inputView.GetType().Name}");
 		inputView.RequestLayout();
 		inputView.Invalidate();
 	}
@@ -203,6 +208,7 @@ public class AvalimeInputMethodService : InputMethodService {
 	void RefreshVisibleInputView() {
 		var inputView = GetDesiredInputView();
 		InputView = inputView;
+		UpdateInputWindowLayout();
 		inputView.RequestLayout();
 		inputView.Invalidate();
 	}

@@ -84,8 +84,15 @@ public partial class VmKey : ViewModelBase, IKeyViewModel
 	void SyncDisplayLabel()
 	{
 		var label = _baseLabel;
-		if(ImeState is not null && ImeState.IsAsciiMode && label.Length == 1 && char.IsAsciiLetter(label[0])){
-			label = char.ToLowerInvariant(label[0]).ToString();
+		if(ImeState is not null && ImeState.IsAsciiMode){
+			var keyName = Key_Click?.Name;
+			// ASCII 模式下鍵帽一律回到實際鍵值對應的小寫拉丁字母。
+			// 例如平時可顯示 Σ / Δ / Π，但切到 ASCII 時必須顯示 s / d / p。
+			if(!string.IsNullOrEmpty(keyName) && keyName.Length == 1 && char.IsAsciiLetter(keyName[0])){
+				label = char.ToLowerInvariant(keyName[0]).ToString();
+			}else if(label.Length == 1 && char.IsAsciiLetter(label[0])){
+				label = char.ToLowerInvariant(label[0]).ToString();
+			}
 		}
 		if(_displayLabel == label){
 			return;
