@@ -120,17 +120,16 @@ using Tsinswreng.CsCore;
 ]
 
 #H[生命週期: 更新策略][
-	候選欄不是增量修改單個候選項，而是每次 `AfterInput` 都完整重建一份新的 `ObservableCollection<VmCandidate>`，再整體替換 `CandVms`。
+	候選欄不再在每次 `AfterInput` 都整體替換 `CandVms`。
+	現在策略是保留既有 `ObservableCollection<VmCandidate>`，按當前候選數量增刪項，並原地覆寫每個 `VmCandidate` 的文字、註釋、高亮與點擊回調。
 
 	這種策略的特點是：
 	- 狀態來源單一：一切以當前 Rime session 的最新候選列表為準
-	- 不需要在 UI 層維護 diff / 復用邏輯
-	- 每次輸入後，舊 `VmCandidate` 對象整批失效，新對象整批生效
+	- 候選項控件可被 Avalonia 復用，減少每次輸入時的 UI 重建與重新佈局
+	- `MinWidth` 等已算好的顯示屬性可隨 VM 對象保留，避免每幀從 0 重新綁起
 
-	所以 `VmCandidate` 是典型的短生命週期對象：
-	- 出生於某次 `AfterInput`
-	- 只代表那一幀的候選詞快照
-	- 下次輸入後通常整批被替換
+	因此 `VmCandidate` 不再是“每次輸入必定整批失效”的短生命週期對象；
+	在候選數量不變或接近時，通常是同一批 VM 被原地更新。
 ]
 
 #H[生命週期: 釋放][

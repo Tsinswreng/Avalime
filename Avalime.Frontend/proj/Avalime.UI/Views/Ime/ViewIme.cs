@@ -9,6 +9,7 @@ using ViewToolBarControl = Avalime.UI.Views.ToolBar.ViewToolBar;
 using Avalonia.Controls;
 using System.ComponentModel;
 using Tsinswreng.Avln.Grid;
+using Avalime.Core.Infra.Log;
 
 namespace Avalime.UI.Views.Ime;
 using Ctx = VmIme;
@@ -31,6 +32,7 @@ public class ViewIme : AppViewBase<Ctx>
 
 	public ViewIme(){
 		Ctx = Di.DiOrMk<Ctx>();
+		AppLog.Info($"[Life] ViewIme ctor view#{GetHashCode()} vm#{Ctx?.GetHashCode()}");
 		Render();
 	}
 
@@ -144,6 +146,7 @@ public class ViewIme : AppViewBase<Ctx>
 
 	public void Dispose()
 	{
+		AppLog.Info($"[Life] ViewIme dispose view#{GetHashCode()} vm#{Ctx?.GetHashCode()}");
 		if(_ctxPropertyChangedHandler is not null && Ctx is not null){
 			Ctx.PropertyChanged -= _ctxPropertyChangedHandler;
 		}

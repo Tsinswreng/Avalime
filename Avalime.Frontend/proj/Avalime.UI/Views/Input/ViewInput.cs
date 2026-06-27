@@ -3,6 +3,7 @@ using Avalime.UI.Infra;
 using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Media;
+using Avalime.Core.Infra.Log;
 
 namespace Avalime.UI.Views.Input;
 using Ctx = VmInput;
@@ -12,6 +13,7 @@ public class ViewInput : AppViewBase<Ctx>
 {
 	public ViewInput(){
 		Ctx = Di.DiOrMk<Ctx>();
+		AppLog.Info($"[Life] ViewInput ctor view#{GetHashCode()} vm#{Ctx?.GetHashCode()}");
 		Render();
 	}
 
@@ -39,6 +41,7 @@ public class ViewInput : AppViewBase<Ctx>
 
 	public void Dispose()
 	{
+		AppLog.Info($"[Life] ViewInput dispose view#{GetHashCode()} vm#{Ctx?.GetHashCode()}");
 		(Ctx as IDisposable)?.Dispose();
 	}
 }

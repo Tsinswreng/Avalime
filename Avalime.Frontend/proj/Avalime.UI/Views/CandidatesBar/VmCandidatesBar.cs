@@ -22,38 +22,54 @@ public partial class VmCandidatesBar : ViewModelBase
 
 	public VmCandidatesBar(ISvcIme ImeState){
 		this.ImeState = ImeState;
+		AppLog.Info($"[Life] VmCandidatesBar ctor vm#{GetHashCode()}");
 		_afterInputHandler = (s, e)=>{
 			var sw = System.Diagnostics.Stopwatch.StartNew();
 			AppLog.Debug($"[Perf] VmCandidatesBar.AfterInput start: {sw.ElapsedMilliseconds}ms");
-			var newList = new ObservableCollection<VmCandidate>();
 			var candidates = ImeState.Candidates.Data;
-			if(candidates is null){return;}
-			var highlightedIndex = ImeState.Candidates.HighlightedIndex;
-			for(var index = 0; index < candidates.Count; index++){
-				var vm = ToCand(candidates[index], index, index == highlightedIndex);
-				newList.Add(vm);
+			if(candidates is null){
+				Dispatcher.UIThread.Post(() => CandVms.Clear());
+				return;
 			}
-			Dispatcher.UIThread.Post(() => CandVms = newList);
-			AppLog.Debug($"[Perf] VmCandidatesBar.AfterInput done: {sw.ElapsedMilliseconds}ms, candidates: {newList.Count}");
+			var highlightedIndex = ImeState.Candidates.HighlightedIndex;
+			Dispatcher.UIThread.Post(() => ApplyCandidates(candidates, highlightedIndex));
+			AppLog.Debug($"[Perf] VmCandidatesBar.AfterInput done: {sw.ElapsedMilliseconds}ms, candidates: {candidates.Count}");
 		};
 		ImeState.AfterInput += _afterInputHandler;
 	}
 
-	public VmCandidate ToCand(ICandidate cand, int index, bool isHighlighted){
+	void ApplyCandidates(IList<ICandidate> candidates, int highlightedIndex){
+		while(CandVms.Count > candidates.Count){
+			CandVms.RemoveAt(CandVms.Count - 1);
+		}
+
+		for(var index = 0; index < candidates.Count; index++){
+			var vm = index < CandVms.Count ? CandVms[index] : MkCandVm();
+			FillCandVm(vm, candidates[index], index, index == highlightedIndex);
+			if(index >= CandVms.Count){
+				CandVms.Add(vm);
+			}
+		}
+	}
+
+	VmCandidate MkCandVm(){
 		var ans = VmCandidate.Mk();
-		ans.Text = cand.Text ?? "";
-		ans.Comment = cand.Comment ?? "";
-		ans.Index = index;
 		ans.Background = UiCfg.Inst.CandidateBgColor;
-		ans.Foreground = isHighlighted ? UiCfg.Inst.MainColor : Brushes.White;
-		ans.Click = () => {
+		return ans;
+	}
+
+	void FillCandVm(VmCandidate vm, ICandidate cand, int index, bool isHighlighted){
+		vm.Text = cand.Text ?? "";
+		vm.Comment = cand.Comment ?? "";
+		vm.Index = index;
+		vm.Foreground = isHighlighted ? UiCfg.Inst.MainColor : Brushes.White;
+		vm.Click = () => {
 			var key = IndexToKey(index);
 			ImeState.InputSafely([
 				new KeyEvent{KeyChar = key, KeyState = KS.Down},
 				new KeyEvent{KeyChar = key, KeyState = KS.Up}
 			], ex => HandleErr(ex));
 		};
-		return ans;
 	}
 
 	static IKeyChar IndexToKey(int index) => index switch {
@@ -77,6 +93,7 @@ public partial class VmCandidatesBar : ViewModelBase
 
 	public void Dispose()
 	{
+		AppLog.Info($"[Life] VmCandidatesBar dispose vm#{GetHashCode()}");
 		ImeState.AfterInput -= _afterInputHandler;
 	}
 }

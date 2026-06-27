@@ -241,16 +241,22 @@ public class AvalimeInputMethodService : InputMethodService {
 
 		// Rime commit 文字上屏
 		imeState.OnCommit += (sender, text) => {
+			var swPost = System.Diagnostics.Stopwatch.StartNew();
 			var mainHandler = new Handler(Looper.MainLooper!);
 			mainHandler.Post(() => {
+				var swMain = System.Diagnostics.Stopwatch.StartNew();
 				var ic = CurrentInputConnection;
 				if (ic is not null) {
+					var swCommit = System.Diagnostics.Stopwatch.StartNew();
 					ic.CommitText(text, 1);
+					AppLog.Debug($"[Perf] Android.OnCommit CommitText call: {swCommit.ElapsedMilliseconds}ms, text: {text}");
 					AppLog.Info($"[IME] CommitText: {text}");
 				} else {
 					AppLog.Warn("[IME] CommitText skipped: no InputConnection");
 				}
+				AppLog.Debug($"[Perf] Android.OnCommit main-thread handler total: {swMain.ElapsedMilliseconds}ms, text: {text}");
 			});
+			AppLog.Debug($"[Perf] Android.OnCommit post_to_main: {swPost.ElapsedMilliseconds}ms, text: {text}");
 		};
 	}
 

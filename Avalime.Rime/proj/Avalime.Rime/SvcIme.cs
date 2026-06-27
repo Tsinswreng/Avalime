@@ -105,7 +105,9 @@ unsafe public class SvcIme : ISvcIme
 	/// </summary>
 	void OnAfterInput(object? Sender, IEnumerable<IKeyEvent> Args){
 		try{
+			var sw = System.Diagnostics.Stopwatch.StartNew();
 			SyncStateFromRime();
+			AppLog.Debug($"[Perf] AvalimeRime.OnAfterInput SyncStateFromRime total: {sw.ElapsedMilliseconds}ms");
 		}catch(Exception Ex){
 			AppLog.Error(Ex, "[AvalimeRime] SyncStateFromRime after input failed");
 		}
@@ -133,6 +135,7 @@ unsafe public class SvcIme : ISvcIme
 	/// 將 Rime session 的 status/context 轉成 Core 狀態。
 	/// </summary>
 	void SyncStateFromRime(){
+		var swTotal = System.Diagnostics.Stopwatch.StartNew();
 		lock(_StateLock){
 			var Rime = _RimeSetup.apiFn;
 			var SessionId = _RimeSetup.rimeSessionId;
@@ -148,6 +151,7 @@ unsafe public class SvcIme : ISvcIme
 			var Status = new RimeStatus{
 				data_size = RimeUtil.DataSize<RimeStatus>()
 			};
+			var swStatus = System.Diagnostics.Stopwatch.StartNew();
 			if(Rime.get_status(SessionId, &Status) != RimeUtil.False){
 				try{
 					IsAsciiMode = Status.is_ascii_mode != RimeUtil.False;
@@ -157,14 +161,19 @@ unsafe public class SvcIme : ISvcIme
 					Rime.free_status(&Status);
 				}
 			}
+			AppLog.Debug($"[Perf] AvalimeRime.SyncStateFromRime get_status: {swStatus.ElapsedMilliseconds}ms");
 
 			var Context = new RimeContext{
 				data_size = RimeUtil.DataSize<RimeContext>()
 			};
+			var swContext = System.Diagnostics.Stopwatch.StartNew();
 			if(Rime.get_context(SessionId, &Context) != RimeUtil.False){
 				try{
+					var swCopy = System.Diagnostics.Stopwatch.StartNew();
 					ReplacePreedit(MkDisplayedPreedit(Context.composition));
-					ReplaceCandidates(ReadCandidates(&Context));
+					var page = ReadCandidates(&Context);
+					ReplaceCandidates(page);
+					AppLog.Debug($"[Perf] AvalimeRime.SyncStateFromRime copy_context_to_managed: {swCopy.ElapsedMilliseconds}ms, candidates: {page.Data?.Count ?? 0}");
 				}finally{
 					Rime.free_context(&Context);
 				}
@@ -172,7 +181,9 @@ unsafe public class SvcIme : ISvcIme
 				ReplacePreedit("");
 				ReplaceCandidates(new());
 			}
+			AppLog.Debug($"[Perf] AvalimeRime.SyncStateFromRime get_context: {swContext.ElapsedMilliseconds}ms");
 		}
+		AppLog.Debug($"[Perf] AvalimeRime.SyncStateFromRime total: {swTotal.ElapsedMilliseconds}ms");
 	}
 
 	/// <summary>

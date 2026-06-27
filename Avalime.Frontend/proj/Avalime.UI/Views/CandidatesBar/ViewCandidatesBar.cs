@@ -21,6 +21,7 @@ public class ViewCandidatesBar : AppViewBase<Ctx>
 	public ViewCandidatesBar(){
 		Ctx = Di.DiOrMk<Ctx>();
 		_uiState = Di.DiOrMk<ImeUiState>();
+		AppLog.Info($"[Life] ViewCandidatesBar ctor view#{GetHashCode()} vm#{Ctx?.GetHashCode()}");
 		Render();
 	}
 
@@ -91,6 +92,7 @@ public class ViewCandidatesBar : AppViewBase<Ctx>
 
 	public void Dispose()
 	{
+		AppLog.Info($"[Life] ViewCandidatesBar dispose view#{GetHashCode()} vm#{Ctx?.GetHashCode()}");
 		if(_uiStatePropertyChangedHandler is not null){
 			_uiState.PropertyChanged -= _uiStatePropertyChangedHandler;
 		}

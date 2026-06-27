@@ -20,6 +20,7 @@ public class VmInput : ViewModelBase
 
 	public VmInput(ISvcIme ImeState){
 		this.ImeState = ImeState;
+		AppLog.Info($"[Life] VmInput ctor vm#{GetHashCode()}");
 		_afterInputHandler = (sender, args)=>{
 			var sw = System.Diagnostics.Stopwatch.StartNew();
 			AppLog.Debug($"[Perf] VmInput.AfterInput start: {sw.ElapsedMilliseconds}ms");
@@ -32,6 +33,7 @@ public class VmInput : ViewModelBase
 
 	public void Dispose()
 	{
+		AppLog.Info($"[Life] VmInput dispose vm#{GetHashCode()}");
 		ImeState.AfterInput -= _afterInputHandler;
 	}
 }

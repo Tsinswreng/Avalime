@@ -146,9 +146,13 @@ public abstract class ISvcIme
 		// 否則空格選詞後，宿主上屏會被 AfterInput 里的同步狀態抓取拖後，
 		// 體感上就會變成「上屏」和「新的聯想候選彈出」幾乎同時發生。
 		if(resp?.Commits is not null){
+			var swCommitDispatch = System.Diagnostics.Stopwatch.StartNew();
 			foreach(var commitText in resp.Commits){
+				var swOneCommit = System.Diagnostics.Stopwatch.StartNew();
 				OnCommit?.Invoke(this, commitText);
+				AppLog.Debug($"[Perf] ImeState.Input OnCommit dispatched: {swOneCommit.ElapsedMilliseconds}ms, text: {commitText}");
 			}
+			AppLog.Debug($"[Perf] ImeState.Input OnCommit total dispatched: {swCommitDispatch.ElapsedMilliseconds}ms, count: {resp.Commits.Count}");
 		}
 
 		var swAfter = System.Diagnostics.Stopwatch.StartNew();
