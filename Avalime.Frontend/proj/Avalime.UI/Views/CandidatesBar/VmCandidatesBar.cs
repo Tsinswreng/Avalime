@@ -32,6 +32,9 @@ public partial class VmCandidatesBar : ViewModelBase
 				return;
 			}
 			var highlightedIndex = ImeState.Candidates.HighlightedIndex;
+			// 候選欄在 Android hide/show 後若每次整批替換 CandVms，
+			// Avalonia 會重建整排候選控件並重新跑一次布局/綁定。
+			// 這裡改成原地覆寫 VM，讓候選視圖盡量被復用，避免聯想詞上屏後的額外卡頓。
 			Dispatcher.UIThread.Post(() => ApplyCandidates(candidates, highlightedIndex));
 			AppLog.Debug($"[Perf] VmCandidatesBar.AfterInput done: {sw.ElapsedMilliseconds}ms, candidates: {candidates.Count}");
 		};
@@ -39,6 +42,7 @@ public partial class VmCandidatesBar : ViewModelBase
 	}
 
 	void ApplyCandidates(IList<ICandidate> candidates, int highlightedIndex){
+		// 先裁掉多餘項，再原地更新已有 VM，最後只為新增項創建 VM。
 		while(CandVms.Count > candidates.Count){
 			CandVms.RemoveAt(CandVms.Count - 1);
 		}
@@ -59,6 +63,7 @@ public partial class VmCandidatesBar : ViewModelBase
 	}
 
 	void FillCandVm(VmCandidate vm, ICandidate cand, int index, bool isHighlighted){
+		// Click 也隨當前 index 一併覆寫，避免復用 VM 後還指向舊候選位次。
 		vm.Text = cand.Text ?? "";
 		vm.Comment = cand.Comment ?? "";
 		vm.Index = index;
