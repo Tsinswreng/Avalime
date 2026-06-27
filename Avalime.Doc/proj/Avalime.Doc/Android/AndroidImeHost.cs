@@ -59,6 +59,11 @@ using Tsinswreng.CsCore;
 	並訂閱 `ImeState.OnCommit` 事件。
 	- `OnCommit`：收到 commit 文字後，通過 `CurrentInputConnection.CommitText` 輸出。
 	- `AndroidOsKeyProcessor`：將 Rime 未處理的按鍵轉發給 OS（Backspace→`Delete`、Enter→`Enter`、普通文字鍵→`CommitText`）。
+	- 現在 `AndroidOsKeyProcessor` 外面再包一層 `KeyRemappingOsKeyProcessor`
+		- 只處理 `UnhandledKeys`
+		- 規則由 `IKeyEventRemapper` / `IKeyEventRemapRule` 抽象承載
+		- 因此不會把映射污染到 Rime 自身的按鍵語義
+		- 工具欄 `映` 開關打開後，當前先啓用 `Backspace -> Alt_R`
 	- 若按鍵事件攜帶 `KeyBoardState` 中的 Ctrl/Shift/Alt/Meta 狀態，則改為 `SendKeyEvent` 發送帶 meta state 的系統組合鍵（如 Ctrl+A）。
 	若當前沒有 `InputConnection`，則跳過輸出並記錄日誌。
 

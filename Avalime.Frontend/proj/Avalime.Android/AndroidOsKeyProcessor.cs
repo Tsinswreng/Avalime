@@ -62,6 +62,7 @@ public class AndroidOsKeyProcessor : IOsKeyProcessor
 
 	static bool ShouldSendAsKeyEvent(string name){
 		return name is "Backspace" or "Enter" or "Tab" or "Home" or "End" or "Left" or "Right" or "Up" or "Down"
+			or "Shift_L" or "Shift_R" or "Ctrl_L" or "Ctrl_R" or "Alt_L" or "Alt_R" or "Meta_L"
 			|| name.Length == 1 && char.IsAsciiLetterOrDigit(name[0]);
 	}
 
@@ -106,6 +107,13 @@ public class AndroidOsKeyProcessor : IOsKeyProcessor
 		"Backspace" => global::Android.Views.Keycode.Del,
 		"Enter" => global::Android.Views.Keycode.Enter,
 		"Tab" => global::Android.Views.Keycode.Tab,
+		"Shift_L" => global::Android.Views.Keycode.ShiftLeft,
+		"Shift_R" => global::Android.Views.Keycode.ShiftRight,
+		"Ctrl_L" => global::Android.Views.Keycode.CtrlLeft,
+		"Ctrl_R" => global::Android.Views.Keycode.CtrlRight,
+		"Alt_L" => global::Android.Views.Keycode.AltLeft,
+		"Alt_R" => global::Android.Views.Keycode.AltRight,
+		"Meta_L" => global::Android.Views.Keycode.MetaLeft,
 		"Home" => global::Android.Views.Keycode.MoveHome,
 		"End" => global::Android.Views.Keycode.MoveEnd,
 		"Left" => global::Android.Views.Keycode.DpadLeft,

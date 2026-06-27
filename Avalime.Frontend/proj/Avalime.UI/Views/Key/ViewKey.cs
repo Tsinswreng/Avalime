@@ -77,6 +77,7 @@ public class ViewKey : AppViewBase<Ctx>
 		_longPressFired = false;
 		e.Pointer.Capture(_border);
 		_border.Background = UiCfg.Inst.MainColor;
+		AppLog.Info($"[SplitTouch] Key PointerPressed label={Ctx?.Label} key={Ctx?.Key_Click?.Name}");
 		AppLog.Debug($"[Key] Pressed, hasLongPress={Ctx?.LongPress is not null}, isRepeat={Ctx?.IsRepeat}");
 		StartLongPressTimer();
 	}
@@ -116,6 +117,7 @@ public class ViewKey : AppViewBase<Ctx>
 			}
 		}else{
 			AppLog.Debug($"[Perf] OnPointerReleased→Click start: {swPerf.ElapsedMilliseconds}ms");
+			AppLog.Info($"[SplitTouch] Key Click label={Ctx?.Label} key={Ctx?.Key_Click?.Name}");
 			Ctx?.Click?.Invoke();
 			AppLog.Debug($"[Perf] OnPointerReleased→Click done: {swPerf.ElapsedMilliseconds}ms");
 		}
@@ -199,4 +201,3 @@ public class ViewKey : AppViewBase<Ctx>
 		});
 	}
 }
-

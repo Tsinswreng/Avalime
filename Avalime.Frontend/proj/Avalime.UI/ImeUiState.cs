@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Avalime.Core.Infra;
+using Avalime.Core.Infra.Log;
 using Tsinswreng.CsCfg;
 using System.Threading;
 
@@ -14,6 +15,8 @@ public partial class ImeUiState : ObservableObject
 	{
 		// 分體開關屬於用戶顯式偏好，需要跨 hide/show 與進程存活保持。
 		_IsSplitKeyboardEnabled = KeysCfg.Keyboard.IsSplitEnabled.GetFrom(AppCfg.Inst);
+		// 系統按鍵映射同樣屬於顯式偏好，但實際生效位置在 OS 發送前的宿主層。
+		_IsSystemKeyRemappingEnabled = KeysCfg.Keyboard.IsSystemKeyRemappingEnabled.GetFrom(AppCfg.Inst);
 	}
 
 	/// <summary>
@@ -68,6 +71,20 @@ public partial class ImeUiState : ObservableObject
 		set{SetProperty(ref _IsClipboardVisible, value);}
 	}
 
+	bool _IsSystemKeyRemappingEnabled;
+	/// <summary>
+	/// 用戶手動切換的系統按鍵映射開關。
+	/// 其作用域只覆蓋“Rime 未處理按鍵 -> OS 發送前”的映射鏈路。
+	/// </summary>
+	public bool IsSystemKeyRemappingEnabled{
+		get{return _IsSystemKeyRemappingEnabled;}
+		set{
+			if(SetProperty(ref _IsSystemKeyRemappingEnabled, value)){
+				PersistBoolCfg(KeysCfg.Keyboard.IsSystemKeyRemappingEnabled, value);
+			}
+		}
+	}
+
 	public bool IsRimeLogVisible{
 		get{return IsRimeLogPinnedVisible || IsRimeLogForcedVisible;}
 	}
@@ -111,7 +128,13 @@ public partial class ImeUiState : ObservableObject
 
 	public void ToggleSplitKeyboard()
 	{
+		AppLog.Info($"[SplitState] ToggleSplitKeyboard current={IsSplitKeyboardEnabled} next={!IsSplitKeyboardEnabled}");
 		IsSplitKeyboardEnabled = !IsSplitKeyboardEnabled;
+	}
+
+	public void ToggleSystemKeyRemapping()
+	{
+		IsSystemKeyRemappingEnabled = !IsSystemKeyRemappingEnabled;
 	}
 
 	/// <summary>
@@ -120,7 +143,17 @@ public partial class ImeUiState : ObservableObject
 	/// </summary>
 	static void PersistSplitKeyboardEnabled(bool Value)
 	{
-		AppCfg.Inst.Set(KeysCfg.Keyboard.IsSplitEnabled, Value);
+		AppLog.Info($"[SplitState] PersistSplitKeyboardEnabled value={Value}");
+		PersistBoolCfg(KeysCfg.Keyboard.IsSplitEnabled, Value);
+	}
+
+	/// <summary>
+	/// 共享的布爾偏好持久化入口。
+	/// UI 線程只更新內存配置；真正寫盤放到後台，避免工具欄點擊被 IO 卡住。
+	/// </summary>
+	static void PersistBoolCfg(ICfgNode<bool> Key, bool Value)
+	{
+		AppCfg.Inst.Set(Key, Value);
 		_ = Task.Run(() => {
 			lock(PersistLock){
 				AppCfg.Inst.Save();

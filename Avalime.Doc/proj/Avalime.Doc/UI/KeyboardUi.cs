@@ -96,6 +96,13 @@ using Tsinswreng.CsCore;
 	- 此狀態會持久化到可寫配置，hide/show 與下次啓動仍保留
 	- 實際保存改爲後台執行，避免按下分體按鈕時同步 `Save()` 卡住 UI 線程
 	- UI 層本身只負責暴露狀態；真正是否走 Android overlay 由宿主決定
+
+	工具欄新增了系統按鍵映射按鈕：
+	- 文案爲 `映`
+	- 點擊後切換 `ImeUiState.IsSystemKeyRemappingEnabled`
+	- 此狀態也會持久化到可寫配置，默認關閉
+	- 它不改動 Rime 的收鍵，只影響“Rime 未處理按鍵 -> OS 發送前”的最後一跳
+	- 當前首條規則是：`Backspace -> Alt_R`
 ]
 
 #H[Rime 日誌頁][

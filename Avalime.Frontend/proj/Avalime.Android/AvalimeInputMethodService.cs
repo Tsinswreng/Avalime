@@ -459,8 +459,17 @@ public class AvalimeInputMethodService : InputMethodService {
 		_uiState = Di.GetRSvc<ImeUiState>();
 		imeState.StatusText = "正在連接 Rime";
 
-		// 未處理按鍵轉發給 OS
-		imeState.OsKeyProcessor = new AndroidOsKeyProcessor(() => CurrentInputConnection);
+		// 未處理按鍵先過可切換映射器，再轉發給 Android OS。
+		// 這樣不會改動 Rime 收到的原始鍵，只修正最終交給宿主應用的鍵值。
+		imeState.OsKeyProcessor = new KeyRemappingOsKeyProcessor(
+			new AndroidOsKeyProcessor(() => CurrentInputConnection),
+			new KeyEventRemapper(
+				() => _uiState?.IsSystemKeyRemappingEnabled == true,
+				[
+					new KeyRemapRule(KeyChars.Backspace, KeyChars.Alt_R),
+				]
+			)
+		);
 
 		// Rime commit 文字上屏
 		imeState.OnCommit += (sender, text) => {

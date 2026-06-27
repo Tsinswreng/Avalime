@@ -21,6 +21,8 @@ public class KeysCfg{
 		public static ICfgNode _R = Mk(null, [nameof(Keyboard)]);
 		/// 是否啓用分體鍵盤。用戶在工具欄手動切換後，將狀態持久化到可寫配置。
 		public static ICfgNode<bool> IsSplitEnabled = Mk(_R, [nameof(IsSplitEnabled)], false);
+		/// 是否啓用“Rime 未處理按鍵 -> OS 發送前”的系統按鍵映射。
+		public static ICfgNode<bool> IsSystemKeyRemappingEnabled = Mk(_R, [nameof(IsSystemKeyRemappingEnabled)], false);
 		public class Font{
 			public static ICfgNode _R = Mk(Keyboard._R, [nameof(Font)]);
 			public static ICfgNode<str?> Path = Mk(_R, [nameof(Path)], (str?)null);
