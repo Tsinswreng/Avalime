@@ -86,6 +86,20 @@ public class ViewToolBar : AppViewBase<Ctx>
 				o.Height = UiCfg.Inst.TopBarFontSize;
 			});
 		})
+		.A(MkBtn(), b=>{
+			b.PointerPressed += (_, e) => {
+				e.Handled = true;
+				Ctx?.ToggleSplitKeyboard();
+			};
+			b.SetChild(new TextBlock(), o=>{
+				o.Foreground = Brushes.White;
+				o.VerticalAlignment = VAlign.Center;
+				o.HorizontalAlignment = HAlign.Center;
+				o.FontSize = UiCfg.Inst.TopBarFontSize;
+				o.Text = "分";
+				Ctx.Bind(o, TextBlock.ForegroundProperty, x => x.SplitKeyboardForeground);
+			});
+		})
 		;
 		_uiStatePropertyChangedHandler = (_, e) => {
 			if(e.PropertyName == nameof(ImeUiState.IsCandidateCommentVisible)){

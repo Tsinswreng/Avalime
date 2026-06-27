@@ -90,6 +90,11 @@ using Tsinswreng.CsCore;
 	- 初始化期間會先彈出日誌頁
 	- 初始化完成後若只是自動打開，會立即自動切回鍵盤
 	- 正常狀態下用戶手動打開日誌頁，不會再被“已連接”狀態立刻強制關掉
+
+	工具欄新增了分體鍵盤按鈕：
+	- 點擊後切換 `ImeUiState.IsSplitKeyboardEnabled`
+	- 此狀態會持久化到可寫配置，hide/show 與下次啓動仍保留
+	- UI 層本身只負責暴露狀態；真正是否走 Android overlay 由宿主決定
 ]
 
 #H[Rime 日誌頁][
@@ -173,6 +178,24 @@ using Tsinswreng.CsCore;
 	若 `Family` 有值，直接按 `file-uri#family` 的方式交給 Avalonia 解析。
 	若 `Family` 爲空，則從字體文件的 name table 中讀取 family name，再按同樣方式解析。
 	若配置值爲空、字體文件不存在、family 無法解析，則回退到宿主原本默認字體。
+]
+
+#H[分體鍵盤視圖重用][
+	Android 分體模式不是重新定義半套按鍵。
+	現在做法是：
+	- 每個 side overlay 內都放一個完整 `ViewKeyBoard`
+	- 將其寬度拉成 overlay 寬度的兩倍
+	- 左半窗左對齊、右半窗右對齊
+	- 容器 `ClipToBounds=true`，因此只露出完整鍵盤的一半
+
+	這樣可以直接保留既有：
+	- 普通點擊
+	- 長按重複
+	- 上下左右滑動
+	- 數字層切換
+	- Shift 鎖定與 Ctrl 組合鍵
+
+	避免再維護一份獨立的“分體鍵位表”。
 ]
 
 """)]

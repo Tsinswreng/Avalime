@@ -1,10 +1,18 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Avalime.Core.Infra;
+using Tsinswreng.CsCfg;
 
 namespace Avalime.UI;
 
 /// `Ime` 界面的共享 UI 狀態。由根 `VmIme` 與工具欄/剪貼板等子模塊共用。
 public partial class ImeUiState : ObservableObject
 {
+	public ImeUiState()
+	{
+		// 分體開關屬於用戶顯式偏好，需要跨 hide/show 與進程存活保持。
+		_IsSplitKeyboardEnabled = KeysCfg.Keyboard.IsSplitEnabled.GetFrom(AppCfg.Inst);
+	}
+
 	/// <summary>
 	/// 用戶主動點擊工具欄後的日誌頁顯示狀態。
 	/// </summary>
@@ -35,6 +43,20 @@ public partial class ImeUiState : ObservableObject
 	public bool IsCandidateCommentVisible{
 		get{return _IsCandidateCommentVisible;}
 		set{SetProperty(ref _IsCandidateCommentVisible, value);}
+	}
+
+	bool _IsSplitKeyboardEnabled;
+	/// <summary>
+	/// 用戶手動切換的分體鍵盤狀態。
+	/// Android 宿主會監聽此值，決定是否切到 overlay 分體模式。
+	/// </summary>
+	public bool IsSplitKeyboardEnabled{
+		get{return _IsSplitKeyboardEnabled;}
+		set{
+			if(SetProperty(ref _IsSplitKeyboardEnabled, value)){
+				PersistSplitKeyboardEnabled(value);
+			}
+		}
 	}
 
 	bool _IsClipboardVisible;
@@ -82,5 +104,20 @@ public partial class ImeUiState : ObservableObject
 	public void ToggleCandidateComment()
 	{
 		IsCandidateCommentVisible = !IsCandidateCommentVisible;
+	}
+
+	public void ToggleSplitKeyboard()
+	{
+		IsSplitKeyboardEnabled = !IsSplitKeyboardEnabled;
+	}
+
+	/// <summary>
+	/// 這個狀態不僅影響當前 UI，還會被 Android 宿主用來決定下次 show 時是否直接進分體。
+	/// 因此一旦變更，立即寫回可寫配置。
+	/// </summary>
+	static void PersistSplitKeyboardEnabled(bool Value)
+	{
+		AppCfg.Inst.Set(KeysCfg.Keyboard.IsSplitEnabled, Value);
+		AppCfg.Inst.Save();
 	}
 }

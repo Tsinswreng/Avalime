@@ -19,6 +19,10 @@ public class KeysCfg{
 	}
 	public class Keyboard{
 		public static ICfgNode _R = Mk(null, [nameof(Keyboard)]);
+		/// <summary>
+		/// 是否啓用分體鍵盤。用戶在工具欄手動切換後，將狀態持久化到可寫配置。
+		/// </summary>
+		public static ICfgNode<bool> IsSplitEnabled = Mk(_R, [nameof(IsSplitEnabled)], false);
 		public class Font{
 			public static ICfgNode _R = Mk(Keyboard._R, [nameof(Font)]);
 			public static ICfgNode<str?> Path = Mk(_R, [nameof(Path)], (str?)null);

@@ -13,6 +13,7 @@ public class VmToolBar : ViewModelBase
 
 	public str HanLabel => ImeState.IsSimplification ? "汉" : "漢";
 	public IBrush CandidateCommentForeground => UiState.IsCandidateCommentVisible ? UiCfg.Inst.MainColor : Brushes.White;
+	public IBrush SplitKeyboardForeground => UiState.IsSplitKeyboardEnabled ? UiCfg.Inst.MainColor : Brushes.White;
 
 	readonly PropertyChangedEventHandler _imePropertyChangedHandler;
 	readonly PropertyChangedEventHandler _uiStatePropertyChangedHandler;
@@ -28,6 +29,9 @@ public class VmToolBar : ViewModelBase
 		_uiStatePropertyChangedHandler = (_, e) => {
 			if(e.PropertyName == nameof(ImeUiState.IsCandidateCommentVisible)){
 				OnPropertyChanged(nameof(CandidateCommentForeground));
+			}
+			if(e.PropertyName == nameof(ImeUiState.IsSplitKeyboardEnabled)){
+				OnPropertyChanged(nameof(SplitKeyboardForeground));
 			}
 		};
 		ImeState.PropertyChanged += _imePropertyChangedHandler;
@@ -48,6 +52,10 @@ public class VmToolBar : ViewModelBase
 
 	public void ToggleCandidateComment(){
 		UiState.ToggleCandidateComment();
+	}
+
+	public void ToggleSplitKeyboard(){
+		UiState.ToggleSplitKeyboard();
 	}
 
 	public void Dispose()

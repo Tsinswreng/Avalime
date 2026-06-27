@@ -22,6 +22,7 @@ using Avalime.UI.Views.ToolBar;
 using Avalonia.Android;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.ComponentModel;
 using Handler = Android.OS.Handler;
 using Looper = Android.OS.Looper;
 
@@ -41,13 +42,40 @@ public class AvalimeInputMethodService : InputMethodService {
 	public AvalimeInputMethodService(nint javaReference, JniHandleOwnership transfer)
 		: base(javaReference, transfer) { }
 
-	public LoggingAvaloniaView? InputView{get;set;}
+	public global::Android.Views.View? InputView{get;set;}
+	LoggingAvaloniaView? AvaloniaInputView{get;set;}
+	global::Android.Views.View? SplitPlaceholderInputView{get;set;}
+	SplitKeyboardOverlayManager? _splitOverlayManager;
+	ImeUiState? _uiState;
+	PropertyChangedEventHandler? _uiStatePropertyChangedHandler;
 
 	/// 取得螢幕高度的一半，用於設定輸入法視窗高度。
 	/// 若無法取得螢幕尺寸則回傳 <see cref="ViewGroup.LayoutParams.WrapContent"/>。
 	int GetHalfScreenHeight() {
 		var screenHeight = Resources?.DisplayMetrics?.HeightPixels ?? 0;
 		return screenHeight > 0 ? screenHeight / 2 : ViewGroup.LayoutParams.WrapContent;
+	}
+
+	/// <summary>
+	/// 分體模式下，IME 主窗口本身只保留極薄佔位，真正可見鍵盤走 overlay。
+	/// 這樣中間 50% 不再屬於 IME 視窗，可把交互還給底下 App。
+	/// </summary>
+	int GetSplitPlaceholderHeight()
+	{
+		return 1;
+	}
+
+	int GetCurrentInputWindowHeight()
+	{
+		if(IsSplitKeyboardActive()){
+			return GetSplitPlaceholderHeight();
+		}
+		return GetHalfScreenHeight();
+	}
+
+	bool IsSplitKeyboardActive()
+	{
+		return _uiState?.IsSplitKeyboardEnabled == true;
 	}
 
 	/// 創建新的 Avalonia IME 根視圖。
@@ -63,14 +91,31 @@ public class AvalimeInputMethodService : InputMethodService {
 		return inputView;
 	}
 
+	global::Android.Views.View CreateSplitPlaceholderView()
+	{
+		var ans = new global::Android.Views.View(this);
+		ans.SetBackgroundColor(global::Android.Graphics.Color.Transparent);
+		ans.LayoutParameters = new ViewGroup.LayoutParams(
+			ViewGroup.LayoutParams.MatchParent,
+			GetSplitPlaceholderHeight()
+		);
+		return ans;
+	}
+
 	/// IME 視圖只創建一次，後續複用同一個 AvaloniaView。
 	/// 這樣可避免 hide/show 之間反覆重建整棵 UI 樹，減少黑屏與狀態丟失。
-	LoggingAvaloniaView EnsureInputView() {
+	global::Android.Views.View EnsureInputView() {
 		if(InputView is not null){
 			return InputView;
 		}
 
-		InputView = CreateInputView();
+		if(IsSplitKeyboardActive()){
+			SplitPlaceholderInputView = CreateSplitPlaceholderView();
+			InputView = SplitPlaceholderInputView;
+			return InputView;
+		}
+		AvaloniaInputView = CreateInputView();
+		InputView = AvaloniaInputView;
 		return InputView;
 	}
 
@@ -88,7 +133,7 @@ public class AvalimeInputMethodService : InputMethodService {
 	}
 
 	/// 把輸入視圖從舊父節點摘下，避免後續丟棄 / 重建時殘留在舊窗口樹中。
-	void DetachInputViewFromParent(LoggingAvaloniaView? inputView) {
+	void DetachInputViewFromParent(global::Android.Views.View? inputView) {
 		if(inputView?.Parent is ViewGroup parent){
 			parent.RemoveView(inputView);
 		}
@@ -103,9 +148,18 @@ public class AvalimeInputMethodService : InputMethodService {
 		}
 
 		DetachInputViewFromParent(oldInputView);
-		oldInputView.Content = null;
-		oldInputView.Dispose();
+		if(AvaloniaInputView?.Content is IDisposable disposableContent){
+			disposableContent.Dispose();
+		}
+		if(AvaloniaInputView is not null){
+			AvaloniaInputView.Content = null;
+			AvaloniaInputView.Dispose();
+		}else{
+			oldInputView.Dispose();
+		}
 		InputView = null;
+		AvaloniaInputView = null;
+		SplitPlaceholderInputView = null;
 	}
 
 	/// 真正執行通知恢復：丟棄舊 view、創建新 view、重新掛回 IME window，
@@ -113,9 +167,42 @@ public class AvalimeInputMethodService : InputMethodService {
 	void ForceRecoverImeView() {
 		AppLog.Info("[IME] ForceRecoverImeView begin");
 		ResetInputViewInstance();
+		SyncSplitKeyboardPresentation();
 		ReattachInputView();
 		RequestShowSelfCompat();
 		AppLog.Info($"[IME] ForceRecoverImeView end inputViewNull={InputView is null}");
+	}
+
+	void SyncSplitKeyboardPresentation()
+	{
+		UpdateInputWindowLayout();
+		if(!IsSplitKeyboardActive()){
+			_splitOverlayManager?.Hide();
+			return;
+		}
+		if(!AvalimeOverlayPermission.CanDraw(this)){
+			AppLog.Warn("[IME] split keyboard requested without overlay permission");
+			if(!AvalimeOverlayPermission.Ensure(this) && _uiState is not null){
+				// 沒權限時回退到普通鍵盤，避免把輸入法切到“只有 1px 佔位但沒有 overlay”的不可用狀態。
+				_uiState.IsSplitKeyboardEnabled = false;
+			}
+			return;
+		}
+		_splitOverlayManager ??= new SplitKeyboardOverlayManager(this);
+		_splitOverlayManager.Show();
+		_splitOverlayManager.UpdateLayout();
+	}
+
+	void UpdateInputWindowLayout()
+	{
+		var height = GetCurrentInputWindowHeight();
+		if(InputView?.LayoutParameters is ViewGroup.LayoutParams lp){
+			lp.Width = ViewGroup.LayoutParams.MatchParent;
+			lp.Height = height;
+			InputView.LayoutParameters = lp;
+			InputView.RequestLayout();
+		}
+		Window?.Window?.SetLayout(ViewGroup.LayoutParams.MatchParent, height);
 	}
 
 	/// 安卓 9+ 可以明確請求重新顯示 IME。
@@ -158,7 +245,7 @@ public class AvalimeInputMethodService : InputMethodService {
 	/// 高度設為螢幕的一半（通過 <see cref="GetHalfScreenHeight"/>），確保鍵盤區域合理可視。
 	public override void OnConfigureWindow(Window? win, bool isFullscreen, bool isCandidatesOnly) {
 		base.OnConfigureWindow(win, false, isCandidatesOnly);
-		win?.SetLayout(ViewGroup.LayoutParams.MatchParent, GetHalfScreenHeight());
+		win?.SetLayout(ViewGroup.LayoutParams.MatchParent, GetCurrentInputWindowHeight());
 	}
 
 	/// 創建輸入法的主輸入視圖（鍵盤 + 候選欄等 UI）。
@@ -234,6 +321,7 @@ public class AvalimeInputMethodService : InputMethodService {
 		Di.SvcProvider = provider;
 
 		var imeState = Di.GetRSvc<ISvcIme>();
+		_uiState = Di.GetRSvc<ImeUiState>();
 		imeState.StatusText = "正在連接 Rime";
 
 		// 未處理按鍵轉發給 OS
@@ -258,6 +346,18 @@ public class AvalimeInputMethodService : InputMethodService {
 			});
 			AppLog.Debug($"[Perf] Android.OnCommit post_to_main: {swPost.ElapsedMilliseconds}ms, text: {text}");
 		};
+		_uiStatePropertyChangedHandler = (_, e) => {
+			if(e.PropertyName != nameof(ImeUiState.IsSplitKeyboardEnabled)){
+				return;
+			}
+			var mainHandler = new Handler(Looper.MainLooper!);
+			mainHandler.Post(() => {
+				ResetInputViewInstance();
+				SyncSplitKeyboardPresentation();
+				ReattachInputView();
+			});
+		};
+		_uiState.PropertyChanged += _uiStatePropertyChangedHandler;
 	}
 
 	/// 輸入視圖即將顯示時的回調。
@@ -271,6 +371,7 @@ public class AvalimeInputMethodService : InputMethodService {
 	/// 這一層專門覆蓋“同一個 editor 焦點未丟，但 IME window 被隱藏後又重新顯示”的場景。
 	public override void OnStartInputView(EditorInfo? info, bool restarting) {
 		base.OnStartInputView(info, restarting);
+		SyncSplitKeyboardPresentation();
 		ReattachInputView();
 		AppLog.Info("[IME] OnStartInputView");
 	}
@@ -280,6 +381,7 @@ public class AvalimeInputMethodService : InputMethodService {
 	/// 這裡再補一次重掛與重繪，盡量讓窗口與複用的 AvaloniaView 保持同步。
 	public override void OnWindowShown() {
 		base.OnWindowShown();
+		SyncSplitKeyboardPresentation();
 		ReattachInputView();
 		AppLog.Info($"[IME] OnWindowShown inputViewNull={InputView is null}");
 	}
@@ -289,6 +391,7 @@ public class AvalimeInputMethodService : InputMethodService {
 	/// 視窗隱藏時不會立即銷毀輸入視圖，<c>_inputView</c> 會被保留以便下次快速顯示。
 	public override void OnWindowHidden() {
 		base.OnWindowHidden();
+		_splitOverlayManager?.Hide();
 		AppLog.Info("[IME] OnWindowHidden");
 	}
 
@@ -318,6 +421,7 @@ public class AvalimeInputMethodService : InputMethodService {
 	/// 因此改為保留單例 view，真正的重掛工作放在 <see cref="OnStartInputView"/> / <see cref="OnWindowShown"/>。
 	public override void OnFinishInputView(bool finishingInput) {
 		base.OnFinishInputView(finishingInput);
+		_splitOverlayManager?.Hide();
 		AppLog.Info("[IME] OnFinishInputView");
 	}
 
@@ -327,6 +431,11 @@ public class AvalimeInputMethodService : InputMethodService {
 	/// 若需要在銷毀前釋放 Rime 引擎資源（如 <c>rime_finalize()</c>），應在此處添加清理邏輯。
 	public override void OnDestroy() {
 		ActiveServiceRef.SetTarget(null);
+		if(_uiState is not null && _uiStatePropertyChangedHandler is not null){
+			_uiState.PropertyChanged -= _uiStatePropertyChangedHandler;
+		}
+		_splitOverlayManager?.Dispose();
+		_splitOverlayManager = null;
 		ResetInputViewInstance();
 		base.OnDestroy();
 		AppLog.Info("[IME] OnDestroy");

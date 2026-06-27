@@ -16,6 +16,7 @@ public class MainActivity : AvaloniaMainActivity
 	protected override void OnCreate(Bundle? savedInstanceState) {
 		base.OnCreate(savedInstanceState);
 		AvalimeRecoveryNotification.Ensure(this);
+		AvalimeOverlayPermission.Ensure(this);
 	}
 
 	/// 參照 Ngaq 的做法，權限授予後立刻補發常駐恢復通知。
