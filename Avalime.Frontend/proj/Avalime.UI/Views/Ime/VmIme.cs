@@ -82,11 +82,7 @@ public class VmIme : ViewModelBase
 
 	void SyncRimeLogVisibility()
 	{
-		if(ImeState.IsConnecting || !ImeState.IsConnected){
-			UiState.IsRimeLogVisible = true;
-		}else{
-			UiState.IsRimeLogVisible = false;
-		}
+		UiState.SetForcedRimeLogVisible(ImeState.IsConnecting || !ImeState.IsConnected);
 	}
 
 	void RefreshCompositionState(){

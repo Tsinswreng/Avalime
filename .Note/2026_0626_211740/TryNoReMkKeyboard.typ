@@ -305,3 +305,24 @@ E:\_code\CsRime\AvlnImeDemo\AvlnImeDemo.Android\ImeInputMethodService.cs
 然後原本退格鍵有個功能、就是退格鍵上滑能隱藏輸入法、你把這個功能用 `#if false`關掉先、寫清原因。
 
 ]
+
+
+
+
+2026_0627_112603[
+(新會話)
+
+看
+E:\_code\CsRime\AvlnImeDemo\AvlnImeDemo.Android\ImeInputMethodService.cs
+
+然後你再看 Avalime的代碼
+AvlnImeDemo中、當我彈出鍵盤、再隱藏鍵盤、再彈出、重複多次、目前都沒有觀察到有黑屏的問題
+
+我之前讓Avalime參照AvlnImeDemo的代碼來改過了、但現在還是有概率發生黑屏問題
+
+黑屏問題就是輸入法鍵盤隱藏後再彈出、界面都是黑的、但是裏面的按鈕仍然是可點擊的
+
+你看看是怎麼回事 是不是哪裏沒改到位
+
+]
+

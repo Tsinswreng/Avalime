@@ -350,13 +350,14 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 	Grid MkRow5(){
 		var root = new GridStack(IsRow: false);
 		root.SetColDefs([
-			new(2, GUT.Star), new(1, GUT.Star), new(1, GUT.Star), new(2, GUT.Star),
+			new(2, GUT.Star), new(1, GUT.Star), new(1, GUT.Star), new(1, GUT.Star), new(1, GUT.Star),
 			new(1, GUT.Star), new(1, GUT.Star), new(2, GUT.Star),
 		]);
 		root
 		.A(KView(new(){Key=Enter, Label="↵"}))
 		.A(KView(new(){Key=Tab, Label="␉"}))
 		.A(KView(new(){Key=Left, Label="←", Hint="⇤"}))
+		.A(KView(new(){Key=Space, Label="", SwipeLeft=Left, SwipeRight=Right}))
 		.A(KView(new(){Key=Space, Label="", SwipeLeft=Left, SwipeRight=Right}))
 		.A(KView(new(){Key=Right, Label="→", Hint="⇥"}))
 		.A(KView(new(){Key=Dollar, Label="$", Hint="⇪", SwipeUpAction=MkToggleShiftLock()}))

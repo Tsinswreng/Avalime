@@ -1,7 +1,6 @@
 using System.Collections.ObjectModel;
 using Avalonia.Threading;
 using Avalime.Core.Infra.Log;
-using Avalime.Core.Keys;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Avalime.UI;
@@ -12,9 +11,17 @@ public class RimeLogBuffer : ObservableObject
 	public ObservableCollection<string> Lines { get; } = [];
 
 	const int MaxLines = 200;
+	readonly IRimeLogSource _RimeLogSource;
+	readonly EventHandler<RimeLogEntryEventArgs> _OnLogAppendedHandler;
 
-	public RimeLogBuffer(ISvcIme imeState)
+	public RimeLogBuffer(IRimeLogSource RimeLogSource)
 	{
+		_RimeLogSource = RimeLogSource;
+		foreach(var line in _RimeLogSource.Snapshot()){
+			Lines.Add(line);
+		}
+		_OnLogAppendedHandler = (_, Args) => Append(Args.FormattedLine);
+		_RimeLogSource.OnLogAppended += _OnLogAppendedHandler;
 	}
 
 	public void Append(string line)
@@ -35,5 +42,6 @@ public class RimeLogBuffer : ObservableObject
 
 	public void Dispose()
 	{
+		_RimeLogSource.OnLogAppended -= _OnLogAppendedHandler;
 	}
 }

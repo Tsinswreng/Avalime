@@ -26,6 +26,7 @@ using Tsinswreng.CsCore;
 	- 後續 hide/show 都複用同一個 view，不再反覆重建整棵 Avalonia UI
 	- `OnStartInputView()` / `OnWindowShown()` 會先把該 view 從舊父節點摘下，再 `SetInputView(...)` 重掛回窗口
 	- 重掛後再 `RequestLayout()` / `Invalidate()`，盡量避免窗口回來但內容樹沒有同步、導致黑屏
+	- `Application` 與 `InputMethodService.OnCreate()` 都會觸發一次後台 `RimeWarmup`，把 librime 初始化儘量前移到“鍵盤真正顯示之前”
 	- 另外會啓動一個常駐前台通知；若偶發黑屏且無法自行恢復，用戶可點通知觸發“強制恢復”
 	- “強制恢復”路徑不改動默認 hide 行爲，而是丟棄當前 `LoggingAvaloniaView`、重建新的 `MainView` 與 `AvaloniaView`，再重掛回 IME window
 	- Android 9+ 還會額外調 `RequestShowSelf(ShowFlags.Forced)`，嘗試把重建後的鍵盤重新拉回可見狀態
@@ -57,6 +58,7 @@ using Tsinswreng.CsCore;
 	`Di` 是當前全局 DI 中心；UI / Core 側若拿服務，統一通過 `Di.GetRSvc<T>()`。
 	`ISvcIme` 在 Android 端不再直接使用空殼基類，而是註冊 `Avalime.Rime.SvcIme`。
 	這樣 `Avalime.UI` 仍只依賴 `Avalime.Core`，但真正的 Rime 連接、狀態同步與 option 切換由 `Avalime.Rime` 層實現。
+	`RimeWarmup` 也是 Android 宿主主動觸發的：目的不是立刻把鍵盤 UI 綁死在後端初始化上，而是儘量利用進程啓動與 IME service 建立的空檔，在後台先把 `RimeSetup.Inst` 單例拉起來。
 	`ILogger` 也註冊爲 `AppLog.Inst`，方便不便注入的地方與可注入的地方共用同一條日誌出口。
 	`AppLog.Inst.InnerLogger` 在 Android `Application` 啟動時切到 `AndroidLogger`，Release 也可直接進 logcat。
 ]

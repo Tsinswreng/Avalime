@@ -14,6 +14,9 @@ using Tsinswreng.CsCore;
 	- `Avalime.Rw.jsonc` 提供 `Librime` 結構
 	- 宿主再把實際 `DllPath`、`RimeTraits.user_data_dir`、`RimeTraits.app_name` 寫入可寫層
 	- 之後由 `RimeSetup.Inst` 從 `AppCfg.Inst` 讀取配置並完成初始化
+	- 另外新增 `RimeWarmup`：`Application` 與 Android IME `OnCreate()` 會在後台先觸發一次預熱
+	- 預熱的本質是提早構造 `RimeSetup.Inst`，把 `initialize/start_maintenance/join_maintenance_thread/create_session` 儘量前移
+	- 這樣首次 editor 聚焦時，UI 雖然仍可能拿到同一個 `RimeSetup` 單例，但大概率不必再同步等待整套 librime 初始化
 ]
 
 #H[按鍵轉換][

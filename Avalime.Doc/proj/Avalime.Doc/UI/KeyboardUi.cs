@@ -79,11 +79,23 @@ using Tsinswreng.CsCore;
 	切換範圍只覆蓋 `ViewKeyBoard` 所在的 body 區，預編輯欄、候選欄、工具欄本身不切。
 	當 `RimeConnectionState` 處於 `IsConnecting=true` 或尚未 `IsConnected` 時，也會自動切到日誌頁，方便直接觀察引擎連接輸出。
 		連接完成（`IsConnecting=false` 且 `IsConnected=true`）後自動切回鍵盤視圖。
+	這裡現在拆成兩條狀態：
+	- `Forced`：初始化未完成時由 `VmIme` 自動打開，完成後自動關閉
+	- `Pinned`：用戶手動點擊工具欄日誌按鈕後打開/關閉
+	兩者最終以“或”合併成 `IsRimeLogVisible`，因此：
+	- 初始化期間會先彈出日誌頁
+	- 初始化完成後若只是自動打開，會立即自動切回鍵盤
+	- 正常狀態下用戶手動打開日誌頁，不會再被“已連接”狀態立刻強制關掉
 ]
 
 #H[Rime 日誌頁][
 	`RimeSetup` 現在把引擎通知回調包成 C# 事件 `OnLog` / `OnOptionChanged`。
-	`RimeLogBuffer` 訂閱 `RimeSetup.OnLog`，一邊把內容寫到 `AppLog.Inst`，一邊保存在內存環形列表裡給 UI 顯示。
+	`Avalime.Core.Infra.Log.IRimeLogSource` 是 UI 看到的抽象；
+	Android 宿主把 `Avalime.Rime.RimeLogStore.Inst` 註冊爲該介面。
+	`RimeLogStore` 會先保存最近一段初始化日誌，再把新增日誌事件往外廣播。
+	`RimeLogBuffer` 僅依賴 `IRimeLogSource`：
+	- 構造時先回放歷史快照，保證即使 librime 在 UI 顯示前就已開始預熱，也能看到前面的初始化輸出
+	- 運行中再訂閱 `OnLogAppended`，把後續日誌持續追加到頁面
 	工具欄的日誌按鈕切換的是 `VmIme.IsRimeLogVisible`；
 	其互斥關係和剪貼板頁相同：打開日誌頁時會關閉剪貼板頁，反之亦然。
 ]

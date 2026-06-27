@@ -26,19 +26,24 @@ namespace Avalime.Rime;
 unsafe public class RimeSetup
 	:IDisposable
 {
+	static readonly Lazy<RimeSetup> _InstLazy = new(() => new RimeSetup(), LazyThreadSafetyMode.ExecutionAndPublication);
+
 	static void LogInfo(str message){ RaiseLog(LogLevel.Information, message); }
 	static void LogError(str message){ RaiseLog(LogLevel.Error, message); }
 
 	static void RaiseLog(LogLevel level, string message)
 	{
 		AppLog.Inst.Log(level, 0, "[AvalimeRime] " + message, null, static (state, _) => state?.ToString() ?? "");
+		RimeLogStore.Inst.Append(level, message);
 		OnLog?.Invoke(null, new RimeLogEventArgs{
 			Level = level,
 			Message = message,
 		});
 	}
 
-	public static RimeSetup Inst => field??= new RimeSetup();
+	public static RimeSetup Inst{
+		get{return _InstLazy.Value;}
+	}
 	public PtrMgr ptrMgr = new PtrMgr();
 
 

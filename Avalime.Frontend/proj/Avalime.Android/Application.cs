@@ -33,6 +33,8 @@ public class Application : AvaloniaAndroidApplication<App>
 		AppLog.Inst.InnerLogger = new AndroidLogger("Avalime");
 		InitCfg(global::Android.App.Application.Context);
 		SetupSoFiles(global::Android.App.Application.Context);
+		// App 進程一啓動就先在後台預熱 Rime，避免首次喚起 IME 才同步初始化後端。
+		_ = RimeWarmup.EnsureWarmAsy();
 	}
 
 	static void InitCfg(global::Android.Content.Context ctx)
@@ -149,6 +151,7 @@ public class Application : AvaloniaAndroidApplication<App>
 	{
 		var services = new ServiceCollection();
 		services.AddSingleton<RimeSetup>(_ => RimeSetup.Inst);
+		services.AddSingleton<IRimeLogSource>(_ => RimeLogStore.Inst);
 		services.AddSingleton<IImeKeyProcessor, RimeKeyProcessor>();
 		services.AddSingleton<IOsKeyProcessor, AndroidStubOsKeyProcessor>();
 		services.AddSingleton<IKeyboardHost, ActivityKeyboardHost>();
@@ -216,6 +219,8 @@ public class Application : AvaloniaAndroidApplication<App>
 		if(DiTryNeedsInit()){
 			Di.SvcProvider = BuildAndroidActivityServices();
 		}
+		// Activity 路徑也順手補一次預熱，確保即使未走到 Application ctor 也能提前拉起 Rime。
+		_ = RimeWarmup.EnsureWarmAsy();
 		return base.CustomizeAppBuilder(builder)
 			.With(new Avalonia.Media.FontManagerOptions{
 				DefaultFamilyName = "serif"
