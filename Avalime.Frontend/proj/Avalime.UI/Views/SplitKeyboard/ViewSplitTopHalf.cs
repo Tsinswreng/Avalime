@@ -38,7 +38,9 @@ public class ViewSplitTopHalf : UserControl
 		_fullStrip.HorizontalAlignment = _side == SplitKeyboardSide.Left
 			? HorizontalAlignment.Left
 			: HorizontalAlignment.Right;
-		_fullStrip.VerticalAlignment = VerticalAlignment.Stretch;
+		// split 頂欄 overlay 本身是固定高度窗口；
+		// 內容需要貼近鍵盤頂邊，而不是撐滿整個窗口，否則工具欄和第一排按鍵之間會留下整塊黑縫。
+		_fullStrip.VerticalAlignment = VerticalAlignment.Bottom;
 		SizeChanged += OnSizeChanged;
 		LayoutUpdated += OnLayoutUpdated;
 	}
@@ -57,9 +59,6 @@ public class ViewSplitTopHalf : UserControl
 		_lastSyncedWidth = width;
 		_lastSyncedHeight = height;
 		_fullStrip.Width = width * 2;
-		if(height > 0){
-			_fullStrip.Height = height;
-		}
 		AppLog.Info($"[SplitTop:{_side}] SizeChanged bounds={Bounds} stripWidth={_fullStrip.Width} stripHeight={_fullStrip.Height} rootBounds={_root.Bounds}");
 	}
 

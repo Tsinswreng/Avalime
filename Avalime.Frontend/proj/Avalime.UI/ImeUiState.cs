@@ -1,12 +1,15 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Avalime.Core.Infra;
 using Tsinswreng.CsCfg;
+using System.Threading;
 
 namespace Avalime.UI;
 
 /// `Ime` 界面的共享 UI 狀態。由根 `VmIme` 與工具欄/剪貼板等子模塊共用。
 public partial class ImeUiState : ObservableObject
 {
+	static readonly Lock PersistLock = new();
+
 	public ImeUiState()
 	{
 		// 分體開關屬於用戶顯式偏好，需要跨 hide/show 與進程存活保持。
@@ -118,6 +121,10 @@ public partial class ImeUiState : ObservableObject
 	static void PersistSplitKeyboardEnabled(bool Value)
 	{
 		AppCfg.Inst.Set(KeysCfg.Keyboard.IsSplitEnabled, Value);
-		AppCfg.Inst.Save();
+		_ = Task.Run(() => {
+			lock(PersistLock){
+				AppCfg.Inst.Save();
+			}
+		});
 	}
 }

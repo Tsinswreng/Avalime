@@ -276,9 +276,7 @@ public class AvalimeInputMethodService : InputMethodService {
 			return;
 		}
 		_splitOverlayManager ??= new SplitKeyboardOverlayManager(this);
-		if(_splitOverlayManager.Show()){
-			_splitOverlayManager.UpdateLayout();
-		}
+		_splitOverlayManager.Show();
 	}
 
 	/// <summary>
