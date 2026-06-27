@@ -1,4 +1,5 @@
 using Avalime.Core.Keys;
+using Avalime.Core.Infra.Log;
 using Avalime.ViewModels;
 using Avalonia.Threading;
 using System.ComponentModel;
@@ -36,6 +37,7 @@ public class VmIme : ViewModelBase
 	readonly EventHandler<IEnumerable<IKeyEvent>> _afterInputHandler;
 	readonly PropertyChangedEventHandler _uiStatePropertyChangedHandler;
 	readonly PropertyChangedEventHandler _imePropertyChangedHandler;
+	readonly EventHandler<bool> _connectCompletedHandler;
 
 	public VmIme(ISvcIme ImeState, ImeUiState UiState){
 		this.ImeState = ImeState;
@@ -69,8 +71,10 @@ public class VmIme : ViewModelBase
 		ImeState.AfterInput += _afterInputHandler;
 		_imePropertyChangedHandler = OnImePropertyChanged;
 		ImeState.PropertyChanged += _imePropertyChangedHandler;
+		_connectCompletedHandler = OnConnectCompleted;
+		ImeState.ConnectCompleted += _connectCompletedHandler;
 		SyncRimeLogVisibility();
-		_ = ImeState.ConnectAsy();
+		_ = StartConnectAsy();
 	}
 
 	void OnImePropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -83,6 +87,33 @@ public class VmIme : ViewModelBase
 	void SyncRimeLogVisibility()
 	{
 		UiState.SetForcedRimeLogVisible(ImeState.IsConnecting || !ImeState.IsConnected);
+	}
+
+	/// <summary>
+	/// 由 UI 主動發起一次後端連接。
+	/// 不在這裡 await 到構造函數外層，避免首屏 UI 被同步等待；異常則統一落日誌。
+	/// </summary>
+	async Task StartConnectAsy()
+	{
+		try{
+			await ImeState.ConnectAsy();
+		}catch(Exception Ex){
+			AppLog.Error(Ex, "[VmIme] ConnectAsy failed");
+		}
+	}
+
+	/// <summary>
+	/// 後端初始化完成後，統一在 UI 線程刷新可見狀態。
+	/// 成功時會把強制日誌態解除，失敗時則保留日誌頁給用戶看錯誤輸出。
+	/// </summary>
+	void OnConnectCompleted(object? Sender, bool IsSuccess)
+	{
+		Dispatcher.UIThread.Post(() => {
+			SyncRimeLogVisibility();
+			if(IsSuccess){
+				RefreshCompositionState();
+			}
+		});
 	}
 
 	void RefreshCompositionState(){
@@ -100,5 +131,6 @@ public class VmIme : ViewModelBase
 		UiState.PropertyChanged -= _uiStatePropertyChangedHandler;
 		ImeState.AfterInput -= _afterInputHandler;
 		ImeState.PropertyChanged -= _imePropertyChangedHandler;
+		ImeState.ConnectCompleted -= _connectCompletedHandler;
 	}
 }

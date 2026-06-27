@@ -1,5 +1,6 @@
 using Avalime.Core.Keys;
 using Avalime.Core.Infra.Log;
+using Microsoft.Extensions.DependencyInjection;
 using Rime.Api;
 using Tsinswreng.CsInterop;
 
@@ -10,26 +11,29 @@ unsafe public class RimeKeyProcessor
 	: IImeKeyProcessor
 {
 	public event ErrHandler? OnErr;
-	protected RimeSetup RimeSetup;
-	public RimeApi Rime{get;set;}
-	public RimeKeyProcessor()
-		: this(RimeSetup.Inst){}
+	readonly IServiceProvider _SvcProvider;
+	RimeSetup? _RimeSetup;
+	public RimeKeyProcessor(IServiceProvider svcProvider) {
+		_SvcProvider = svcProvider;
+	}
 
-	public RimeKeyProcessor(RimeSetup setup) {
-		RimeSetup = setup;
-		Rime = RimeSetup.apiFn;
+	RimeSetup GetRimeSetup() {
+		_RimeSetup ??= _SvcProvider.GetRequiredService<RimeSetup>();
+		return _RimeSetup;
 	}
 
 	public async Task<IRespOnKeyEvent> OnKeyEvents(IEnumerable<IKeyEvent> KeyEvents, CT Ct) {
 		var sw = System.Diagnostics.Stopwatch.StartNew();
 		AppLog.Debug($"[Perf] RimeKeyProcessor start: {sw.ElapsedMilliseconds}ms");
 		var resp = new RespOnKeyEvent();
+		var rimeSetup = GetRimeSetup();
+		var rime = rimeSetup.apiFn;
 		foreach (var keyEvent in KeyEvents) {
 			var tuple = RimeKeyCharConverter.Inst.Convert(keyEvent);
 
 			var swPk = System.Diagnostics.Stopwatch.StartNew();
-			var handled = Rime.process_key(
-				RimeSetup.rimeSessionId
+			var handled = rime.process_key(
+				rimeSetup.rimeSessionId
 				,tuple.Item1
 				,tuple.Item2
 			);
@@ -44,12 +48,12 @@ unsafe public class RimeKeyProcessor
 			var swCommit = System.Diagnostics.Stopwatch.StartNew();
 			var commit = new RimeCommit();
 			commit.data_size = RimeUtil.DataSize<RimeCommit>();
-			if(Rime.get_commit(RimeSetup.rimeSessionId, &commit) != RimeUtil.False){
+			if(rime.get_commit(rimeSetup.rimeSessionId, &commit) != RimeUtil.False){
 				var text = ToolCStr.ToCsStr(commit.text);
 				if(!string.IsNullOrEmpty(text)){
 					resp.Commits.Add(text);
 				}
-				Rime.free_commit(&commit);
+				rime.free_commit(&commit);
 			}
 			AppLog.Debug($"[Perf] RimeKeyProcessor get_commit: {swCommit.ElapsedMilliseconds}ms");
 		}

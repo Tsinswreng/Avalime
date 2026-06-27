@@ -202,4 +202,20 @@ public abstract class ISvcIme
 	/// 當 Rime 引擎 commit 文字時觸發。參數為 commit 的文字內容。
 	public event EventHandler<string>? OnCommit;
 
+	/// <summary>
+	/// 當後端初始化/連接流程結束時觸發。
+	/// 不論成功或失敗都會發出，供 UI 在“初始化完成”這個時機做視圖切換。
+	/// 參數為本次連接是否成功。
+	/// </summary>
+	public event EventHandler<bool>? ConnectCompleted;
+
+	/// <summary>
+	/// 子類在完成一次初始化/連接流程後調用。
+	/// 這裡只負責發事件，不摻雜具體 UI 邏輯，避免 Core 反向依賴前端。
+	/// </summary>
+	protected void RaiseConnectCompleted(bool IsSuccess)
+	{
+		ConnectCompleted?.Invoke(this, IsSuccess);
+	}
+
 }

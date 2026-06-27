@@ -70,18 +70,8 @@ public class ViewCandidate : AppViewBase<Ctx>
 		};
 		_border = border;
 		Ctx.Bind(border, Border.BackgroundProperty, x=>x.Background);
-		try{
-			var minWProp = this.Prop(x => x.MinWidth);
-			AppLog.Debug($"[CandMinWidth] Prop resolved: {minWProp?.Name} Owner={minWProp?.OwnerType?.Name}");
-			Ctx.Bind(this, x=>x.MinWidth, x=>x.MinWidth);
-			AppLog.Debug($"[CandMinWidth] Bind OK, MinWidth={this.MinWidth}");
-			var minWProp2 = this.Prop(x => x.MinWidth);
-			this.GetObservable(minWProp2).Subscribe(v => {
-				AppLog.Debug($"[CandMinWidth] ViewCandidate.MinWidth => {v}");
-			});
-		}catch(Exception ex){
-			AppLog.Error(ex, "[CandMinWidth] Bind ERROR");
-		}
+		// 候選首顯時會批量建多個 ViewCandidate，這裡只保留必要綁定，避免每個控件額外掛觀察與打高頻日誌。
+		Ctx.Bind(this, x=>x.MinWidth, x=>x.MinWidth);
 		border.PointerPressed += (_, e) => {
 			_isPressedInside = true;
 			e.Pointer.Capture(border);
@@ -185,4 +175,3 @@ public class ViewCandidate : AppViewBase<Ctx>
 		}
 	}
 }
-

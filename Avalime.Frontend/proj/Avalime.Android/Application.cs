@@ -33,8 +33,6 @@ public class Application : AvaloniaAndroidApplication<App>
 		AppLog.Inst.InnerLogger = new AndroidLogger("Avalime");
 		InitCfg(global::Android.App.Application.Context);
 		SetupSoFiles(global::Android.App.Application.Context);
-		// App 進程一啓動就先在後台預熱 Rime，避免首次喚起 IME 才同步初始化後端。
-		_ = RimeWarmup.EnsureWarmAsy();
 	}
 
 	static void InitCfg(global::Android.Content.Context ctx)
@@ -168,10 +166,7 @@ public class Application : AvaloniaAndroidApplication<App>
 		services.AddTransient<VmKey>();
 		services.AddTransient<VmKeyBoard>();
 		services.AddSingleton<Microsoft.Extensions.Logging.ILogger>(_ => AppLog.Inst);
-		var provider = services.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = false, ValidateScopes = false });
-		var imeState = provider.GetRequiredService<ISvcIme>();
-		imeState.StatusText = "正在連接 Rime";
-		return provider;
+		return services.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = false, ValidateScopes = false });
 	}
 
 	static void EnsureAssetFile(AssetManager assets, string assetPath, string outputPath, bool overwrite)
@@ -219,8 +214,6 @@ public class Application : AvaloniaAndroidApplication<App>
 		if(DiTryNeedsInit()){
 			Di.SvcProvider = BuildAndroidActivityServices();
 		}
-		// Activity 路徑也順手補一次預熱，確保即使未走到 Application ctor 也能提前拉起 Rime。
-		_ = RimeWarmup.EnsureWarmAsy();
 		return base.CustomizeAppBuilder(builder)
 			//用CPU渲染、否則在安卓端鍵盤隱藏又彈出有概率變黑 但仍可點擊交互
 			.With(new AndroidPlatformOptions{

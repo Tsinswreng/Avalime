@@ -19,6 +19,7 @@ public partial class VmCandidatesBar : ViewModelBase
 	public ISvcIme ImeState{get;}
 
 	readonly EventHandler<IEnumerable<IKeyEvent>> _afterInputHandler;
+	bool _HasShownCandidates;
 
 	public VmCandidatesBar(ISvcIme ImeState){
 		this.ImeState = ImeState;
@@ -42,18 +43,29 @@ public partial class VmCandidatesBar : ViewModelBase
 	}
 
 	void ApplyCandidates(IList<ICandidate> candidates, int highlightedIndex){
+		// UI 體感卡頓主要發生在「首次從空列表變成有候選」時，這裡單獨量測 UI 線程的實際更新成本。
+		var sw = System.Diagnostics.Stopwatch.StartNew();
+		var oldCount = CandVms.Count;
+		var newVmCount = 0;
 		// 先裁掉多餘項，再原地更新已有 VM，最後只為新增項創建 VM。
 		while(CandVms.Count > candidates.Count){
 			CandVms.RemoveAt(CandVms.Count - 1);
 		}
 
 		for(var index = 0; index < candidates.Count; index++){
-			var vm = index < CandVms.Count ? CandVms[index] : MkCandVm();
+			var isNewVm = index >= CandVms.Count;
+			var vm = !isNewVm ? CandVms[index] : MkCandVm();
 			FillCandVm(vm, candidates[index], index, index == highlightedIndex);
-			if(index >= CandVms.Count){
+			if(isNewVm){
+				newVmCount++;
 				CandVms.Add(vm);
 			}
 		}
+		var isFirstShow = !_HasShownCandidates && oldCount == 0 && candidates.Count > 0;
+		if(isFirstShow){
+			_HasShownCandidates = true;
+		}
+		AppLog.Info($"[Perf] VmCandidatesBar.ApplyCandidates ui={sw.ElapsedMilliseconds}ms old={oldCount} new={candidates.Count} addedVm={newVmCount} firstShow={isFirstShow}");
 	}
 
 	VmCandidate MkCandVm(){

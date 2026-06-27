@@ -462,8 +462,6 @@ public class AvalimeInputMethodService : InputMethodService {
 		base.OnCreate();
 		AppLog.Info("[IME] OnCreate");
 		ActiveServiceRef.SetTarget(this);
-		// IME service 一啓動就補一次後台預熱，盡量把首次 editor 聚焦前的 librime 初始化前移。
-		_ = RimeWarmup.EnsureWarmAsy();
 
 		var services = new ServiceCollection();
 		services.AddSingleton<RimeSetup>(_ => RimeSetup.Inst);
