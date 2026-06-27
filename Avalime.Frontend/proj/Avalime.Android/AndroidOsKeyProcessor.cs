@@ -25,6 +25,18 @@ public class AndroidOsKeyProcessor : IOsKeyProcessor
 			var metaState = ToAndroidMetaState(keyEvent.KeyBoardState);
 			AppLog.Debug($"[IME] OsKeyProcessor forwarding: {name}");
 
+
+			// 直接上屏的字母和數字優先走 commitText。
+			// UU遠程遠程控制輸入框不可靠支持 sendKeyEvent 的字符注入，
+			// 但對 commitText 的文本提交語義支持更穩定。
+			if(ShouldCommitDirectText(name, metaState)){
+				var text = KeyNameToText(name);
+				if(text is not null){
+					ic.CommitText(text, 1);
+					continue;
+				}
+			}
+
 			var androidKey = MapToAndroidKey(name);
 			if(androidKey is not null && (metaState != global::Android.Views.MetaKeyStates.None || ShouldSendAsKeyEvent(name))){
 				ic.SendKeyEvent(new global::Android.Views.KeyEvent(0, 0, global::Android.Views.KeyEventActions.Down, androidKey.Value, 0, metaState));
@@ -37,6 +49,14 @@ public class AndroidOsKeyProcessor : IOsKeyProcessor
 			}
 		}
 		return Task.FromResult<IRespOnKeyEvent>(new RespOnKeyEvent());
+	}
+
+	static bool ShouldCommitDirectText(string name, global::Android.Views.MetaKeyStates metaState){
+		if(metaState != global::Android.Views.MetaKeyStates.None){
+			return false;
+		}
+
+		return name.Length == 1 && char.IsAsciiLetterOrDigit(name[0]);
 	}
 
 	static global::Android.Views.MetaKeyStates ToAndroidMetaState(IKeyBoardState? keyBoardState){

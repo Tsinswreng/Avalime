@@ -57,3 +57,39 @@
 看看是怎麼回事
 
 ]
+
+#[
+```
+看下來，問題基本就在 `AndroidOsKeyProcessor` 這一層，不在 Rime。
+
+當前代碼的行為是：
+
+- 普通字母/數字、退格、方向鍵、`Home/End` 這些，走 `InputConnection.sendKeyEvent(...)`
+  - 代碼在 [AndroidOsKeyProcessor.cs](/E:/_code/CsRime/Avalime/Avalime.Frontend/proj/Avalime.Android/AndroidOsKeyProcessor.cs:24)
+- 其他很多符號，走 `InputConnection.commitText(...)`
+  - 同文件 [AndroidOsKeyProcessor.cs](/E:/_code/CsRime/Avalime/Avalime.Frontend/proj/Avalime.Android/AndroidOsKeyProcessor.cs:32)
+
+所以你現在觀察到的現象正好對上：
+
+- 非 `ascii` 模式能上屏：因為那時很多內容是 Rime 處理後直接 `commit` 出來的，不依賴 OS 未處理鏈
+- `ascii` 模式字母不能上屏：因為字母被轉去走 `sendKeyEvent(...)`，UU 遠程那個輸入框大概率不吃這類 key event
+- 符號能上屏：因為符號多半走的是 `commitText(...)`
+- 方向鍵、`Home/End`、退格都沒用：因為它們也都走 `sendKeyEvent(...)`
+- 開了退格映射也沒用：因為只是把 `Backspace` 換成了 `Alt_R`，最後仍然還是走 `sendKeyEvent(...)`，而不是換成別的輸入通道
+
+這和 Android 文檔語義也一致：
+
+- `sendKeyEvent(...)` 是“把 key event 發給當前附着進程/焦點 view”，不是保證“像文本一樣插入”
+  來源：[InputConnection.sendKeyEvent](https://developer.android.com/reference/android/view/inputmethod/InputConnection#sendKeyEvent(android.view.KeyEvent))
+- `commitText(...)` 才是“把文本提交到文本框”
+  來源：[InputConnection.commitText](https://developer.android.com/reference/android/view/inputmethod/InputConnection#commitText(java.lang.CharSequence,int))
+- 刪除文本則應走 `deleteSurroundingText(...)`
+  來源：[InputConnection.deleteSurroundingText](https://developer.android.com/reference/android/view/inputmethod/InputConnection#deleteSurroundingText(int,int))
+
+結論：
+
+- 你的本機普通輸入框“正常”，是因為普通編輯器通常同時能處理這兩條路
+- UU 遠程的那個輸入框，很像只可靠支持 `commitText(...)` 這種“文本提交”接口
+- 它對 `sendKeyEvent(...)` 這條路支持很差或根本不支持，所以字母/退格/方向鍵/`Home/End` 全失效
+```
+]
