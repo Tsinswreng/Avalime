@@ -16,6 +16,12 @@ using Ctx = VmCandidatesBar;
 public partial class VmCandidatesBar : ViewModelBase
 	, IDisposable
 {
+	/// <summary>
+	/// 候選欄固定預建 16 個槽位。
+	/// 正常頁大小遠小於這個值，首顯時直接復用既有 VM / View，避免從空集合臨時長出整排控件。
+	/// </summary>
+	const i32 CandidatePoolSize = VmCandidate.PoolSize;
+
 	public ISvcIme ImeState{get;}
 
 	readonly EventHandler<IEnumerable<IKeyEvent>> _afterInputHandler;
@@ -24,12 +30,13 @@ public partial class VmCandidatesBar : ViewModelBase
 	public VmCandidatesBar(ISvcIme ImeState){
 		this.ImeState = ImeState;
 		AppLog.Info($"[Life] VmCandidatesBar ctor vm#{GetHashCode()}");
+		WarmCandidatePool();
 		_afterInputHandler = (s, e)=>{
 			var sw = System.Diagnostics.Stopwatch.StartNew();
 			AppLog.Debug($"[Perf] VmCandidatesBar.AfterInput start: {sw.ElapsedMilliseconds}ms");
 			var candidates = ImeState.Candidates.Data;
 			if(candidates is null){
-				Dispatcher.UIThread.Post(() => CandVms.Clear());
+				Dispatcher.UIThread.Post(HideAllCandidates);
 				return;
 			}
 			var highlightedIndex = ImeState.Candidates.HighlightedIndex;
@@ -42,44 +49,58 @@ public partial class VmCandidatesBar : ViewModelBase
 		ImeState.AfterInput += _afterInputHandler;
 	}
 
+	/// <summary>
+	/// 啟動時先把候選 VM 池建好。
+	/// 之後候選首顯只切換資料與顯隱，不再批量 new VM。
+	/// </summary>
+	void WarmCandidatePool()
+	{
+		for(i32 Index = 0; Index < CandidatePoolSize; Index++){
+			CandVms.Add(MkCandVm());
+		}
+	}
+
 	void ApplyCandidates(IList<ICandidate> candidates, int highlightedIndex){
 		// UI 體感卡頓主要發生在「首次從空列表變成有候選」時，這裡單獨量測 UI 線程的實際更新成本。
 		var sw = System.Diagnostics.Stopwatch.StartNew();
-		var oldCount = CandVms.Count;
-		var newVmCount = 0;
-		// 先裁掉多餘項，再原地更新已有 VM，最後只為新增項創建 VM。
-		while(CandVms.Count > candidates.Count){
-			CandVms.RemoveAt(CandVms.Count - 1);
+		var oldVisibleCount = CountVisibleCandidates();
+		var visibleCount = Math.Min(candidates.Count, CandVms.Count);
+		if(candidates.Count > CandVms.Count){
+			AppLog.Warn($"[Perf] VmCandidatesBar.ApplyCandidates candidates overflow: actual={candidates.Count}, pool={CandVms.Count}");
 		}
 
-		for(var index = 0; index < candidates.Count; index++){
-			var isNewVm = index >= CandVms.Count;
-			var vm = !isNewVm ? CandVms[index] : MkCandVm();
+		for(i32 index = 0; index < visibleCount; index++){
+			var vm = CandVms[index];
 			FillCandVm(vm, candidates[index], index, index == highlightedIndex);
-			if(isNewVm){
-				newVmCount++;
-				CandVms.Add(vm);
-			}
 		}
-		var isFirstShow = !_HasShownCandidates && oldCount == 0 && candidates.Count > 0;
+		for(i32 index = visibleCount; index < CandVms.Count; index++){
+			HideCandVm(CandVms[index], index);
+		}
+		var isFirstShow = !_HasShownCandidates && oldVisibleCount == 0 && visibleCount > 0;
 		if(isFirstShow){
 			_HasShownCandidates = true;
 		}
-		AppLog.Info($"[Perf] VmCandidatesBar.ApplyCandidates ui={sw.ElapsedMilliseconds}ms old={oldCount} new={candidates.Count} addedVm={newVmCount} firstShow={isFirstShow}");
+		AppLog.Info($"[Perf] VmCandidatesBar.ApplyCandidates ui={sw.ElapsedMilliseconds}ms oldVisible={oldVisibleCount} newVisible={visibleCount} source={candidates.Count} firstShow={isFirstShow}");
 	}
 
 	VmCandidate MkCandVm(){
 		var ans = VmCandidate.Mk();
 		ans.Background = UiCfg.Inst.CandidateBgColor;
+		ans.IsVisible = false;
 		return ans;
 	}
 
+	/// <summary>
+	/// 復用既有槽位顯示當前候選。
+	/// 單個槽位的最小寬度由 ViewCandidatesBar 提前灌入，這裡只覆寫文字、高亮與點擊行為。
+	/// </summary>
 	void FillCandVm(VmCandidate vm, ICandidate cand, int index, bool isHighlighted){
 		// Click 也隨當前 index 一併覆寫，避免復用 VM 後還指向舊候選位次。
 		vm.Text = cand.Text ?? "";
 		vm.Comment = cand.Comment ?? "";
 		vm.Index = index;
 		vm.Foreground = isHighlighted ? UiCfg.Inst.MainColor : Brushes.White;
+		vm.IsVisible = true;
 		vm.Click = () => {
 			var key = IndexToKey(index);
 			ImeState.InputSafely([
@@ -87,6 +108,42 @@ public partial class VmCandidatesBar : ViewModelBase
 				new KeyEvent{KeyChar = key, KeyState = KS.Up}
 			], ex => HandleErr(ex));
 		};
+	}
+
+	/// <summary>
+	/// 清空槽位內容並隱藏。
+	/// 保留 VM / View 實例，只把本輪不用的候選槽位收起來。
+	/// </summary>
+	void HideCandVm(VmCandidate Vm, i32 Index)
+	{
+		Vm.Text = "";
+		Vm.Comment = "";
+		Vm.Index = Index;
+		Vm.Foreground = Brushes.White;
+		Vm.IsVisible = false;
+		Vm.Click = null;
+	}
+
+	/// <summary>
+	/// 本輪沒有候選時，整批隱藏候選槽位。
+	/// 不清空集合，讓下次首顯直接復用已創建的控件樹。
+	/// </summary>
+	void HideAllCandidates()
+	{
+		for(i32 Index = 0; Index < CandVms.Count; Index++){
+			HideCandVm(CandVms[Index], Index);
+		}
+	}
+
+	i32 CountVisibleCandidates()
+	{
+		i32 Ans = 0;
+		foreach(var Vm in CandVms){
+			if(Vm.IsVisible){
+				Ans++;
+			}
+		}
+		return Ans;
 	}
 
 	static IKeyChar IndexToKey(int index) => index switch {

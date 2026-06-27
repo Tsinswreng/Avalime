@@ -13,7 +13,7 @@ using Tsinswreng.CsCore;
 
 #H[涉及角色][
 	- `ImeState`：輸入鏈樞紐，負責 `InputSafely` / `Input` / `AfterInput`
-	- `RimeConnectionState`：持有當前 `RimeSetup`
+	- `SvcIme`：`ISvcIme` 的 Rime 實現，負責把 `RimeContext` / `RimeStatus` 回填到 Core 狀態
 	- `VmCandidatesBar`：候選欄 ViewModel，負責從 Rime 取候選列表
 	- `VmCandidate`：單個候選詞的 ViewModel
 	- `ViewCandidatesBar`：候選欄視圖，綁定 `CandVms`
@@ -26,23 +26,18 @@ using Tsinswreng.CsCore;
 	2. `ViewKeyBoard` 中的 `VmKey.Click` / 其他按鍵動作最終都調 `ImeState.InputSafely(...)`。
 	3. `ImeState.InputSafely(...)` 把 `Input(...)` 丟到後台 `Task` 執行，避免阻塞 UI 線程。
 	4. `ImeState.Input(...)` 先調 `ImeKeyProcessor.OnKeyEventsAsy(...)`，即把按鍵送進 Rime。
-	5. Rime 處理完後，`ImeState.Input(...)` 觸發 `AfterInput`。
-	6. `VmCandidatesBar` 在構造函數中已訂閱 `ImeState.AfterInput`，因此每次輸入後都會進入刷新流程。
-	7. `VmCandidatesBar` 從 `RimeConnectionState.Setup` 取出當前 `RimeSetup`；若當前未連上 Rime，則在 UI 線程把 `CandVms` 置空。
-	8. 若已連接，`VmCandidatesBar` 依次做：
-		- `candidate_list_begin(...)` 開始遍歷候選詞
-		- `get_context(...)` 取 `highlighted_candidate_index`
-		- `candidate_list_next(...)` 逐個讀候選詞
-		- 最多取 16 個
-		- `candidate_list_end(...)` 結束遍歷
-	9. 每個原生候選詞都被轉成一個新的 `VmCandidate`：
-		- `Text` 來自 `cand.text`
-		- `Comment` 來自 `cand.comment`
+	5. `SvcIme` 自己也已訂閱 `ImeState.AfterInput`；它在後台線程內調 `get_status()` / `get_context()`，把最新 `IsComposing` / `Preedit` / `Candidates` 回填到 `ImeState`。
+	6. `ImeState.Input(...)` 之後觸發同一輪 `AfterInput` 訂閱方。
+	7. `VmCandidatesBar` 在構造函數中已訂閱 `ImeState.AfterInput`，因此每次輸入後都會讀取 `ImeState.Candidates` 這份最新快照。
+	8. `VmCandidatesBar` 不直接再碰 Rime C API；它只在 UI 線程 `Post` 一次 `ApplyCandidates(...)`。
+	9. `ApplyCandidates(...)` 會把當前候選資料原地覆寫進固定預建的 `VmCandidate` 池：
+		- `Text` 來自 `Candidate.Text`
+		- `Comment` 來自 `Candidate.Comment`
 		- `Index` 是其在當前列表中的序號
 		- `Foreground` 若等於 highlighted index 則用 `UiCfg.MainColor`，否則白色
 		- `Click` 回調被綁成“發送對應數字鍵”
-	10. `VmCandidatesBar` 最後通過 `Dispatcher.UIThread.Post(...)` 一次性用新 `ObservableCollection<VmCandidate>` 替換 `CandVms`。
-	11. `ViewCandidatesBar` 綁定了 `CandVms`；`ItemsControl` 收到新列表後重建候選項視圖。
+		- 超出本輪候選數量的槽位只被隱藏，不銷毀 VM / View
+	10. `ViewCandidatesBar` 綁定了固定大小的 `CandVms`；候選變化時主要是切換可見性與覆寫文字，而不是首次打字時臨時 new 出整排候選視圖。
 ]
 
 #H[UI 渲染鏈路: CandVms -> 候選項控件][
@@ -67,12 +62,13 @@ using Tsinswreng.CsCore;
 	- 視覺分隔完全由 `ViewCandidate` 內 `Border` 的 `BorderThickness = 0.5` 實現
 	- 兩個相鄰候選的邊框重疊（0.5 + 0.5 = 1px 視覺分隔），與鍵盤按鍵一致
 
-	為使單字候選與鍵盤按鍵嚴格對齊，`ViewCandidatesBar` 在 `LayoutUpdated` 中動態計算候選詞的最小寬度。
+	為使單字候選與鍵盤按鍵嚴格對齊，`ViewCandidatesBar` 會在自身已有寬度時，就提前把每個候選槽位的 `MinWidth` 算好並灌進預建 VM 池。
 
 	公式：`MinWidth = 容器寬度 / 10`
 	其中 10 對應鍵盤每行 10 列。間隔已由邊框提供，公式中不扣減 Spacing。
 
 	計算後通過 `VmCandidate.MinWidth` 屬性（`INotifyPropertyChanged`）通知到 `ViewCandidate` 的綁定。
+	這一步不再要求“先出現候選，再等首輪 item layout 後回填寬度”。
 
 	Guard 條件：容器寬度變化 或 當前 VM 們的 MinWidth 尚未等於目標值時才更新，避免無效重複設定。
 ]
@@ -120,13 +116,17 @@ using Tsinswreng.CsCore;
 ]
 
 #H[生命週期: 更新策略][
-	候選欄不再在每次 `AfterInput` 都整體替換 `CandVms`。
-	現在策略是保留既有 `ObservableCollection<VmCandidate>`，按當前候選數量增刪項，並原地覆寫每個 `VmCandidate` 的文字、註釋、高亮與點擊回調。
+	候選欄不再在每次 `AfterInput` 都整體替換 `CandVms`，也不再在首顯時從空列表臨時增長出整排候選。
+	現在策略是：
+	- 啟動時先預建固定大小的 `VmCandidate` 池（當前為 16）
+	- 每次輸入後原地覆寫前 N 個槽位的文字、註釋、高亮與點擊回調
+	- 剩餘槽位僅標記為不可見，不銷毀對應 VM / View
 
 	這種策略的特點是：
 	- 狀態來源單一：一切以當前 Rime session 的最新候選列表為準
 	- 候選項控件可被 Avalonia 復用，減少每次輸入時的 UI 重建與重新佈局
 	- `MinWidth` 等已算好的顯示屬性可隨 VM 對象保留，避免每幀從 0 重新綁起
+	- 當“無候選 -> 第一個候選出現”時，UI 不需要再同步做“批量創建 VM / View + 首輪寬度回填”這兩筆額外工作
 
 	因此 `VmCandidate` 不再是“每次輸入必定整批失效”的短生命週期對象；
 	在候選數量不變或接近時，通常是同一批 VM 被原地更新。
@@ -157,11 +157,11 @@ using Tsinswreng.CsCore;
 	- `VmCandidatesBar` 的 `AfterInput` 回調也因此先在後台線程上執行
 
 	所以 `VmCandidatesBar` 的做法是：
-	- 在後台線程調 Rime C API 讀候選詞與 context
-	- 完成後只把最終 `CandVms = newList` 這一步切回 `Dispatcher.UIThread`
+	- 在後台線程只讀 `ImeState.Candidates` 這份已由 `SvcIme` 準備好的快照
+	- 完成後只把最終 `ApplyCandidates(...)` 這一步切回 `Dispatcher.UIThread`
 
 	這樣可避免：
-	- 在 UI 線程上跑 `candidate_list_*` / `get_context`
+	- 在 UI 線程上再跑一次 Rime C API
 	- 直接跨線程改 Avalonia 綁定集合
 ]
 

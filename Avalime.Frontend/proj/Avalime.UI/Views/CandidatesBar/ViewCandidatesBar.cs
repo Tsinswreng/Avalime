@@ -27,8 +27,7 @@ public class ViewCandidatesBar : AppViewBase<Ctx>
 
 	GridStack Root = new(IsRow: true);
 	double _cachedMinWidth;
-	int _lastCandidateCount = -1;
-	bool _isWaitingFirstCandidateLayout;
+	bool _hasLoggedPreparedWidth;
 
 	void Render(){
 		Root.Grid.Background = Brushes.Black;
@@ -44,39 +43,41 @@ public class ViewCandidatesBar : AppViewBase<Ctx>
 		_uiState.PropertyChanged += _uiStatePropertyChangedHandler;
 		this.LayoutUpdated += (_, _) => {
 			var sw = System.Diagnostics.Stopwatch.StartNew();
-			var candVms = Ctx?.CandVms;
-			if(candVms is null){
-				return;
-			}
 			var width = this.Bounds.Width;
-			var cnt = candVms.Count;
-			if(cnt != _lastCandidateCount){
-				_isWaitingFirstCandidateLayout = _lastCandidateCount == 0 && cnt > 0;
-				_lastCandidateCount = cnt;
-			}
 			if(width <= 0){
 				return;
 			}
-			// 間隔由 BorderThickness 提供(與鍵盤一致)，MinWidth = 容器寬度 / 10
-			var minWidth = Math.Max(0, width / 10.0);
-			//寬度沒變 且 VM們已經有正確值 才跳過
-			if(Math.Abs(minWidth - _cachedMinWidth) < 0.5 && cnt > 0
-				&& Math.Abs(candVms[0].MinWidth - minWidth) < 0.5){
-				if(_isWaitingFirstCandidateLayout){
-					AppLog.Info($"[Perf] ViewCandidatesBar.FirstCandidateLayout layout={sw.ElapsedMilliseconds}ms width={width:F1} count={cnt} reusedMinWidth=true");
-					_isWaitingFirstCandidateLayout = false;
-				}
+			if(!TryApplyPreparedMinWidth(width)){
 				return;
 			}
-			_cachedMinWidth = minWidth;
-			foreach(var vm in candVms){
-				vm.MinWidth = minWidth;
-			}
-			if(_isWaitingFirstCandidateLayout){
-				AppLog.Info($"[Perf] ViewCandidatesBar.FirstCandidateLayout layout={sw.ElapsedMilliseconds}ms width={width:F1} count={cnt} reusedMinWidth=false");
-				_isWaitingFirstCandidateLayout = false;
+			if(!_hasLoggedPreparedWidth){
+				AppLog.Info($"[Perf] ViewCandidatesBar.PreparedMinWidth layout={sw.ElapsedMilliseconds}ms width={width:F1} minWidth={_cachedMinWidth:F1} slots={Ctx?.CandVms.Count ?? 0}");
+				_hasLoggedPreparedWidth = true;
 			}
 		};
+	}
+
+	/// <summary>
+	/// 候選出現前就先按當前欄寬算好所有槽位的最小寬度。
+	/// 這樣從無候選切到有候選時，不需要再等首輪 item layout 才補 MinWidth。
+	/// </summary>
+	bool TryApplyPreparedMinWidth(double Width)
+	{
+		var candVms = Ctx?.CandVms;
+		if(candVms is null || candVms.Count <= 0){
+			return false;
+		}
+		// 間隔由 BorderThickness 提供(與鍵盤一致)，MinWidth = 容器寬度 / 10
+		var minWidth = Math.Max(0, Width / 10.0);
+		if(Math.Abs(minWidth - _cachedMinWidth) < 0.5
+			&& Math.Abs(candVms[0].MinWidth - minWidth) < 0.5){
+			return false;
+		}
+		_cachedMinWidth = minWidth;
+		foreach(var vm in candVms){
+			vm.MinWidth = minWidth;
+		}
+		return true;
 	}
 
 	double GetTopBarHeight() => _uiState.IsCandidateCommentVisible

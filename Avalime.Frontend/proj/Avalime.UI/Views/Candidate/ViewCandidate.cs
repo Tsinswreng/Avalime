@@ -72,6 +72,8 @@ public class ViewCandidate : AppViewBase<Ctx>
 		Ctx.Bind(border, Border.BackgroundProperty, x=>x.Background);
 		// 候選首顯時會批量建多個 ViewCandidate，這裡只保留必要綁定，避免每個控件額外掛觀察與打高頻日誌。
 		Ctx.Bind(this, x=>x.MinWidth, x=>x.MinWidth);
+		Ctx.Bind(this, x=>x.IsVisible, x=>x.IsVisible);
+		Ctx.Bind(this, x=>x.IsHitTestVisible, x=>x.IsVisible);
 		border.PointerPressed += (_, e) => {
 			_isPressedInside = true;
 			e.Pointer.Capture(border);
