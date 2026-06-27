@@ -222,6 +222,13 @@ public class Application : AvaloniaAndroidApplication<App>
 		// Activity 路徑也順手補一次預熱，確保即使未走到 Application ctor 也能提前拉起 Rime。
 		_ = RimeWarmup.EnsureWarmAsy();
 		return base.CustomizeAppBuilder(builder)
+			//用CPU渲染、否則在安卓端鍵盤隱藏又彈出有概率變黑 但仍可點擊交互
+			.With(new AndroidPlatformOptions{
+
+				RenderingMode = [
+					Avalonia.AndroidRenderingMode.Software
+				]
+			})
 			.With(new Avalonia.Media.FontManagerOptions{
 				DefaultFamilyName = "serif"
 			});
