@@ -356,10 +356,11 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 		root
 		.A(KView(new(){Key=Enter, Label="↵"}))
 		.A(KView(new(){Key=Tab, Label="␉"}))
-		.A(KView(new(){Key=Left, Label="←", Hint="⇤"}))
+		// 左右方向鍵補行首/行尾手勢：長按與上滑都走更強的導航語義。
+		.A(KView(new(){Key=Left, Label="←", Hint="⇤", LongClick=Home, SwipeUp=Home}))
 		.A(KView(new(){Key=Space, Label="", SwipeLeft=Left, SwipeRight=Right}))
 		.A(KView(new(){Key=Space, Label="", SwipeLeft=Left, SwipeRight=Right}))
-		.A(KView(new(){Key=Right, Label="→", Hint="⇥"}))
+		.A(KView(new(){Key=Right, Label="→", Hint="⇥", LongClick=End, SwipeUp=End}))
 		.A(KView(new(){Key=Dollar, Label="$", Hint="⇪", SwipeUpAction=MkToggleShiftLock()}))
 		.A(KView(new(){Key=Backspace, Label="⌫", LongClick=Backspace, SwipeUpAction=MkBackspaceSwipeUpHideKeyboardOrNull(), IsRepeat=true}))
 		;
@@ -496,8 +497,9 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 		.A(KView(new(){Key=Equal, Label="=", Hint="+", SwipeUp=Plus}))
 		.A(KView(new(){Key=Slash, Label="/", Hint="?", SwipeUp=Question}))
 		.A(KView(new(){Key=BackSlash, Label="\\", Hint="|", SwipeUp=Pipe}))
-		.A(KView(new(){Key=Left, Label="←", Hint="⇤"}))
-		.A(KView(new(){Key=Right, Label="→", Hint="⇥"}))
+		// 數字層同樣提供行首/行尾手勢，避免切層後丟失導航能力。
+		.A(KView(new(){Key=Left, Label="←", Hint="⇤", LongClick=Home, SwipeUp=Home}))
+		.A(KView(new(){Key=Right, Label="→", Hint="⇥", LongClick=End, SwipeUp=End}))
 		.A(KView(new(){Key=Up, Label="↑"}))
 		.A(KView(new(){Key=Down, Label="↓"}))
 		.A(KView(new(){Key=Grave, Label="`", Hint="~", SwipeUp=Tilde}))

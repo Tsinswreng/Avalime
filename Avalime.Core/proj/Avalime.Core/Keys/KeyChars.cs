@@ -156,6 +156,14 @@ public static class KeyChars{
 	#endregion Ctrl
 
 	#region Arrows
+	/// <summary>
+	/// 行首導航鍵，供虛擬鍵盤手勢與宿主鍵盤轉發共用。
+	/// </summary>
+	public static IK Home{get;} = K(nameof(KS.Home));
+	/// <summary>
+	/// 行尾導航鍵，供虛擬鍵盤手勢與宿主鍵盤轉發共用。
+	/// </summary>
+	public static IK End{get;} = K(nameof(KS.End));
 	public static IK Up{get;} = K(nameof(KS.Up));
 	public static IK Down{get;} = K(nameof(KS.Down));
 	public static IK Left{get;} = K(nameof(KS.Left));

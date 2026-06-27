@@ -54,6 +54,10 @@ using Tsinswreng.CsCore;
 	`VmKey` 負責按鍵、長按與滑動動作。
 	`KeyCfg.IsRepeat` 控制長按後是否持續重複：長按 400ms 後首次觸發 `LongPress`，之後每 50ms 觸發一次 `Click`。
 	退格鍵（`Backspace`）設了 `IsRepeat=true`，長按可連續刪除。
+	空格兩側的左右方向鍵把長按與上滑手勢分別映射到 `Home` / `End`：
+	- `←`：長按或上滑發送 `Home`
+	- `→`：長按或上滑發送 `End`
+	普通點擊仍保留 `Left` / `Right`，因此“逐字移動”與“跳到行首/尾”共存。
 	退格鍵原本還試過「上滑隱藏輸入法」；
 	目前已在 `ViewKeyBoard` 用 `#if false` 編譯期關掉。
 	原因是 Android IME 從鍵盤內部主動 hide 之後，再次 show 的生命周期與“點空白失焦”或“系統返回鍵收起”不等價，

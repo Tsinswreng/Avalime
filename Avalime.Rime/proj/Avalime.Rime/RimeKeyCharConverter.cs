@@ -160,6 +160,9 @@ public class RimeKeyCharConverter{
 		,{KS.Fn, 65383}
 		,{KS.Ctrl_R, 65508}
 
+		// Home/End 讓 Rime 與 OS fallback 都能識別行首/行尾導航。
+		,{KS.Home, 65360}
+		,{KS.End, 65367}
 		,{KS.Up, 65362}
 		,{KS.Down, 65364}
 		,{KS.Left, 65361}

@@ -56,11 +56,18 @@ public class KeyEventConverter{
 		,{KeyChars.x, 0x58}
 		,{KeyChars.y, 0x59}
 		,{KeyChars.z, 0x5A}
+		// 導航鍵需要能被 Windows 宿主直接轉成虛擬鍵碼。
+		,{KeyChars.Home, 0x24}
+		,{KeyChars.End, 0x23}
 
 	};
 
 	public IDictionary<IKeyChar, i64> Fn_KeyCode = new Dictionary<IKeyChar, i64>{
 		 {KeyChars.Backspace, 0x08}
+		,{KeyChars.Left, 0x25}
+		,{KeyChars.Up, 0x26}
+		,{KeyChars.Right, 0x27}
+		,{KeyChars.Down, 0x28}
 	};
 
 	// IDictionary<string ,int> test = new Dictionary<string ,int>{
