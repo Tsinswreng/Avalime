@@ -248,6 +248,29 @@ public class AvalimeInputMethodService : InputMethodService {
 		SplitPlaceholderInputView = null;
 	}
 
+	/// <summary>
+	/// 分體 -> 普通模式時，不再複用舊的普通 AvaloniaInputView。
+	/// 目前實測表明，一旦進過分體，舊普通 view 可能殘留錯亂的命中/顯示狀態；
+	/// 通知“強制恢復”之所以能暫時救回來，本質上就是整棵普通 view 被重建了。
+	/// </summary>
+	void ResetNormalInputViewForSplitExit()
+	{
+		if(AvaloniaInputView is null){
+			return;
+		}
+		DetachInputViewFromParent(AvaloniaInputView);
+		if(ReferenceEquals(InputView, AvaloniaInputView)){
+			InputView = null;
+		}
+		if(AvaloniaInputView.Content is IDisposable disposableContent){
+			disposableContent.Dispose();
+		}
+		AvaloniaInputView.Content = null;
+		AvaloniaInputView.Dispose();
+		AvaloniaInputView = null;
+		AppLog.Info("[IME] ResetNormalInputViewForSplitExit done");
+	}
+
 	/// 真正執行通知恢復：丟棄舊 view、創建新 view、重新掛回 IME window，
 	/// 最後主動請求系統再次顯示輸入法，盡量把已黑屏的鍵盤拉回可用狀態。
 	void ForceRecoverImeView() {
@@ -285,6 +308,9 @@ public class AvalimeInputMethodService : InputMethodService {
 	/// </summary>
 	void ApplySplitKeyboardToggle()
 	{
+		if(!IsSplitKeyboardActive()){
+			ResetNormalInputViewForSplitExit();
+		}
 		var desiredInputView = GetDesiredInputView();
 		var needsReattach = !ReferenceEquals(InputView, desiredInputView);
 		AppLog.Info($"[IME] ApplySplitKeyboardToggle desired={desiredInputView.GetType().Name} current={InputView?.GetType().Name ?? "null"} reattach={needsReattach}");
