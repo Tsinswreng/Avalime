@@ -42,7 +42,6 @@ public class SplitKeyboardOverlayManager
 			return false;
 		}
 		if(_isShown){
-			SetOverlayVisibility(global::Android.Views.ViewStates.Visible);
 			UpdateLayout();
 			return true;
 		}
@@ -64,7 +63,6 @@ public class SplitKeyboardOverlayManager
 				_viewManager.AddView(_rightTopView, rightTopLp);
 				_isAttached = true;
 			}
-			SetOverlayVisibility(global::Android.Views.ViewStates.Visible);
 			_isShown = true;
 			AppLog.Info("[SplitOverlay] shown");
 			UpdateLayout();
@@ -118,7 +116,11 @@ public class SplitKeyboardOverlayManager
 
 	public void Hide()
 	{
-		SetOverlayVisibility(global::Android.Views.ViewStates.Gone);
+		if(!_isAttached){
+			_isShown = false;
+			return;
+		}
+		RemoveAttachedOverlays();
 		_isShown = false;
 	}
 
@@ -246,24 +248,13 @@ public class SplitKeyboardOverlayManager
 		}
 	}
 
-	void SetOverlayVisibility(global::Android.Views.ViewStates Visibility)
+	void RemoveAttachedOverlays()
 	{
-		SetSingleOverlayVisibility(_leftView, Visibility);
-		SetSingleOverlayVisibility(_rightView, Visibility);
-		SetSingleOverlayVisibility(_leftTopView, Visibility);
-		SetSingleOverlayVisibility(_rightTopView, Visibility);
-	}
-
-	static void SetSingleOverlayVisibility(View? View, global::Android.Views.ViewStates Visibility)
-	{
-		if(View is null){
-			return;
-		}
-		View.Visibility = Visibility;
-		if(Visibility == global::Android.Views.ViewStates.Visible){
-			View.RequestLayout();
-			View.Invalidate();
-		}
+		RemoveOverlayView(_leftView);
+		RemoveOverlayView(_rightView);
+		RemoveOverlayView(_leftTopView);
+		RemoveOverlayView(_rightTopView);
+		_isAttached = false;
 	}
 
 	static void LogLayout(str Name, WindowManagerLayoutParams Lp)
@@ -288,13 +279,6 @@ public class SplitKeyboardOverlayManager
 	public void Dispose()
 	{
 		Hide();
-		if(_viewManager is not null){
-			RemoveOverlayView(_leftView);
-			RemoveOverlayView(_rightView);
-			RemoveOverlayView(_leftTopView);
-			RemoveOverlayView(_rightTopView);
-		}
-		_isAttached = false;
 		DisposeOverlayView(ref _leftView);
 		DisposeOverlayView(ref _rightView);
 		DisposeOverlayView(ref _leftTopView);

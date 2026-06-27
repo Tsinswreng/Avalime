@@ -94,6 +94,7 @@ using Tsinswreng.CsCore;
 	工具欄新增了分體鍵盤按鈕：
 	- 點擊後切換 `ImeUiState.IsSplitKeyboardEnabled`
 	- 此狀態會持久化到可寫配置，hide/show 與下次啓動仍保留
+	- 實際保存改爲後台執行，避免按下分體按鈕時同步 `Save()` 卡住 UI 線程
 	- UI 層本身只負責暴露狀態；真正是否走 Android overlay 由宿主決定
 ]
 
@@ -196,6 +197,13 @@ using Tsinswreng.CsCore;
 	- Shift 鎖定與 Ctrl 組合鍵
 
 	避免再維護一份獨立的“分體鍵位表”。
+
+	分體頂條則是另一條約束：
+	- 仍然沿用「完整頂條拉寬後裁半邊」的思路，讓中間 50% 保持真正空出
+	- 但 Android 宿主不再讓頂條 overlay 自由 `WrapContent`
+	- 宿主會明確限制 split 頂條 window 高度爲「預編輯 + 工具欄/候選欄」的總高度
+	- `ViewSplitTopHalf` 內部內容貼底顯示，避免工具欄與第一排鍵之間出現整塊黑縫
+	- 宿主再補一個極小像素縫，避免頂條下沿與第一排鍵位上沿互相壓住
 ]
 
 """)]

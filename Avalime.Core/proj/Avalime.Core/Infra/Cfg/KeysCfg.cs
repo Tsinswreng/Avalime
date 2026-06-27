@@ -19,15 +19,36 @@ public class KeysCfg{
 	}
 	public class Keyboard{
 		public static ICfgNode _R = Mk(null, [nameof(Keyboard)]);
-		/// <summary>
 		/// 是否啓用分體鍵盤。用戶在工具欄手動切換後，將狀態持久化到可寫配置。
-		/// </summary>
 		public static ICfgNode<bool> IsSplitEnabled = Mk(_R, [nameof(IsSplitEnabled)], false);
 		public class Font{
 			public static ICfgNode _R = Mk(Keyboard._R, [nameof(Font)]);
 			public static ICfgNode<str?> Path = Mk(_R, [nameof(Path)], (str?)null);
 			public static ICfgNode<str?> Family = Mk(_R, [nameof(Family)], (str?)null);
 			public static ICfgNode<f64> BaseFontSize = Mk(_R, [nameof(BaseFontSize)], 32.0);
+		}
+
+		public class Size{
+			public static ICfgNode _R = Mk(Keyboard._R, [nameof(Size)]);
+
+			public class _SizeBase{
+				[Doc("寬度比例。鍵盤寬度佔整個屏幕的寬度")]
+				public static ICfgNode<f64> WidthRatio = Mk(_R, [nameof(WidthRatio)], 0.0);
+				public static ICfgNode<f64> HeightRatio = Mk(_R, [nameof(HeightRatio)], 0.0);
+			}
+
+			[Doc("豎屏")]
+			public class Portrait: _SizeBase{
+				public static ICfgNode _R = Mk(Size._R, [nameof(Portrait)]);
+
+			}
+
+			[Doc("橫屏")]
+			public class Landscape: _SizeBase{
+				public static ICfgNode _R = Mk(Size._R, [nameof(Landscape)]);
+			}
+
+
 		}
 
 	}

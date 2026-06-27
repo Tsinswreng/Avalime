@@ -38,9 +38,13 @@ using Tsinswreng.CsCore;
 
 	另外，Android 端現在加入了分體懸浮鍵盤模式：
 	- 用戶在工具欄手動點擊分體按鈕後，狀態持久化保存
+	- 分體偏好仍會寫回可寫配置，但保存動作已改到後台執行，避免點擊分體按鈕時把磁盤 IO 壓在 UI 線程上
 	- 若開啓分體，IME 主窗口不再承載整塊鍵盤，而是縮成極薄佔位 view
 	- 左右兩半鍵盤與中間窄頂條改走 `TYPE_APPLICATION_OVERLAY`
 	- 宿主會在 service 建立後預先創建 split overlay 的 Avalonia 內容樹，將首次切換分體時的 view 構造成本前移
+	- split overlay 現在改成「首次 `AddView(...)` 後常駐」，後續切換分體或 hide/show 主要通過 `Visibility` 顯隱，而不是每次都 remove/add 四個 window
+	- 中間窄頂條不再交給 Android `WrapContent` 自由量測，而是宿主明確給出「預編輯 + 頂條」的固定高度；這是爲了避免 overlay 把中間本應留給底下 App 的區域整塊蓋黑
+	- 宿主另外會給頂條與鍵盤之間留極小安全邊界，避免不同縮放與像素取整下，頂條下沿壓住第一排鍵位上沿
 	- 這樣中間 50% 區域不屬於 IME 視窗，可把點擊交回底下 App
 	- 缺少 overlay 權限時，宿主會跳轉系統設置頁，並回退到普通整體鍵盤，避免進入不可用狀態
 ]
