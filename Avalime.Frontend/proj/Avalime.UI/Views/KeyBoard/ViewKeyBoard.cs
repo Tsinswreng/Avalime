@@ -173,18 +173,12 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 
 	IEnumerable<IKeyEvent> MkKeyPressEvents(IKeyChar key){
 		if(Ctx.IsShiftLocked && key != Shift_L && key != Shift_R){
-			var shiftedKey = ToShiftLockedKey(key);
-			if(shiftedKey is not null){
-				return [
-					new KeyEvent{KeyChar = shiftedKey, KeyState = KS.Down},
-					new KeyEvent{KeyChar = shiftedKey, KeyState = KS.Up}
-				];
-			}
+			// Shift 鎖定改爲“先單獨送出一次 Shift Down，再讓後續按鍵持續攜帶 Shift 狀態”。
+			// 因此這裏不再每次按鍵都臨時包一層 Shift Down/Up，也不再直接替換成大寫字符，
+			// 而是讓按鍵事件本身攜帶「Shift 目前仍按下」的鍵盤狀態，供 Rime 與 OS fallback 共同感知。
 			return [
-				new KeyEvent{KeyChar = Shift_L, KeyState = KS.Down, KeyBoardState = KeyBoardState.Mk(Shift_L)},
 				new KeyEvent{KeyChar = key, KeyState = KS.Down, KeyBoardState = KeyBoardState.Mk(Shift_L, key)},
 				new KeyEvent{KeyChar = key, KeyState = KS.Up, KeyBoardState = KeyBoardState.Mk(Shift_L)},
-				new KeyEvent{KeyChar = Shift_L, KeyState = KS.Up, KeyBoardState = KeyBoardState.Mk()},
 			];
 		}
 		return [
@@ -193,30 +187,21 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 		];
 	}
 
-	IKeyChar? ToShiftLockedKey(IKeyChar key){
-		if(ShiftLockedKeyMap.TryGetValue(key, out var shifted)){
-			return shifted;
-		}
-		return null;
-	}
-
-	static readonly IReadOnlyDictionary<IKeyChar, IKeyChar> ShiftLockedKeyMap = new Dictionary<IKeyChar, IKeyChar>{
-		{a, A}, {b, B}, {c, C}, {d, D}, {e, E}, {f, F}, {g, G}, {h, H}, {i, I}, {j, J}, {k, K}, {l, L}, {m, M},
-		{n, N}, {o, O}, {p, P}, {q, Q}, {r, R}, {s, S}, {t, T}, {u, U}, {v, V}, {w, W}, {x, X}, {y, Y}, {z, Z},
-		{D1, Exclamation}, {D2, At}, {D3, HashTag}, {D4, Dollar}, {D5, Percent}, {D6, Caret}, {D7, Ampersand}, {D8, Asterisk}, {D9, Paren_L}, {D0, Paren_R},
-		{Minus, Underscore}, {Equal, Plus},
-		{SquareBracket_L, Braces_L}, {SquareBracket_R, Braces_R},
-		{Semicolon, Colon}, {Apostrophe, Quote},
-		{Comma, Less}, {Period, Greater}, {Slash, Question}, {BackSlash, BackSlash}, {Grave, Tilde},
-	};
-
 	Func<zero> MkToggleAsciiMode() => () => {
 		_ = _imeState.ToggleAsciiModeAsy();
 		return 0;
 	};
 
 	Func<zero> MkToggleShiftLock() => () => {
-		Ctx.IsShiftLocked = !Ctx.IsShiftLocked;
+		var nextIsLocked = !Ctx.IsShiftLocked;
+		Ctx.IsShiftLocked = nextIsLocked;
+		Ctx.ImeState.InputSafely([
+			new KeyEvent{
+				KeyChar = Shift_L,
+				KeyState = nextIsLocked ? KS.Down : KS.Up,
+				KeyBoardState = nextIsLocked ? KeyBoardState.Mk(Shift_L) : KeyBoardState.Mk(),
+			}
+		]);
 		return 0;
 	};
 

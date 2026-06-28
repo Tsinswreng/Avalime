@@ -19,17 +19,15 @@ public class AndroidOsKeyProcessor : IOsKeyProcessor
 		if(ic is null) return Task.FromResult<IRespOnKeyEvent>(new RespOnKeyEvent());
 
 		foreach(var keyEvent in keyEvents){
-			if(!keyEvent.KeyState.IsKeyDown) continue;
-
 			var name = keyEvent.KeyChar.Name;
 			var metaState = ToAndroidMetaState(keyEvent.KeyBoardState);
-			AppLog.Debug($"[IME] OsKeyProcessor forwarding: {name}");
+			AppLog.Debug($"[IME] OsKeyProcessor forwarding: {name} {(keyEvent.KeyState.IsKeyDown ? "Down" : "Up")}");
 
 
 			// 直接上屏的字母和數字優先走 commitText。
 			// UU遠程遠程控制輸入框不可靠支持 sendKeyEvent 的字符注入，
 			// 但對 commitText 的文本提交語義支持更穩定。
-			if(ShouldCommitDirectText(name, metaState)){
+			if(keyEvent.KeyState.IsKeyDown && ShouldCommitDirectText(name, metaState)){
 				var text = KeyNameToText(name);
 				if(text is not null){
 					ic.CommitText(text, 1);
@@ -39,9 +37,11 @@ public class AndroidOsKeyProcessor : IOsKeyProcessor
 
 			var androidKey = MapToAndroidKey(name);
 			if(androidKey is not null && (metaState != global::Android.Views.MetaKeyStates.None || ShouldSendAsKeyEvent(name))){
-				ic.SendKeyEvent(new global::Android.Views.KeyEvent(0, 0, global::Android.Views.KeyEventActions.Down, androidKey.Value, 0, metaState));
-				ic.SendKeyEvent(new global::Android.Views.KeyEvent(0, 0, global::Android.Views.KeyEventActions.Up, androidKey.Value, 0, metaState));
-			}else{
+				var action = keyEvent.KeyState.IsKeyDown
+					? global::Android.Views.KeyEventActions.Down
+					: global::Android.Views.KeyEventActions.Up;
+				ic.SendKeyEvent(new global::Android.Views.KeyEvent(0, 0, action, androidKey.Value, 0, metaState));
+			}else if(keyEvent.KeyState.IsKeyDown){
 				var text = KeyNameToText(name);
 				if(text is not null){
 					ic.CommitText(text, 1);

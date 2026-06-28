@@ -67,6 +67,7 @@ using Tsinswreng.CsCore;
 		- 因此不會把映射污染到 Rime 自身的按鍵語義
 		- 工具欄 `映` 開關打開後，當前先啓用 `Backspace -> Alt_R`
 	- 若按鍵事件攜帶 `KeyBoardState` 中的 Ctrl/Shift/Alt/Meta 狀態，則改為 `SendKeyEvent` 發送帶 meta state 的系統組合鍵（如 Ctrl+A）。
+	- 這條路徑必須保留 UI 傳下來的原始 `KeyDown` / `KeyUp` 序列；不能把每個按鍵都壓扁成獨立的 Down+Up，否則 `Shift+Left` / `Shift+Home` 這類需要“修飾鍵仍保持按下”的導航選區語義會失效。
 	若當前沒有 `InputConnection`，則跳過輸出並記錄日誌。
 
 	由於按鍵輸入現在通過 `ImeState.InputSafely(...)` 在後台執行，

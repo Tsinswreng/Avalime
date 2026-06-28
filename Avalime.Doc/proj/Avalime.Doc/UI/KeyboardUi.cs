@@ -167,8 +167,9 @@ using Tsinswreng.CsCore;
 	- 上滑：切換 `Shift` 鎖定
 
 	`Shift` 鎖定採用持續鎖定式：
-	- 上滑一次後，後續普通按鍵都會帶 `Shift` 修飾
-	- 再上滑一次取消鎖定
+	- 上滑一次時，先向輸入鏈發一個 `Shift Down`
+	- 鎖定期間，後續普通按鍵自身都攜帶「`Shift` 仍按下」的鍵盤狀態
+	- 再上滑一次時，發一個 `Shift Up` 取消鎖定
 	- 鎖定開啟時，`$` 鍵背景色切換為 `UiCfg.MainColor`
 
 	M 鍵保留單擊 `m`；
