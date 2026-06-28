@@ -22,27 +22,29 @@ public class AndroidOsKeyProcessor : IOsKeyProcessor
 			var name = keyEvent.KeyChar.Name;
 			var metaState = ToAndroidMetaState(keyEvent.KeyBoardState);
 			AppLog.Debug($"[IME] OsKeyProcessor forwarding: {name} {(keyEvent.KeyState.IsKeyDown ? "Down" : "Up")}");
+			var effectiveKey = ApplyShiftToKeyChar(keyEvent.KeyChar, keyEvent.KeyBoardState);
+			var effectiveName = effectiveKey.Name;
 
 
 			// 直接上屏的字母和數字優先走 commitText。
 			// UU遠程遠程控制輸入框不可靠支持 sendKeyEvent 的字符注入，
 			// 但對 commitText 的文本提交語義支持更穩定。
-			if(keyEvent.KeyState.IsKeyDown && ShouldCommitDirectText(name, metaState)){
-				var text = KeyNameToText(name);
+			if(keyEvent.KeyState.IsKeyDown && ShouldCommitDirectText(effectiveName, metaState)){
+				var text = KeyNameToText(effectiveName);
 				if(text is not null){
 					ic.CommitText(text, 1);
 					continue;
 				}
 			}
 
-			var androidKey = MapToAndroidKey(name);
-			if(androidKey is not null && (metaState != global::Android.Views.MetaKeyStates.None || ShouldSendAsKeyEvent(name))){
+			var androidKey = MapToAndroidKey(effectiveName);
+			if(androidKey is not null && (metaState != global::Android.Views.MetaKeyStates.None || ShouldSendAsKeyEvent(effectiveName))){
 				var action = keyEvent.KeyState.IsKeyDown
 					? global::Android.Views.KeyEventActions.Down
 					: global::Android.Views.KeyEventActions.Up;
 				ic.SendKeyEvent(new global::Android.Views.KeyEvent(0, 0, action, androidKey.Value, 0, metaState));
 			}else if(keyEvent.KeyState.IsKeyDown){
-				var text = KeyNameToText(name);
+				var text = KeyNameToText(effectiveName);
 				if(text is not null){
 					ic.CommitText(text, 1);
 				}
@@ -79,6 +81,33 @@ public class AndroidOsKeyProcessor : IOsKeyProcessor
 		}
 		return metaState;
 	}
+
+	/// <summary>
+	/// 與 RimeKeyCharConverter 保持同一套抽象：Shift 是否按下只來自 KeyBoardState.AllDownKeys。
+	/// Android fallback 在需要輸出可打印鍵時，自行根據該狀態推導出對應的大寫/符號鍵值。
+	/// </summary>
+	static IKeyChar ApplyShiftToKeyChar(IKeyChar keyChar, IKeyBoardState? keyBoardState){
+		if(keyBoardState is null){
+			return keyChar;
+		}
+		if(!(keyBoardState.IsKeyDown(KeyChars.Shift_L) || keyBoardState.IsKeyDown(KeyChars.Shift_R))){
+			return keyChar;
+		}
+		if(ShiftKeyMap.TryGetValue(keyChar, out var shifted)){
+			return shifted;
+		}
+		return keyChar;
+	}
+
+	static readonly IReadOnlyDictionary<IKeyChar, IKeyChar> ShiftKeyMap = new Dictionary<IKeyChar, IKeyChar>{
+		{KeyChars.a, KeyChars.A}, {KeyChars.b, KeyChars.B}, {KeyChars.c, KeyChars.C}, {KeyChars.d, KeyChars.D}, {KeyChars.e, KeyChars.E}, {KeyChars.f, KeyChars.F}, {KeyChars.g, KeyChars.G}, {KeyChars.h, KeyChars.H}, {KeyChars.i, KeyChars.I}, {KeyChars.j, KeyChars.J}, {KeyChars.k, KeyChars.K}, {KeyChars.l, KeyChars.L}, {KeyChars.m, KeyChars.M},
+		{KeyChars.n, KeyChars.N}, {KeyChars.o, KeyChars.O}, {KeyChars.p, KeyChars.P}, {KeyChars.q, KeyChars.Q}, {KeyChars.r, KeyChars.R}, {KeyChars.s, KeyChars.S}, {KeyChars.t, KeyChars.T}, {KeyChars.u, KeyChars.U}, {KeyChars.v, KeyChars.V}, {KeyChars.w, KeyChars.W}, {KeyChars.x, KeyChars.X}, {KeyChars.y, KeyChars.Y}, {KeyChars.z, KeyChars.Z},
+		{KeyChars.D1, KeyChars.Exclamation}, {KeyChars.D2, KeyChars.At}, {KeyChars.D3, KeyChars.HashTag}, {KeyChars.D4, KeyChars.Dollar}, {KeyChars.D5, KeyChars.Percent}, {KeyChars.D6, KeyChars.Caret}, {KeyChars.D7, KeyChars.Ampersand}, {KeyChars.D8, KeyChars.Asterisk}, {KeyChars.D9, KeyChars.Paren_L}, {KeyChars.D0, KeyChars.Paren_R},
+		{KeyChars.Minus, KeyChars.Underscore}, {KeyChars.Equal, KeyChars.Plus},
+		{KeyChars.SquareBracket_L, KeyChars.Braces_L}, {KeyChars.SquareBracket_R, KeyChars.Braces_R},
+		{KeyChars.Semicolon, KeyChars.Colon}, {KeyChars.Apostrophe, KeyChars.Quote},
+		{KeyChars.Comma, KeyChars.Less}, {KeyChars.Period, KeyChars.Greater}, {KeyChars.Slash, KeyChars.Question}, {KeyChars.Grave, KeyChars.Tilde},
+	};
 
 	static bool ShouldSendAsKeyEvent(string name){
 		return name is "Backspace" or "Enter" or "Tab" or "Home" or "End" or "Left" or "Right" or "Up" or "Down"

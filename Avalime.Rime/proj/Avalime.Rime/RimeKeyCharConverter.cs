@@ -15,7 +15,8 @@ public class RimeKeyCharConverter{
 			mask = RimeModifier.kReleaseMask;
 		}
 		mask |= GetModifierMask(keyEvent.KeyBoardState);
-		var keyCode = (i32)Lower_KeyCode[keyEvent.KeyChar];//TODO handle err
+		var effectiveKey = ApplyShiftToKeyChar(keyEvent.KeyChar, keyEvent.KeyBoardState);
+		var keyCode = (i32)Lower_KeyCode[effectiveKey];//TODO handle err
 		return (keyCode, mask);
 	}
 
@@ -39,6 +40,34 @@ public class RimeKeyCharConverter{
 		}
 		return mask;
 	}
+
+	/// <summary>
+	/// UI 層只通過 KeyBoardState 表達當前有哪些修飾鍵處於按下狀態。
+	/// 因此 Rime 轉碼時需要自行根據 Shift 狀態把可打印鍵映射到對應的大寫/符號 keycode。
+	/// 導航鍵等非打印鍵保持原 keychar，由 mask 中的 Shift 位表達組合語義。
+	/// </summary>
+	static IKeyChar ApplyShiftToKeyChar(IKeyChar keyChar, IKeyBoardState? keyBoardState){
+		if(keyBoardState is null){
+			return keyChar;
+		}
+		if(!(keyBoardState.IsKeyDown(KS.Shift_L) || keyBoardState.IsKeyDown(KS.Shift_R))){
+			return keyChar;
+		}
+		if(ShiftKeyMap.TryGetValue(keyChar, out var shifted)){
+			return shifted;
+		}
+		return keyChar;
+	}
+
+	static readonly IReadOnlyDictionary<IKeyChar, IKeyChar> ShiftKeyMap = new Dictionary<IKeyChar, IKeyChar>{
+		{KS.a, KS.A}, {KS.b, KS.B}, {KS.c, KS.C}, {KS.d, KS.D}, {KS.e, KS.E}, {KS.f, KS.F}, {KS.g, KS.G}, {KS.h, KS.H}, {KS.i, KS.I}, {KS.j, KS.J}, {KS.k, KS.K}, {KS.l, KS.L}, {KS.m, KS.M},
+		{KS.n, KS.N}, {KS.o, KS.O}, {KS.p, KS.P}, {KS.q, KS.Q}, {KS.r, KS.R}, {KS.s, KS.S}, {KS.t, KS.T}, {KS.u, KS.U}, {KS.v, KS.V}, {KS.w, KS.W}, {KS.x, KS.X}, {KS.y, KS.Y}, {KS.z, KS.Z},
+		{KS.D1, KS.Exclamation}, {KS.D2, KS.At}, {KS.D3, KS.HashTag}, {KS.D4, KS.Dollar}, {KS.D5, KS.Percent}, {KS.D6, KS.Caret}, {KS.D7, KS.Ampersand}, {KS.D8, KS.Asterisk}, {KS.D9, KS.Paren_L}, {KS.D0, KS.Paren_R},
+		{KS.Minus, KS.Underscore}, {KS.Equal, KS.Plus},
+		{KS.SquareBracket_L, KS.Braces_L}, {KS.SquareBracket_R, KS.Braces_R},
+		{KS.Semicolon, KS.Colon}, {KS.Apostrophe, KS.Quote},
+		{KS.Comma, KS.Less}, {KS.Period, KS.Greater}, {KS.Slash, KS.Question}, {KS.Grave, KS.Tilde},
+	};
 
 
 	public IDictionary<IKeyChar, i64> Lower_KeyCode = new Dictionary<IKeyChar, i64>{

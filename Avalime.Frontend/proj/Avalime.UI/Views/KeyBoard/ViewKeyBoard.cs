@@ -173,9 +173,9 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 
 	IEnumerable<IKeyEvent> MkKeyPressEvents(IKeyChar key){
 		if(Ctx.IsShiftLocked && key != Shift_L && key != Shift_R){
-			// Shift 鎖定改爲“先單獨送出一次 Shift Down，再讓後續按鍵持續攜帶 Shift 狀態”。
-			// 因此這裏不再每次按鍵都臨時包一層 Shift Down/Up，也不再直接替換成大寫字符，
-			// 而是讓按鍵事件本身攜帶「Shift 目前仍按下」的鍵盤狀態，供 Rime 與 OS fallback 共同感知。
+			// Shift 鎖定只通過 KeyBoardState.AllDownKeys 表達。
+			// UI 層不再自行發送額外的 Shift 按鍵事件，也不再直接改寫 KeyChar，
+			// 後端需根據 KeyBoardState 解釋當前有哪些修飾鍵處於按下狀態。
 			return [
 				new KeyEvent{KeyChar = key, KeyState = KS.Down, KeyBoardState = KeyBoardState.Mk(Shift_L, key)},
 				new KeyEvent{KeyChar = key, KeyState = KS.Up, KeyBoardState = KeyBoardState.Mk(Shift_L)},
@@ -193,15 +193,7 @@ public class ViewKeyBoard : AppViewBase<Ctx>
 	};
 
 	Func<zero> MkToggleShiftLock() => () => {
-		var nextIsLocked = !Ctx.IsShiftLocked;
-		Ctx.IsShiftLocked = nextIsLocked;
-		Ctx.ImeState.InputSafely([
-			new KeyEvent{
-				KeyChar = Shift_L,
-				KeyState = nextIsLocked ? KS.Down : KS.Up,
-				KeyBoardState = nextIsLocked ? KeyBoardState.Mk(Shift_L) : KeyBoardState.Mk(),
-			}
-		]);
+		Ctx.IsShiftLocked = !Ctx.IsShiftLocked;
 		return 0;
 	};
 

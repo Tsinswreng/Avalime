@@ -11,3 +11,13 @@
 shift按下 -> shift擡起 -> 方向鍵按下 -> 方向鍵擡起
 
 你看看怎麼回事
+
+2026_0628_180119[
+看看這個
+E:\_code\CsRime\Avalime\Avalime.Core\proj\Avalime.Core\Keys\IKeyEvent.cs
+
+這裏面有一個
+`public ISet<IKeyChar> AllDownKeys{get;set;}`
+能不能讓shift的實現 和我的抽象匹配上?? 別搞這麼多套互相衝突的
+
+]
