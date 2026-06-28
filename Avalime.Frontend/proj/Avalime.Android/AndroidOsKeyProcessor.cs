@@ -24,6 +24,12 @@ public class AndroidOsKeyProcessor : IOsKeyProcessor
 			AppLog.Debug($"[IME] OsKeyProcessor forwarding: {name} {(keyEvent.KeyState.IsKeyDown ? "Down" : "Up")}");
 			var effectiveKey = ApplyShiftToKeyChar(keyEvent.KeyChar, keyEvent.KeyBoardState);
 			var effectiveName = effectiveKey.Name;
+			var androidKey = MapToAndroidKey(effectiveName);
+
+			if(androidKey is not null && ShouldSendAsShiftNavigationSequence(keyEvent)){
+				SendShiftNavigationSequence(ic, androidKey.Value, keyEvent.KeyState.IsKeyDown);
+				continue;
+			}
 
 
 			// 直接上屏的字母和數字優先走 commitText。
@@ -37,7 +43,6 @@ public class AndroidOsKeyProcessor : IOsKeyProcessor
 				}
 			}
 
-			var androidKey = MapToAndroidKey(effectiveName);
 			if(androidKey is not null && (metaState != global::Android.Views.MetaKeyStates.None || ShouldSendAsKeyEvent(effectiveName))){
 				var action = keyEvent.KeyState.IsKeyDown
 					? global::Android.Views.KeyEventActions.Down
@@ -97,6 +102,41 @@ public class AndroidOsKeyProcessor : IOsKeyProcessor
 			return shifted;
 		}
 		return keyChar;
+	}
+
+	/// <summary>
+	/// 某些 Android 宿主對「方向鍵/Home/End + metaState=Shift」不會產生選區語義，
+	/// 必須翻譯成真實的修飾鍵事件序列。
+	/// 上層抽象仍只傳遞 AllDownKeys；這裏是 Android 落地層把該抽象轉成宿主真正能吃的事件。
+	/// </summary>
+	static bool ShouldSendAsShiftNavigationSequence(IKeyEvent keyEvent){
+		var keyBoardState = keyEvent.KeyBoardState;
+		if(keyBoardState is null){
+			return false;
+		}
+		if(!(keyBoardState.IsKeyDown(KeyChars.Shift_L) || keyBoardState.IsKeyDown(KeyChars.Shift_R))){
+			return false;
+		}
+		return keyEvent.KeyChar.Name is "Home" or "End" or "Left" or "Right" or "Up" or "Down";
+	}
+
+	static void SendShiftNavigationSequence(IInputConnection inputConnection, global::Android.Views.Keycode navigationKey, bool isKeyDown){
+		if(isKeyDown){
+			inputConnection.SendKeyEvent(new global::Android.Views.KeyEvent(
+				0, 0, global::Android.Views.KeyEventActions.Down, global::Android.Views.Keycode.ShiftLeft, 0
+			));
+			inputConnection.SendKeyEvent(new global::Android.Views.KeyEvent(
+				0, 0, global::Android.Views.KeyEventActions.Down, navigationKey, 0
+			));
+			return;
+		}
+
+		inputConnection.SendKeyEvent(new global::Android.Views.KeyEvent(
+			0, 0, global::Android.Views.KeyEventActions.Up, navigationKey, 0
+		));
+		inputConnection.SendKeyEvent(new global::Android.Views.KeyEvent(
+			0, 0, global::Android.Views.KeyEventActions.Up, global::Android.Views.Keycode.ShiftLeft, 0
+		));
 	}
 
 	static readonly IReadOnlyDictionary<IKeyChar, IKeyChar> ShiftKeyMap = new Dictionary<IKeyChar, IKeyChar>{
